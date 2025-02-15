@@ -1,0 +1,7 @@
+export const USERS_CHAT_ORIGINAL = "USERS_CHAT_ORIGINAL";
+
+// users chat
+export const USERS_CHAT_GET_ALL = "USERS_CHAT_GET_ALL";
+export const GET_CONTACT_BY_ID = "GET_CONTACT_BY_ID";
+export const GET_MESSAGES = "GET_MESSAGES";
+export const GET_CONTACTS_FOR_DM = "GET_CONTACTS_FOR_DM";

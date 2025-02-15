@@ -1,0 +1,10 @@
+export const AUTH = "AUTH";
+export const LOGIN_AUTH = "LOGIN_AUTH";
+export const LOG_OUT_AUTH = "LOG_OUT_AUTH";
+export const IS_TOKEN_VALID = "IS_TOKEN_VALID";
+export const GET_ALL_USERS = "GET_ALL_USERS";
+export const GET_CURRENT_USER_INFO = "GET_CURRENT_USER_INFO";
+export const CHANGE_PASSWORD = "CHANGE_PASSWORD";
+export const SEND_CLIENT_OTP = "SEND_CLIENT_OTP";
+export const VERIFY_OTP = "VERIFY_OTP";
+export const CHANGE_CLIENT_PASSWORD = "CHANGE_CLIENT_PASSWORD";

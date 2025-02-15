@@ -1,0 +1,10 @@
+export const POST_REFRESH_TOKEN_POINT = "account/auth/refreshToken";
+export const LOGIN_POINT = "account/auth/login";
+export const IS_TOKEN_VALID_POINT = "account/auth/isTokenValid";
+export const GET_ALL_USERS_POINT = "account/getAllUsers";
+export const GET_CURRENT_USER_INFO_POINT = "account/currentUserInfo";
+export const LOG_OUT_POINT = "account/auth/logout";
+export const CHANGE_PASSWORD_POINT = "account/auth/changePassword";
+export const SEND_CLIENT_OTP_POINT = "account/auth/sendClientOtp";
+export const VERIFY_OTP_POINT = "account/auth/verifyOtp";
+export const CHANGE_CLIENT_PASSWORD_POINT = "account/auth/changeClientPassword";

@@ -1,0 +1,292 @@
+:root {
+  --animate-delay: 0.5s;
+}
+
+@font-face {
+  font-family: "Estedad";
+  src: url("../public/fonts/webfonts/variable/Estedad-FD[KSHD,wght].woff2")
+    format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Change the white to any color */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  -ms-overflow-style: thin; /* برای Internet Explorer */
+  scrollbar-face-color: #aaa;
+  scrollbar-track-color: transparent;
+  scroll-behavior: smooth;
+  direction: rtl;
+  text-align: right;
+  font-family: "Estedad", serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 1rem;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+/* استایل‌های اصلی اسکرول‌بار */
+* {
+  scrollbar-width: thin; /* برای Firefox */
+  scrollbar-color: #aaa transparent; /* برای Firefox */
+}
+
+/* عرض اسکرول‌بار */
+::-webkit-scrollbar {
+  width: 2px;
+}
+
+/* مسیر اسکرول‌بار */
+::-webkit-scrollbar-track {
+  border-radius: 16px;
+}
+
+/* دستگیره اسکرول‌بار */
+::-webkit-scrollbar-thumb {
+  background: #aaa;
+  border-radius: 10px;
+  -webkit-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+  -ms-transition: all 0.4s;
+  -o-transition: all 0.4s;
+  transition: all 0.4s;
+}
+
+/* حالت هاور روی دستگیره */
+::-webkit-scrollbar-thumb:hover {
+  background: #959595;
+}
+.menu-item-custom.open-child li {
+  display: block;
+  font-size: 15px !important;
+  margin-bottom: 0 !important;
+  margin-top: 16px;
+  margin-right: 8px;
+}
+.menu-item-custom.open-child li:hover {
+  background: rgba(215, 209, 250, 0.78);
+}
+.menu-item-custom > li {
+  display: none;
+  margin-bottom: 0 !important;
+}
+
+.profile-card-custom {
+  background: url("../public/images/core/cover_2.png") center no-repeat;
+  background-size: cover;
+}
+
+.food-image-cover {
+  background: url("../public/images/core/FoodCover.png") center no-repeat;
+  background-size: cover;
+}
+.filepond--credits {
+  display: none !important;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+  -webkit-appearance: none; /* Safari و Chrome */
+  appearance: none; /* استاندارد */
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0; /* حذف دکمه‌های چرخشی */
+}
+
+.filepond--root {
+  overflow: hidden; /* جلوگیری از تغییر اندازه */
+}
+
+.filepond--image-preview {
+  max-height: 170px; /* حداکثر ارتفاع پیش‌نمایش */
+  object-fit: cover; /* جلوگیری از تغییر نسبت ابعاد */
+}
+
+.pulse {
+  animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+  }
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.bounce-group:hover .bounce {
+  animation: bounce 0.5s ease-in-out forwards; /* زمان و نوع انیمیشن */
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-18px); /* مقدار بالا رفتن */
+  }
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  height: 25px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.line {
+  border-radius: 20px;
+  height: 3px;
+  background-color: rgb(128, 128, 128);
+  transition: all 0.3s ease;
+}
+
+.open .line:nth-child(1) {
+  width: 15px;
+  transform: rotate(45deg) translate(5px, 1px);
+}
+.open .line:nth-child(2) {
+  width: 32px;
+}
+.open .line:nth-child(3) {
+  width: 15px;
+  transform: rotate(-45deg) translate(5px, -1px);
+}
+
+.scroll-container {
+  overflow-y: auto; /* مخفی کردن اسکرول بار */
+}
+
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto !important;
+}
+
+.sender-icon {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.current-text-card:not(:has(+ .current-text-card)) .sender-icon,
+.owner-text-card:not(:has(+ .owner-text-card)) .sender-icon {
+  opacity: 1;
+}
+
+@supports not (selector(:has(*))) {
+  .current-text-card.last-message .sender-icon,
+  .owner-text-card.last-message .sender-icon {
+    opacity: 1;
+  }
+}
+
+.text-box {
+  border-radius: 8px;
+}
+
+/* برای مرورگرهای مدرن که از :has پشتیبانی می‌کنند */
+.current-text-card:not(:has(+ .current-text-card)) .text-box {
+  border-radius: 8px 8px 0 8px;
+}
+
+.owner-text-card:not(:has(+ .owner-text-card)) .text-box {
+  border-radius: 8px 8px 8px 0;
+}
+
+/* برای مرورگرهای قدیمی که از :has پشتیبانی نمی‌کنند */
+@supports not (selector(:has(*))) {
+  .current-text-card.last-message .text-box {
+    border-radius: 8px 8px 0 8px;
+  }
+
+  .owner-text-card.last-message .text-box {
+    border-radius: 8px 8px 8px 0;
+  }
+}
+
+.custom-bounce {
+  animation: bounce 0.8s infinite;
+}
+
+.custom-bounce:nth-child(1) {
+  animation-delay: -0.3s;
+}
+
+.custom-bounce:nth-child(2) {
+  animation-delay: -0.15s;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.25rem); /* مقدار کمتر برای پرش کوتاه‌تر */
+  }
+}
+
+@keyframes spin-smooth {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-smooth {
+  animation: spin-smooth 1.8s linear infinite; /* تنظیم مدت زمان به 2 ثانیه */
+}
+
+.image-effect {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.image-effect img {
+  width: 100%; /* یا هر عرض دلخواه */
+  height: auto; /* حفظ نسبت تصویر */
+  filter: blur(4px) saturate(100%); /* محو کردن و کاهش شدت رنگ */
+}
+
+
+.image-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.1); /* لایه سفید با شفافیت */
+  pointer-events: none; /* جلوگیری از تداخل با تعاملات کاربر */
+}
+

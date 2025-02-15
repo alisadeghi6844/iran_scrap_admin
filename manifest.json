@@ -1,0 +1,21 @@
+{
+  "theme_color": "#000000",
+  "background_color": "#ff00e1",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "dir": "rtl",
+  "lang": "fa",
+  "name": "vira",
+  "short_name": "vira",
+  "environment": "production",
+  "description": "نرم افزار مدیریت پروژه ویرا",
+  "orientation": "portrait",
+  "icons": [
+      {
+          "src": "/logo1.svg",
+          "sizes": "192x192",
+    "type": "image/svg+xml"
+      }
+  ]
+}

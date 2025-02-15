@@ -1,0 +1,1 @@
+export const delay_stop_is_typing = 2500;

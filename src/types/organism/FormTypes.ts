@@ -1,0 +1,16 @@
+export interface FormTypes extends React.HTMLProps<HTMLElement>{
+    initialValues?:any,
+    className?:string,
+    handleSubmit?: any,
+    items?:any,
+    submitFullButton?:any,
+    spacingY?:number,
+    shadow?:string,
+    loading?:any,
+    mode?:string,
+    style?:any,
+    resetForm?:any,
+    validationSchema?:any,
+    filterButtonText?:string,
+    submitButtonSize?:string,
+}
