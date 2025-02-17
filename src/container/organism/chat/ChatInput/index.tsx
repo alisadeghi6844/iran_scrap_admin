@@ -50,11 +50,13 @@ const ChatInput = () => {
   };
 
   const handleSendMessage = (e: any) => {
+    const isChatBot = searchParams.get("isChatBot")
     e.preventDefault();
     if (currentUserData._id && searchParams.get("userId")) {
       if (inputValue?.length) {
         socket.emit("sendMessage", {
           sender: currentUserData._id,
+          isChatBot:isChatBot=="chatBot",
           content: {
             text: inputValue,
             contentType: "text",

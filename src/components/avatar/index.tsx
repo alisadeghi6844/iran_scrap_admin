@@ -48,13 +48,15 @@ const Avatar: React.FC<AvatarTypes> = (props) => {
         } rounded-full relative`}
       >
         {image ? (
-          <Image
+          <div className="rounded-full flex justify-center items-center w-full h-full bg-white">
+            <Image
             src={image}
             className={`
             rounded-full
-            w-full h-full
+            w-[80%] h-[80%]
             `}
           />
+            </div>
         ) : (
           <div
             className={`w-full h-full rounded-full flex items-center justify-center text-lg font-bold text-white`}
@@ -75,7 +77,7 @@ const Avatar: React.FC<AvatarTypes> = (props) => {
             variant === "secondary" ? "text-white" : "text-gray-900"
           } ${
             size === "lg"
-              ? "text-lg"
+              ? "text-md"
               : size === "md"
               ? "text-[15px]"
               : "text-lg"

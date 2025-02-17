@@ -5,10 +5,12 @@ import { VitePWA } from 'vite-plugin-pwa';
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
+    host: '0.0.0.0', // این خط باعث می‌شود که سرور به همه IPها دسترسی داشته باشد
+    port: 5173, // پورت سرور
     hmr: {
       protocol: 'ws', // یا 'wss' برای ارتباط امن
-      host: 'localhost', // یا IP سرور شما
-      port: 3000, // پورت HMR
+      host: 'localhost', // برای HMR به همه IPها اجازه دسترسی می‌دهد
+      port: 5173, // پورت HMR
     },
   },
   plugins: [

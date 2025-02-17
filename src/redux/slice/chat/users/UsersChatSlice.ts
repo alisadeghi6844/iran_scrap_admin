@@ -5,6 +5,7 @@ import {
   getAllUsersChatAction,
   getMessagesAction,
   getContactsForDmAction,
+  getStaticContactsAction,
 } from "../../../actions/chat/users/UsersChatActions";
 
 interface UsersChatState {
@@ -23,6 +24,10 @@ interface UsersChatState {
   getContactsForDmError: string | null;
   getContactsForDmLoading: boolean;
   getContactsForDmData: any;
+
+  getStaticContactsError: string | null;
+  getStaticContactsLoading: boolean;
+  getStaticContactsData: any;
 }
 
 const initialState: UsersChatState = {
@@ -41,6 +46,10 @@ const initialState: UsersChatState = {
   getContactsForDmError: null,
   getContactsForDmLoading: false,
   getContactsForDmData: [],
+
+  getStaticContactsError: null,
+  getStaticContactsLoading: false,
+  getStaticContactsData: [],
 };
 
 const usersChatSlice = createSlice({
@@ -115,28 +124,50 @@ const usersChatSlice = createSlice({
         }
       )
 
-            // get contacts for dm
-            .addCase(getContactsForDmAction.pending, (state) => {
-              state.getContactsForDmLoading = true;
-      
-              state.getContactsForDmError = null;
-            })
-            .addCase(
-              getContactsForDmAction.fulfilled,
-              (state, action: PayloadAction<any>) => {
-                state.getContactsForDmLoading = false;
-                state.getContactsForDmData = action.payload;
-                state.getContactsForDmError = null;
-              }
-            )
-            .addCase(
-              getContactsForDmAction.rejected,
-              (state, action: PayloadAction<string>) => {
-                state.getContactsForDmLoading = false;
-                state.getContactsForDmError = action.payload;
-                state.getContactsForDmData = [];
-              }
-            );
+      // get contacts for dm
+      .addCase(getContactsForDmAction.pending, (state) => {
+        state.getContactsForDmLoading = true;
+
+        state.getContactsForDmError = null;
+      })
+      .addCase(
+        getContactsForDmAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.getContactsForDmLoading = false;
+          state.getContactsForDmData = action.payload;
+          state.getContactsForDmError = null;
+        }
+      )
+      .addCase(
+        getContactsForDmAction.rejected,
+        (state, action: PayloadAction<string>) => {
+          state.getContactsForDmLoading = false;
+          state.getContactsForDmError = action.payload;
+          state.getContactsForDmData = [];
+        }
+      )
+      // get static contacts
+      .addCase(getStaticContactsAction.pending, (state) => {
+        state.getStaticContactsLoading = true;
+
+        state.getStaticContactsError = null;
+      })
+      .addCase(
+        getStaticContactsAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.getStaticContactsLoading = false;
+          state.getStaticContactsData = action.payload;
+          state.getStaticContactsError = null;
+        }
+      )
+      .addCase(
+        getStaticContactsAction.rejected,
+        (state, action: PayloadAction<string>) => {
+          state.getStaticContactsLoading = false;
+          state.getStaticContactsError = action.payload;
+          state.getStaticContactsData = [];
+        }
+      );
   },
 });
 
@@ -168,5 +199,12 @@ export const selectGetContactsForDmLoading = (state: any) =>
   state.usersChat.getContactsForDmLoading;
 export const selectGetContactsForDmData = (state: any) =>
   state.usersChat.getContactsForDmData;
+
+export const selectGetStaticContactsError = (state: any) =>
+  state.usersChat.getStaticContactsError;
+export const selectGetStaticContactsLoading = (state: any) =>
+  state.usersChat.getStaticContactsLoading;
+export const selectGetStaticContactsData = (state: any) =>
+  state.usersChat.getStaticContactsData;
 
 export default usersChatSlice.reducer;

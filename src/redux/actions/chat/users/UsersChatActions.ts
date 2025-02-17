@@ -3,10 +3,17 @@ import {
   GET_CONTACT_BY_ID,
   GET_CONTACTS_FOR_DM,
   GET_MESSAGES,
+  GET_STATIC_CONTACTS,
   USERS_CHAT_GET_ALL,
   USERS_CHAT_ORIGINAL,
 } from "../../../types/chat/users/UsersChatTypes";
-import {  getAllUsersChatService, getContactByIdService, getContactsForDmService, getMessagesService } from "../../../service/chat/users/UsersChatServise";
+import {
+  getAllUsersChatService,
+  getContactByIdService,
+  getContactsForDmService,
+  getMessagesService,
+  getStaticContactsService,
+} from "../../../service/chat/users/UsersChatServise";
 
 let getAllQuery: any = null;
 
@@ -70,6 +77,24 @@ export const getContactsForDmAction = createAsyncThunk(
   async (credentials: any, { rejectWithValue }: any) => {
     try {
       const response = await getContactsForDmService(credentials);
+      if (response?.status === 200) {
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const getStaticContactsAction = createAsyncThunk(
+  `${USERS_CHAT_ORIGINAL}/${GET_STATIC_CONTACTS}`,
+  async (credentials: any, { rejectWithValue }: any) => {
+    try {
+      const response = await getStaticContactsService(credentials);
       if (response?.status === 200) {
         return response.data;
       } else {

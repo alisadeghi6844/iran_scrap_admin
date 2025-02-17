@@ -5,9 +5,14 @@ import Typography from "../../../../components/typography/Typography";
 import Badge from "../../../../components/badge/Badge";
 import { formatDate } from "../../../../utils/MomentConvertor";
 import { useSearchParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectSocketOnlineContactUserData } from "../../../../redux/slice/chat/socket/socketSlice";
 import { useEffect, useState } from "react";
+import {
+  selectGetStaticContactsData,
+  selectGetStaticContactsLoading,
+} from "../../../../redux/slice/chat/users/UsersChatSlice";
+import { getStaticContactsAction } from "../../../../redux/actions/chat/users/UsersChatActions";
 
 interface TypingUser {
   userId: string;
@@ -33,6 +38,9 @@ const CurrentChats: React.FC<CurrentChatsType> = (props) => {
   const { currentChatData, isTypingUsers } = props;
   const [tabValue, setTabValue] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const staticContactData = useSelector(selectGetStaticContactsData);
+  const staticContactLoading = useSelector(selectGetStaticContactsLoading);
 
   const onlineUsers = useSelector(selectSocketOnlineContactUserData);
 
@@ -68,6 +76,16 @@ const CurrentChats: React.FC<CurrentChatsType> = (props) => {
       notif: "0",
     },
   ];
+
+  const dispatch: any = useDispatch();
+
+  useEffect(() => {
+    dispatch(getStaticContactsAction());
+  }, []);
+
+  useEffect(() => {
+    console.log("staticContactData", staticContactData?.data);
+  }, [staticContactData]);
 
   return (
     <div>
@@ -106,6 +124,27 @@ const CurrentChats: React.FC<CurrentChatsType> = (props) => {
         </div>
       </div>
       <div className="px-2 mt-4">
+        <div>
+          {staticContactData?.data?.length
+            ? staticContactData?.data?.map((item: any) => (
+                <div>
+                  <UserDraverCard
+                    key={item._id}
+                    active={
+                      searchParams.get("userId")
+                        ? searchParams.get("userId") === item?._id
+                        : null
+                    }
+                    chatBot
+                    notif={21}
+                    id={item?._id}
+                    image={"/images/chat/AI_Icon.png"}
+                    title={item?.name}
+                  />
+                </div>
+              ))
+            : null}
+        </div>
         {currentChatData?.map((item: ChatData) => {
           const isTyping = isTypingUsers?.some(
             (typingUser) => typingUser.userId === item?.contactInfo?._id
@@ -113,7 +152,7 @@ const CurrentChats: React.FC<CurrentChatsType> = (props) => {
 
           // چک کردن آنلاین بودن کاربر
           const isUserOnline = onlineUsers?.onlineContactUsers?.some(
-            (user:any) => user._id === item?.contactInfo?._id
+            (user: any) => user._id === item?.contactInfo?._id
           );
 
           return (

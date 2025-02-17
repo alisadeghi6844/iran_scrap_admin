@@ -89,7 +89,6 @@ const ChatPage = () => {
 
 
   useEffect(() => {
-    console.log("chatRemoveData",chatRemoveData)
     if (getMessagesData?.data) {
       setData((prevData: any) => {
         const uniqueMessages = getMessagesData.data.filter(
@@ -99,7 +98,6 @@ const ChatPage = () => {
         );
         const newData = [...prevData, ...uniqueMessages];
   
-        // اگر اولین بار است، بعد از آپدیت دیتا اسکرول را انجام می‌دهیم
         if (isInitialLoad) {
           scrollToBottom();
           requestAnimationFrame(() => {
@@ -115,7 +113,6 @@ const ChatPage = () => {
   
       setHasMore(getMessagesData.page < getMessagesData.totalPages);
   
-      // فقط برای لود‌های بعدی این قسمت اجرا شود
       if (!isInitialLoad) {
         const scrollContainer = scrollContainerRef.current;
         if (scrollContainer) {
