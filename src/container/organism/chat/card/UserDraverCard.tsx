@@ -40,7 +40,7 @@ const UserDraverCard: React.FC<UserDraverCardProps> = (props) => {
 
   return (
     <div
-      className={`flex justify-between items-center px-2 py-3 rounded-xl cursor-pointer transition-all ${
+      className={`flex justify-between items-center p-2 rounded-xl cursor-pointer transition-all ${
         active ? "bg-primary-500" : "bg-transparent hover:bg-gray-100"
       } `}
       onClick={handleClickChat}

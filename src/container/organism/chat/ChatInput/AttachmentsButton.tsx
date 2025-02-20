@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { IoMdAttach } from "react-icons/io";
+import { LuCirclePlus } from "react-icons/lu";
+
 import { FaFileAlt } from "react-icons/fa";
 import { FaRegImage } from "react-icons/fa6";
 import OutsideClickHandler from "react-outside-click-handler";
+import { Tooltip } from "react-tooltip";
 
 
 interface AttachmentsButtonTypes{
@@ -34,16 +36,17 @@ const AttachmentsButton:React.FC<AttachmentsButtonTypes> = (props) => {
         }}
       >
         <div
+        data-tooltip-id="attachment_button" data-tooltip-content="آپلود فایل"
           onClick={toggleBox}
-          className="w-[50px] -mr-3 h-[60px] rounded-l-xl flex text-gray-700 items-center justify-center bg-white cursor-pointer transition-all hover:bg-gray-200"
         >
-          <IoMdAttach className="text-2xl" />
+          <LuCirclePlus className="text-[26px] text-[#A1A1A1] transition-all hover:text-primary-500 cursor-pointer" />
         </div>
+        <Tooltip id="attachment_button" />
         {isVisible ? (
           <div
-            className={`absolute min-w-[160px] bottom-full mb-2 left-0 bg-white rounded-xl flex flex-col justify-center items-center overflow-hidden duration-200 ${
+            className={`absolute min-w-[160px] bottom-[110%] mb-2 -left-4 bg-white rounded-xl flex flex-col justify-center items-center overflow-hidden duration-200 shadow-lg ${
               openBox
-                ? "min-h-[50px] p-1 block translate-y-0"
+                ? "min-h-[40px] p-1 block translate-y-0"
                 : " p-0 hidden -translate-y-4"
             } transition-all`}
           >

@@ -1,10 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ChatInputRightIcon from "../../../../components/icon/custom/ChatInputRightIcon";
 import VideoCard from "./VideoCard";
 import RenderReplayTo from "./ReplayTo";
 import RenderTimeAndCheckIcon from "./RenderTimeAndCheckIcon";
 import ImageCard from "./ImageCard";
 import DocumentCard from "./DocumentCard";
+import { useSearchParams } from "react-router-dom";
+import AIRenderMessage from "./AIRendermessage";
 
 interface TextCardTypes {
   isCurrentUser?: boolean;
@@ -49,13 +51,22 @@ const TextCard: React.FC<TextCardTypes> = (props) => {
   const textColorClass = isCurrentUser ? "text-black" : "text-black";
   const bgColorClass = isCurrentUser ? "bg-primary-300" : "bg-white";
 
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const renderContent = () => {
     if (isTextContent) {
       return (
-        <div className={`text-[15px] break-words ${textColorClass}`}>
-          {message}
-        </div>
+        <>
+          {searchParams.get("isChatBot") === "chatBot" ? (
+            <>
+            <AIRenderMessage message={message}/>
+            </>
+          ) : (
+            <div className={`text-[15px] break-words ${textColorClass}`}>
+              {message}
+            </div>
+          )}
+        </>
       );
     }
 
@@ -115,7 +126,7 @@ const TextCard: React.FC<TextCardTypes> = (props) => {
       }`}
     >
       <div
-        className={`${isTextContent ? "w-auto max-w-[43%]" : "w-auto"} ${
+        className={`${isTextContent ? "w-auto max-w-[70%]" : "w-auto"} ${
           isMediaContent && !hasMessage
             ? "max-w-[40%] min-w-[25%] w-full border-2 border-primary-300 rounded-lg"
             : `p-2 pb-6 ${bgColorClass}`

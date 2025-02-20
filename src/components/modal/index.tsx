@@ -26,14 +26,14 @@ const Modal:React.FC<ModalTypes> = (props) => {
       {!hideBackground ? (
         <div
           onClick={() => onClose()}
-          className={`w-full h-full fixed top-0 right-0 z-50 ${bgColor?bgColor:"bg-gray-800 opacity-80"}  ${
+          className={`w-full h-full fixed top-0 right-0 z-[999] ${bgColor?bgColor:"bg-gray-800 opacity-80"}  ${
             open ? "block" : "hidden"
           }`}
         />
       ) : null}
 
       <div
-        className={`z-50 border-[3px] border-primary-500 fixed overflow-y-auto top-1/2 right-1/2 max-h-[95vh] ${
+        className={`z-[9999] fixed overflow-y-auto top-1/2 right-1/2 max-h-[95vh] ${
           bgModal ? bgModal : "bg-white"
         } px-4 pb-4 ${
           hideIcon ? "pt-4" : "pt-10"
@@ -55,7 +55,7 @@ const Modal:React.FC<ModalTypes> = (props) => {
         {...rest}
       >
  
-        <div className="-mt-6">
+        {headerTitle?(<div className="-mt-6">
           <div className="flex items-center">
             {headerIcon ? headerIcon : null}
             {headerTitle ? (
@@ -65,7 +65,7 @@ const Modal:React.FC<ModalTypes> = (props) => {
             ) : null}
           </div>
           {headerSubTitle ? <Typography>{headerTitle}</Typography> : null}
-        </div>
+        </div>):null}
         {!hideIcon ? (
           <div
             className="absolute cursor-pointer top-2 left-2 z-20"

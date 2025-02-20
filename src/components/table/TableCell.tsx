@@ -2,7 +2,7 @@ import { TableCellTypes } from "../../types/components/table/TableCellTypes";
 import TextOverflow from "../../utils/TextOverflow";
 
 const TableCell: React.FC<TableCellTypes> = (props) => {
-  const { children, className, tdClassName, ...rest } = props;
+  const { children, className, tdClassName,textNumber=50, ...rest } = props;
   return (
     <td
       className={`whitespace-nowrap border bg-transparent shadow-transparent dark:border-dark-gray-400 text-[16px] ${
@@ -15,7 +15,7 @@ const TableCell: React.FC<TableCellTypes> = (props) => {
           className ? className : ""
         }`}
       >
-        <TextOverflow number={50}>{children}</TextOverflow>
+        <TextOverflow number={textNumber}>{children}</TextOverflow>
       </div>
     </td>
   );

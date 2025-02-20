@@ -124,7 +124,7 @@ const CurrentChats: React.FC<CurrentChatsType> = (props) => {
         </div>
       </div>
       <div className="px-2 mt-4">
-        <div>
+        <div className="pb-2 mb-2 border-b border-primary-200">
           {staticContactData?.data?.length
             ? staticContactData?.data?.map((item: any) => (
                 <div>

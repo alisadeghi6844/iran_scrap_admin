@@ -15,7 +15,7 @@ const ChatContainer: React.FC<ChatContainerTypes> = (props) => {
     <div className="w-full h-full flex flex-col justify-end relative">
      <ChatHeaderFeature />
       <div
-        className={`h-full relative w-full px-4`}
+        className={`h-full relative w-full `}
       >
         <ChatPage />
       </div>

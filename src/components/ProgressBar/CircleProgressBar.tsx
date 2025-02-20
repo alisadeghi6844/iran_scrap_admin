@@ -31,7 +31,7 @@ const CircleProgressBar = ({
   downloadedSize?: any;
   onClickStopDownload?: any;
 }) => {
-  const radius = size === "small" ? 12 : type === "simple" ? 16 : 23;
+  const radius = size === "small" ? 12 : type === "simple" ? 16 : 18;
   const strokeWidth = 2;
   const circumference = 2 * Math.PI * radius;
 

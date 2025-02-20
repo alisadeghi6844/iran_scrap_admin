@@ -1,9 +1,8 @@
 import React, { useRef, useState } from "react";
-import { BsFillSendFill } from "react-icons/bs";
-import ChatInputRightIcon from "../../../../components/icon/custom/ChatInputRightIcon";
+import { IoMdSend } from "react-icons/io";
+
 import OutsideClickHandler from "react-outside-click-handler";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import EmojiIcon from "../../../../components/icon/custom/EmojiIcon";
 import AttachmentsButton from "./AttachmentsButton";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
@@ -13,6 +12,10 @@ import useDebounce from "../../../../hooks/UseDebounce";
 import { delay_stop_is_typing } from "../../../../config/chat";
 import Modal from "../../../../components/modal";
 import FileUpload from "../../../features/chat/fileUpload/FileUpload";
+import { MdOutlineKeyboardVoice } from "react-icons/md";
+import { Tooltip } from "react-tooltip";
+import { BsEmojiSmile } from "react-icons/bs";
+import { RiAiGenerate } from "react-icons/ri";
 
 const ChatInput = () => {
   const [inputValue, setInputValue] = useState<string>("");
@@ -50,13 +53,17 @@ const ChatInput = () => {
   };
 
   const handleSendMessage = (e: any) => {
-    const isChatBot = searchParams.get("isChatBot")
+    const isChatBot = searchParams.get("isChatBot");
     e.preventDefault();
-    if (currentUserData._id && searchParams.get("userId")) {
+    if (
+      currentUserData._id &&
+      searchParams.get("userId") &&
+      inputValue?.length
+    ) {
       if (inputValue?.length) {
         socket.emit("sendMessage", {
           sender: currentUserData._id,
-          isChatBot:isChatBot=="chatBot",
+          isChatBot: isChatBot == "chatBot",
           content: {
             text: inputValue,
             contentType: "text",
@@ -88,74 +95,116 @@ const ChatInput = () => {
     delay
   );
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSendMessage(e);
     }
   };
   return (
-    <form
-      className="w-full flex items-center justify-center gap-x-2"
-      onSubmit={handleSendMessage}
-    >
-      <Modal
-        size="md"
-        open={openAttachModal}
-        onClose={() => setOpenAttachModal(false)}
+    <div>
+      <form
+        className="w-full flex items-center justify-center gap-x-2"
+        onSubmit={handleSendMessage}
       >
-        <FileUpload  onClose={() => setOpenAttachModal(false)} openAttachModal={openAttachModal} attachType={attachType} />
-      </Modal>
-      <button
-        type="submit"
-        className="w-[54px] h-[54px] rounded-full flex justify-center items-center bg-white transition-all text-primary-500 cursor-pointer hover:bg-primary-500 hover:text-white"
-      >
-        <BsFillSendFill className="text-2xl mt-[2px] mr-[2px]" />
-      </button>
-      <div className="w-full relative flex-1">
-        <div className="-right-[14px] -bottom-[6.5px] absolute">
-          <ChatInputRightIcon />
-        </div>
-        <input
-        onKeyPress={handleKeyPress}
-          ref={inputRef}
-          value={inputValue}
-          onChange={(e: any) => {
-            handleTypeInput(e);
-          }}
-          placeholder="پیامی بنویسید ......"
-          className="w-full bg-white  rounded-tr-xl py-[18px] outline-none px-14"
-        />
-        <div className="cursor-pointer absolute right-4 top-1/2 -translate-y-1/2">
-          <div onClick={togglePicker}>
-            <EmojiIcon />
-          </div>
-          {isPickerOpen && (
-            <OutsideClickHandler
-              onOutsideClick={() => {
-                setPickerOpen(false);
-              }}
-            >
-              <div
-                className="absolute bottom-12 -left-20 z-10"
-                style={{ direction: "ltr" }}
+        <Modal
+          size="md"
+          open={openAttachModal}
+          onClose={() => setOpenAttachModal(false)}
+        >
+          <FileUpload
+            onClose={() => setOpenAttachModal(false)}
+            openAttachModal={openAttachModal}
+            attachType={attachType}
+          />
+        </Modal>
+        <div className="w-full relative flex-1">
+          <textarea
+            ref={inputRef}
+            onKeyPress={handleKeyPress}
+            value={inputValue}
+            onChange={handleTypeInput}
+            placeholder={
+              searchParams?.get("isChatBot") === "chatBot"
+                ? "هر سوالی داری بپرس..."
+                : "پیام خود را بنویسید ..."
+            }
+            className="w-full bg-white border text-md border-transparent rounded-t-lg p-3 -mb-2 outline-none resize-none min-h-[50px] max-h-[160px] overflow-y-auto"
+            rows={1} // تنظیم تعداد ردیف‌های اولیه
+            style={{
+              height: inputValue
+                ? `${inputRef.current.scrollHeight}px`
+                : "50px",
+            }}
+            spellCheck="true"
+          />
+          <div className="w-full bg-white h-[48px] rounded-b-lg border-t z-20 relative border-gray-300 flex items-center p-3 justify-between">
+            <div>
+              <button
+                type="submit"
+                className={`w-[37px] h-[37px] rounded-full flex justify-center items-center transition-all ${
+                  inputValue?.length
+                    ? "bg-primary-500 cursor-pointer text-white"
+                    : "text-white bg-gray-400 cursor-not-allowed"
+                }`}
               >
-                <EmojiPicker
-                  onEmojiClick={onEmojiClick}
-                  autoFocusSearch={false}
-                  width={300}
-                  height={400}
-                />
+                <IoMdSend className="text-[24px] ml-1" />
+              </button>
+            </div>
+            <div className="flex items-center gap-x-4 flex-row-reverse">
+              <AttachmentsButton
+                onClickAttachment={(e: any) => {
+                  setOpenAttachModal(true);
+                  setAttachType(e);
+                }}
+              />
+              <MdOutlineKeyboardVoice
+                data-tooltip-id="voice_button"
+                data-tooltip-content="ورودی صوتی"
+                className="text-[26px] text-[#A1A1A1] transition-all hover:text-primary-500 cursor-pointer outline-none"
+              />
+              <Tooltip id="voice_button" />
+              <div
+                onClick={togglePicker}
+                data-tooltip-id="emoji_button"
+                data-tooltip-content="اموجی"
+              >
+                <BsEmojiSmile className="text-[26px] text-[#A1A1A1] transition-all hover:text-primary-500 cursor-pointer" />
               </div>
-            </OutsideClickHandler>
-          )}
+              <Tooltip id="emoji_button" />
+              {isPickerOpen && (
+                <OutsideClickHandler
+                  onOutsideClick={() => {
+                    setPickerOpen(false);
+                  }}
+                >
+                  <div
+                    className="absolute bottom-12 -mr-[10%] z-10"
+                    style={{ direction: "ltr" }}
+                  >
+                    <EmojiPicker
+                      onEmojiClick={onEmojiClick}
+                      autoFocusSearch={false}
+                      width={300}
+                      height={400}
+                    />
+                  </div>
+                </OutsideClickHandler>
+              )}
+              <RiAiGenerate
+                data-tooltip-id="AI_button"
+                data-tooltip-content="اصلاح متن با هوش مصنوعی"
+                className={`text-[26px] text-[#A1A1A1] transition-all outline-none  ${
+                  inputValue?.length
+                    ? "cursor-pointer hover:text-primary-500"
+                    : " cursor-not-allowed"
+                }`}
+              />
+              <Tooltip id="AI_button" />
+            </div>
+          </div>
         </div>
-      </div>
-      <AttachmentsButton
-        onClickAttachment={(e: any) => {
-          setOpenAttachModal(true);
-          setAttachType(e);
-        }}
-      />
-    </form>
+      </form>
+    </div>
   );
 };
+
 export default ChatInput;

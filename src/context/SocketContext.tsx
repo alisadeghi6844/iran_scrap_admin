@@ -11,7 +11,10 @@ import {
   socketProgressUploadAction,
 } from "../redux/actions/chat/socket/SocketActions";
 import { GetToken } from "../api/getToken";
-import { socketProgressDownloadAction, socketStopDownloadAction } from "../redux/actions/chat/socket/DownloadActions";
+import {
+  socketProgressDownloadAction,
+  socketStopDownloadAction,
+} from "../redux/actions/chat/socket/DownloadActions";
 
 const SocketContext = createContext(null);
 
@@ -68,7 +71,6 @@ const useSocketConnection = (userData: any) => {
         });
 
         socketRef.current.on("disconnect", (reason: any) => {
-
           setIsConnecting(false);
 
           if (reason === "io server disconnect") {
@@ -84,7 +86,6 @@ const useSocketConnection = (userData: any) => {
             userData._id === message.sender ||
             userData._id === message.recipient
           ) {
-
             dispatch(getMessagesAction(message));
           }
           socketRef.current.emit("callUserChat", {
@@ -92,9 +93,9 @@ const useSocketConnection = (userData: any) => {
           });
         };
 
-        const hanldeRemoveMessage =(messageId:string)=>{
-          dispatch(removeMessagesAction(messageId))
-        }
+        const hanldeRemoveMessage = (messageId: string) => {
+          dispatch(removeMessagesAction(messageId));
+        };
 
         const handleUploadProgress = ({
           progress,
@@ -123,19 +124,18 @@ const useSocketConnection = (userData: any) => {
           dispatch(socketProgressDownloadAction(data));
         };
 
-        const handleStopDownload =(data:any)=>{
+        const handleStopDownload = (data: any) => {
           dispatch(socketStopDownloadAction(data));
-        }
-
+        };
 
         socketRef.current.on("reciveMessage", handleReciveMessage);
-        socketRef.current.on("deleteMessage",hanldeRemoveMessage);
+        socketRef.current.on("deleteMessage", hanldeRemoveMessage);
         socketRef.current.on("uploadProgress", handleUploadProgress);
         socketRef.current.on("getCurrentChats", handleGetCurrentChats);
         socketRef.current.on("user:typing", getUserIsTyping);
         socketRef.current.on("onlineContactUsers", getOnlineContactUsers);
-        socketRef.current.on("downloadProgress", downloadProgressBar); 
-        socketRef.current.on("downloadStopped", handleStopDownload); 
+        socketRef.current.on("downloadProgress", downloadProgressBar);
+        socketRef.current.on("downloadStopped", handleStopDownload);
 
         // شروع اتصال بعد از تنظیم همه event listeners
         socketRef.current.connect();
@@ -144,7 +144,7 @@ const useSocketConnection = (userData: any) => {
           clearTimeout(reconnectTimer);
           if (socketRef.current) {
             socketRef.current.off("reciveMessage", handleReciveMessage);
-            socketRef.current.off("deleteMessage",hanldeRemoveMessage);
+            socketRef.current.off("deleteMessage", hanldeRemoveMessage);
             socketRef.current.off("uploadProgress", handleUploadProgress);
             socketRef.current.off("getCurrentChats", handleGetCurrentChats);
             socketRef.current.off("user:typing", getUserIsTyping);

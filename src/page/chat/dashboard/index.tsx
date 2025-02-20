@@ -49,7 +49,7 @@ const ChatDashboard = () => {
       }}
     >
       {userId ? (
-        <div className="pt-[116px] px-[14%] w-full max-h-[100vh] h-full pb-4">
+        <div className="pt-[116px] px-[5%] w-full max-h-[100vh] h-full pb-4">
           <ChatContainer params={searchParams} />
         </div>
       ) : null}

@@ -49,7 +49,9 @@ export const renderMessages: React.FC<RenderMessagesTypes> = ({
             </div>
           )}
           {currentUserData?.data?._id &&
-            (userId === message.sender || userId === message.recipient) &&
+            (userId === message.sender ||
+              userId === message.recipient ||
+              userId === message.recipientAI) &&
             renderDMMessages(message, myData, uploadProgress)}
         </div>
       );
@@ -58,7 +60,6 @@ export const renderMessages: React.FC<RenderMessagesTypes> = ({
 
 const renderDMMessages = (message: any, myData: any, uploadProgress: any) => {
   const messageType = message.messageType;
-
 
   return (
     <>

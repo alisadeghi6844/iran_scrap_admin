@@ -310,7 +310,7 @@ const ChatPage = () => {
 
           {showScrollButton && (
             <Button
-              className="w-12 h-12 fixed z-50 bottom-20 flex justify-center items-center -mr-3 bg-black rounded-full shadow-lg transition-all duration-300 hover:bg-gray-100"
+              className="w-12 h-12 fixed z-50 bottom-32 flex justify-center items-center -mr-4 outline-none bg-black rounded-full shadow-lg transition-all duration-300 hover:bg-gray-100"
               variant="secondary"
               circle
               size="auto"
