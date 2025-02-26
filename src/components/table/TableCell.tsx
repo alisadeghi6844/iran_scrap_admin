@@ -11,7 +11,7 @@ const TableCell: React.FC<TableCellTypes> = (props) => {
       {...rest}
     >
       <div
-        className={`flex justify-start p-2 dark:text-dark-text-primary ${
+        className={`flex justify-start p-2 dark:text-dark-text-primary text-sm ${
           className ? className : ""
         }`}
       >

@@ -1,10 +1,5 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectGetProductRequestStatusData,
-  selectGetProductRequestStatusLoading,
-} from "../../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
-import { GetRequestProductStatusAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import { HandleFilterParams } from "../../../types/FilterParams";
 import CollectionControls from "../../organism/CollectionControls";
 import Table from "../../../components/table";
@@ -17,12 +12,15 @@ import TableCell from "../../../components/table/TableCell";
 import Button from "../../../components/button";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
+import { selectGetProductRequestAdminData, selectGetProductRequestAdminLoading } from "../../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
+import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
+import { convertToJalali } from "../../../utils/MomentConvertor";
 
-interface ProductRequestStatusTypes {
+interface ProductRequestAdminTypes {
   onRowClick?: any;
 }
 
-const ProductRequestStatus: React.FC<ProductRequestStatusTypes> = (props) => {
+const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
   const { onRowClick } = props;
 
   const dispatch: any = useDispatch();
@@ -33,11 +31,11 @@ const ProductRequestStatus: React.FC<ProductRequestStatusTypes> = (props) => {
     Restaurant: null,
   };
 
-  const loading = useSelector(selectGetProductRequestStatusLoading);
-  const productStatusData = useSelector(selectGetProductRequestStatusData);
+  const loading = useSelector(selectGetProductRequestAdminLoading);
+  const productAdminData = useSelector(selectGetProductRequestAdminData);
 
   useEffect(() => {
-    dispatch(GetRequestProductStatusAction({ page: 1, size: 20 }));
+    dispatch(GetRequestProductAdminAction({ page: 1, size: 20 }));
   }, []);
 
   const handleFilter = ({
@@ -47,7 +45,7 @@ const ProductRequestStatus: React.FC<ProductRequestStatusTypes> = (props) => {
     pageSize,
   }: HandleFilterParams) => {
     dispatch(
-      GetRequestProductStatusAction({
+      GetRequestProductAdminAction({
         filter,
         search,
         page,
@@ -69,11 +67,11 @@ const ProductRequestStatus: React.FC<ProductRequestStatusTypes> = (props) => {
 
   return (
     <CollectionControls
-      title="مدیریت وضعیت درخواست ها"
+      title="مدیریت درخواست ها"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
       onFilter={handleFilterParameters}
-      data={productStatusData}
+      data={productAdminData}
       onMetaChange={handleFilter}
       onButtonClick={(button) => {
         if (!!onRowClick) {
@@ -84,8 +82,12 @@ const ProductRequestStatus: React.FC<ProductRequestStatusTypes> = (props) => {
       <Table className="w-full" isLoading={false} shadow={false}>
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
-            <TableHeadCell>نام وضعیت</TableHeadCell>
-            <TableHeadCell>وضعیت های مجاز</TableHeadCell>
+            <TableHeadCell>نام درخواست کننده</TableHeadCell>
+            <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
+            <TableHeadCell>توضیحات</TableHeadCell>
+            <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
+            <TableHeadCell>آدرس</TableHeadCell>
+            <TableHeadCell>وضعیت</TableHeadCell>
             <TableHeadCell />
           </TableRow>
         </TableHead>
@@ -94,17 +96,26 @@ const ProductRequestStatus: React.FC<ProductRequestStatusTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
-            productStatusData?.data?.length > 0 ? (
-              productStatusData?.data?.map((row: any) => (
-                <TableRow key={row?.code}>
-                  <TableCell>{row?.title ?? "_"}</TableCell>
+            productAdminData?.data?.length > 0 ? (
+              productAdminData?.data?.map((row: any) => (
+                <TableRow key={row?.id}>
+                  <TableCell>{row?.user?.firstName ?row?.user?.firstName + " " +row?.user?.lastName: "_"}</TableCell>
                   <TableCell>
-                    {row?.allowedChangeCodes?.map(
-                      (item: any) => item + " , "
-                    ) ?? "_"}
+                    {row?.user?.mobile ?? "_"}
                   </TableCell>
+                  <TableCell>
+                    {row?.description ?? "_"}
+                  </TableCell>
+                  <TableCell>{row?.createdAt ?convertToJalali(row?.createdAt): "_"}</TableCell>
+                  <TableCell>
+                    {row?.province  + " , " + row?.city}
+                  </TableCell>
+                  <TableCell>{row?.statusTitle ?? "_"}</TableCell>
                   <TableCell className="flex justify-center">
                     <Button
                       onClick={() => {
@@ -112,9 +123,10 @@ const ProductRequestStatus: React.FC<ProductRequestStatusTypes> = (props) => {
                       }}
                       variant="outline-primary"
                     >
-                      افزودن شرط
+                      پردازش درخواست
                     </Button>
                   </TableCell>
+                 
                 </TableRow>
               ))
             ) : (
@@ -136,4 +148,4 @@ const ProductRequestStatus: React.FC<ProductRequestStatusTypes> = (props) => {
     </CollectionControls>
   );
 };
-export default ProductRequestStatus;
+export default ProductRequestAdmin;

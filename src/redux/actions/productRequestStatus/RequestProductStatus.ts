@@ -1,11 +1,15 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
+  getProductRequestAdminByIdService,
+  getProductRequestAdminService,
   getProductRequestStatusByIdService,
   getProductRequestStatusService,
   updateProductRequestStatusService,
 } from "../../service/productRequestStatus/ProductRequestStatusServices";
 
 import {
+  GET_PRODUCT_REQUEST_ADMIN,
+  GET_PRODUCT_REQUEST_ADMIN_BY_ID,
   GET_PRODUCT_REQUEST_BY_ID_STATUS,
   GET_PRODUCT_REQUEST_STATUS,
   PRODUCT_REQUEST_STATUS,
@@ -64,6 +68,45 @@ export const UpdateRequestProductStatusAction = createAsyncThunk(
       return thunkAPI.rejectWithValue("درخواست به‌روزرسانی موفق نبود");
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+
+export const GetRequestProductAdminAction = createAsyncThunk(
+  `${PRODUCT_REQUEST_STATUS}/${GET_PRODUCT_REQUEST_ADMIN}`,
+  async (credentials: any, { rejectWithValue }: any) => {
+
+    try {
+      const response = await getProductRequestAdminService(credentials);
+      if (response?.status === 200) {
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const GetRequestProductAdminByIdAction = createAsyncThunk(
+  `${PRODUCT_REQUEST_STATUS}/${GET_PRODUCT_REQUEST_ADMIN_BY_ID}`,
+  async (credentials: any, { rejectWithValue }: any) => {
+
+    try {
+      const response = await getProductRequestAdminByIdService(credentials);
+      if (response?.status === 200) {
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      return rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }
       );
     }

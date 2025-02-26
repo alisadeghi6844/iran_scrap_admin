@@ -1,4 +1,6 @@
 import moment from "jalali-moment";
+import { fromUnixTime } from 'date-fns';
+
 export const convertPersianToGregorian = (persian_date: string) => {
   return moment(persian_date, "jYYYY/jMM/jDD").format("YYYY/MM/DD");
 };
@@ -171,4 +173,49 @@ export const formatDate = (dateString: any) => {
   
   // سال‌های قبل
   return `${day} ${month} ${year}`;
+};
+
+
+export const convertToJalali = (timestamp: any) => {
+  const date = fromUnixTime(timestamp / 1000); // تقسیم بر 1000 برای تبدیل میلی‌ثانیه به ثانیه
+
+  // تبدیل تاریخ میلادی به تاریخ شمسی (روش تقریبی)
+  const gYear = date.getFullYear();
+  const gMonth = date.getMonth() + 1; // ماه‌ها از 0 شروع می‌شوند
+  const gDay = date.getDate();
+  const hours = date.getHours(); // ساعت
+  const minutes = date.getMinutes(); // دقیقه
+  const seconds = date.getSeconds(); // ثانیه
+
+  let jYear, jMonth, jDay;
+
+  // محاسبه سال شمسی
+  if (gMonth > 3 || (gMonth === 3 && gDay >= 21)) {
+    jYear = gYear - 621;
+  } else {
+    jYear = gYear - 622;
+  }
+
+  // محاسبه ماه و روز شمسی
+  const jalaliMonthsDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 30, 30, 29];
+  
+  let dayOfYear = (gMonth > 2 ? (gMonth - 3) * 30 + (gDay - 1) : (gMonth - 1) * 31 + gDay);
+  if (gMonth > 2) {
+    dayOfYear += 79; // 79 روز تا پایان سال میلادی
+  } else {
+    dayOfYear += 0; // تا پایان سال شمسی
+  }
+
+  // محاسبه ماه شمسی
+  for (let i = 0; i < jalaliMonthsDays.length; i++) {
+    if (dayOfYear <= jalaliMonthsDays[i]) {
+      jMonth = i + 1;
+      jDay = dayOfYear;
+      break;
+    }
+    dayOfYear -= jalaliMonthsDays[i];
+  }
+
+  // فرمت تاریخ و زمان شمسی
+  return `${jYear}/${jMonth.toString().padStart(2, '0')}/${jDay.toString().padStart(2, '0')} | ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };

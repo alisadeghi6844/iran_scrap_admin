@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { PRODUCT_REQUEST_STATUS } from "../../types/productRequestStatus/ProductRequestStatusTypes";
 import {
+  GetRequestProductAdminAction,
+  GetRequestProductAdminByIdAction,
   GetRequestProductStatusAction,
   GetRequestProductStatusByIdAction,
   UpdateRequestProductStatusAction,
@@ -18,6 +20,14 @@ interface productRequestStatusState {
   updateProductRequestStatusError: any;
   updateProductRequestStatusLoading: any;
   updateProductRequestStatusData: any;
+
+  getProductRequestAdminError: string | null;
+  getProductRequestAdminLoading: boolean;
+  getProductRequestAdminData: any;
+
+  getProductRequestAdminByIdError: string | null;
+  getProductRequestAdminByIdLoading: boolean;
+  getProductRequestAdminByIdData: any;
 }
 
 const initialState: productRequestStatusState = {
@@ -32,6 +42,14 @@ const initialState: productRequestStatusState = {
   updateProductRequestStatusError: null,
   updateProductRequestStatusLoading: false,
   updateProductRequestStatusData: [],
+
+  getProductRequestAdminError: null,
+  getProductRequestAdminLoading: false,
+  getProductRequestAdminData: [],
+
+  getProductRequestAdminByIdError: null,
+  getProductRequestAdminByIdLoading: false,
+  getProductRequestAdminByIdData: [],
 };
 
 const productRequestStatusSlice = createSlice({
@@ -94,6 +112,50 @@ const productRequestStatusSlice = createSlice({
         state.updateProductRequestStatusError = action.payload;
         state.updateProductRequestStatusData = [];
       })
+
+      // Get products request admin
+      .addCase(GetRequestProductAdminAction.pending, (state) => {
+        state.getProductRequestAdminLoading = true;
+        state.getProductRequestAdminData = [];
+        state.getProductRequestAdminError = null;
+      })
+      .addCase(
+        GetRequestProductAdminAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.getProductRequestAdminLoading = false;
+          state.getProductRequestAdminData = action.payload;
+          state.getProductRequestAdminError = null;
+        }
+      )
+      .addCase(
+        GetRequestProductAdminAction.rejected,
+        (state, action: PayloadAction<string>) => {
+          state.getProductRequestAdminLoading = false;
+          state.getProductRequestAdminError = action.payload;
+          state.getProductRequestAdminData = [];
+        }
+      ) // Get products request admin
+      .addCase(GetRequestProductAdminByIdAction.pending, (state) => {
+        state.getProductRequestAdminByIdLoading = true;
+        state.getProductRequestAdminByIdData = [];
+        state.getProductRequestAdminByIdError = null;
+      })
+      .addCase(
+        GetRequestProductAdminByIdAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.getProductRequestAdminByIdLoading = false;
+          state.getProductRequestAdminByIdData = action.payload;
+          state.getProductRequestAdminByIdError = null;
+        }
+      )
+      .addCase(
+        GetRequestProductAdminByIdAction.rejected,
+        (state, action: PayloadAction<string>) => {
+          state.getProductRequestAdminByIdLoading = false;
+          state.getProductRequestAdminByIdError = action.payload;
+          state.getProductRequestAdminByIdData = [];
+        }
+      );
   },
 });
 
@@ -117,5 +179,19 @@ export const selectUpdateProductRequestStatusLoading = (state: any) =>
   state.productRequestStatus.updateProductRequestStatusLoading;
 export const selectUpdateProductRequestStatusData = (state: any) =>
   state.productRequestStatus.updateProductRequestStatusData;
+
+export const selectGetProductRequestAdminError = (state: any) =>
+  state.productRequestStatus.getProductRequestAdminError;
+export const selectGetProductRequestAdminLoading = (state: any) =>
+  state.productRequestStatus.getProductRequestAdminLoading;
+export const selectGetProductRequestAdminData = (state: any) =>
+  state.productRequestStatus.getProductRequestAdminData;
+
+export const selectGetProductRequestAdminByIdError = (state: any) =>
+  state.productRequestStatus.getProductRequestAdminByIdError;
+export const selectGetProductRequestAdminByIdLoading = (state: any) =>
+  state.productRequestStatus.getProductRequestAdminByIdLoading;
+export const selectGetProductRequestAdminByIdData = (state: any) =>
+  state.productRequestStatus.getProductRequestAdminByIdData;
 
 export default productRequestStatusSlice.reducer;

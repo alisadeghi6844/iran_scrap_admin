@@ -16,6 +16,7 @@
     "@vidstack/react": "^1.12.12",
     "animate.css": "^4.1.1",
     "axios": "^1.7.7",
+    "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.12.0",
     "filepond": "^4.31.4",
     "filepond-plugin-file-validate-size": "^2.2.8",
