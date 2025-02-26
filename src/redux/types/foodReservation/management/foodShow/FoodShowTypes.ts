@@ -1,9 +1,0 @@
-export const FOOD_SHOW_ORIGINAL = "FOOD_SHOW_ORIGINAL";
-
-// food show management
-export const FOOD_SHOW_GET_ALL = "FOOD_SHOW_GET_ALL";
-export const FOOD_SHOW_GET_CLIENT_FOODS = "FOOD_SHOW_GET_CLIENT_FOODS";
-export const FOOD_SHOW_GET_BY_ID = "FOOD_SHOW_GET_BY_ID";
-export const FOOD_SHOW_CREATE = "FOOD_SHOW_CREATE";
-export const FOOD_SHOW_UPDATE = "FOOD_SHOW_UPDATE";
-export const FOOD_SHOW_DELETE = "FOOD_SHOW_DELETE";

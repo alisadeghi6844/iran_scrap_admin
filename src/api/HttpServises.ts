@@ -11,9 +11,9 @@ class HttpService {
     let hasRedirected = false;
     axios.interceptors.request.use(
       (config) => {
-        const token = GetToken("token");
+        const token = GetToken("access_token");
         if (token && token !== "") {
-          config.headers["Authorization"] = `${token}`;
+          config.headers["Authorization"] = `Bearer ${token}`;
         }
         return config;
       },
@@ -33,12 +33,14 @@ class HttpService {
 
       async (error) => {
         if (error?.response?.status == 401) {
-          SetToken("token", null, 0);
+          SetToken("access_token", null, 0);
           window.location = "/login";
         }
 
         if (error?.response?.status == 429) {
-          toast.error("شما بیش از حد مجاز درخواست ارسال کرده‌اید. لطفاً بعد از چند دقیقه دوباره تلاش کنید.")
+          toast.error(
+            "شما بیش از حد مجاز درخواست ارسال کرده‌اید. لطفاً بعد از چند دقیقه دوباره تلاش کنید."
+          );
         } else if (error?.response?.data?.errors) {
           const result = error?.response?.data?.errors.join(",") + ",";
           toast.error(result);

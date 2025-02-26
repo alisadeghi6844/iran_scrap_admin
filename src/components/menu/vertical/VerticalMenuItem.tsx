@@ -4,15 +4,12 @@ import { FaChevronLeft } from "react-icons/fa6";
 import { VerticalMenuItemTypes } from "../../../types/components/VerticalMenuItemTypes";
 import Badge from "../../badge/Badge";
 import SmallBellIcon from "../../icon/custom/SmallBellIcon";
-import { useSelector } from "react-redux";
-import { selectGetCurrentUserData } from "../../../redux/slice/account/AccountSlice";
 
 const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
   const {
     children,
     className,
     collapsable,
-    role,
     link,
     title,
     icon,
@@ -22,11 +19,9 @@ const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
   } = props;
   const [isVisible, setIsVisible] = useState(false);
 
-  const userData = useSelector(selectGetCurrentUserData)
-
   return (
     <>
-      {role?.includes(userData?.role)||userData?.role==="admin"?(
+      
         <li
         onClick={() => setIsVisible((prevState) => !prevState)}
         className={`${
@@ -73,7 +68,6 @@ const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
         </Typography>
         {children && children}
       </li>
-      ):null}
     </>
   );
 };

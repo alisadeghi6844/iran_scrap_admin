@@ -7,14 +7,11 @@ import {
 } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-
-
 import PermissionRoute from "./routes/PermissionRoute";
 import routes, { privateRoutes } from "./routes";
 import Content from "./routes/Content";
 import MainTheme from "./container/themes/MainTheme.tsx";
 import FeatureLoading from "./components/loading/FeatureLoading";
-import FoodReservationTheme from "./container/themes/FoodReservationTheme.tsx";
 import {
   getCurrentUserInfoAction,
   IsTokenValidAction,
@@ -25,8 +22,6 @@ import {
   selectIsTokenValidLoading,
 } from "./redux/slice/account/AccountSlice.ts";
 import LoadingPage from "./components/loading/LoadingPage.tsx";
-import { getTimeAction } from "./redux/actions/time/TimeAction.ts";
-import ChatTheme from "./container/themes/ChatTheme.tsx";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -36,21 +31,20 @@ const App = () => {
 
   const [installApp, setInstallApp] = useState(false);
 
-  useEffect(() => {
-    dispatch(getTimeAction());
-    dispatch(IsTokenValidAction());
+  // useEffect(() => {
+  //   dispatch(IsTokenValidAction());
 
-    window.addEventListener("beforeinstallprompt", (e: any) => {
-      e.preventDefault();
-      setInstallApp(e);
-    });
-  }, []);
+  //   window.addEventListener("beforeinstallprompt", (e: any) => {
+  //     e.preventDefault();
+  //     setInstallApp(e);
+  //   });
+  // }, []);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(getCurrentUserInfoAction());
-    }
-  }, [isAuthenticated]);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     dispatch(getCurrentUserInfoAction());
+  //   }
+  // }, [isAuthenticated]);
 
   const renderRoutes = (
     basePath: any,
@@ -98,72 +92,6 @@ const App = () => {
                       )}
                     </Suspense>
                   </MainTheme>
-                ) : layout === "food_reservation" ? (
-                  <FoodReservationTheme
-                    title={breadCrumb}
-                    crumb={[
-                      ...crumb,
-                      {
-                        title: breadCrumb,
-                        link: basePath + path + "/",
-                      },
-                    ]}
-                  >
-                    <Suspense fallback={<FeatureLoading />}>
-                      {Component ? (
-                        <Component
-                          crumb={[
-                            ...crumb,
-                            {
-                              title: breadCrumb,
-                              link: basePath + path + "/",
-                            },
-                          ]}
-                          title={breadCrumb}
-                          userData={userData} // ارسال userData به کامپوننت
-                        />
-                      ) : (
-                        <Navigate
-                          to={`${
-                            basePath + path + "/" + (subRoutes?.[0]?.path || "")
-                          }`}
-                        />
-                      )}
-                    </Suspense>
-                  </FoodReservationTheme>
-                ) : layout === "chat" ? (
-                  <ChatTheme
-                    title={breadCrumb}
-                    crumb={[
-                      ...crumb,
-                      {
-                        title: breadCrumb,
-                        link: basePath + path + "/",
-                      },
-                    ]}
-                  >
-                    <Suspense fallback={<FeatureLoading />}>
-                      {Component ? (
-                        <Component
-                          crumb={[
-                            ...crumb,
-                            {
-                              title: breadCrumb,
-                              link: basePath + path + "/",
-                            },
-                          ]}
-                          title={breadCrumb}
-                          userData={userData} // ارسال userData به کامپوننت
-                        />
-                      ) : (
-                        <Navigate
-                          to={`${
-                            basePath + path + "/" + (subRoutes?.[0]?.path || "")
-                          }`}
-                        />
-                      )}
-                    </Suspense>
-                  </ChatTheme>
                 ) : layout === "login" ? (
                   <Suspense fallback={<FeatureLoading />}>
                     {Component ? (

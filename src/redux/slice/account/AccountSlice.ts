@@ -17,7 +17,7 @@ import {
 
 const initialState = {
   user: null,
-  isAuthenticated: false,
+  isAuthenticated: true,
   roles: [],
   permissions: [],
   loginLoading: false,

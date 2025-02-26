@@ -37,11 +37,7 @@ export const LoginAction = createAsyncThunk(
       if (response?.status === 200) {
         if (response?.data?.accessToken) {
           SetToken("token", response.data.accessToken, 2000 * 60 * 1000);
-          SetToken(
-            "refresh-token",
-            response.data.refreshToken,
-            20 * 60 * 60 * 1000
-          );
+
         }
         return response.data;
       } else {
@@ -104,7 +100,7 @@ export const IsTokenValidAction = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await IsTokenValidService(credentials);
-      return response.data;
+      return true;
     } catch (error: any) {
       return rejectWithValue(error.response.data);
     }
