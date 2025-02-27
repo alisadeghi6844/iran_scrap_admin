@@ -35,7 +35,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
   const productAdminData = useSelector(selectGetProductRequestAdminData);
 
   useEffect(() => {
-    dispatch(GetRequestProductAdminAction({ page: 1, size: 20 }));
+    dispatch(GetRequestProductAdminAction({ page: 0, size: 20 }));
   }, []);
 
   const handleFilter = ({

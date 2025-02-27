@@ -17,6 +17,7 @@ import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import { convertToJalali } from "../../../utils/MomentConvertor";
 import Typography from "../../../components/typography/Typography";
+import UsersTable from "../users/UsersTable";
 
 const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
   const { mode = "create", id, handleSubmit, ...rest } = props;
@@ -38,7 +39,7 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
 
   return (
     <>
-    <Typography className="font-bold mb-2">جزئیات درخواست کاربر</Typography>
+      <Typography className="font-bold mb-2">جزئیات درخواست کاربر</Typography>
       <Table className="w-full" isLoading={false} shadow={false}>
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
@@ -105,6 +106,8 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
           )}
         </TableBody>
       </Table>
+      <Typography className="mt-12 font-bold">لیست تامین کنندگان</Typography>
+      {mode === "update" ? <UsersTable /> : null}
     </>
   );
 };

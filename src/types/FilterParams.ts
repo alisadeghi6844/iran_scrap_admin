@@ -1,5 +1,5 @@
 export interface HandleFilterParams {
-    filter?: string;
+    filter?: any;
     search?: string;
     page: number;
     pageSize: number;

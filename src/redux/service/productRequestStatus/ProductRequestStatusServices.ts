@@ -1,5 +1,6 @@
 import { BASE_URL } from "../../../api/config";
 import HttpServises from "../../../api/HttpServises";
+import { AxiosQueryCustom } from "../../../utils/AxiosQuery";
 import {
   GET_PRODUCT_REQUEST_ADMIN_POINT,
   GET_PRODUCT_REQUEST_STATUS_BY_ID_POINT,
@@ -29,9 +30,13 @@ export const updateProductRequestStatusService = async (
   );
 };
 
-export const getProductRequestAdminService = async (items: any) => {
+export const getProductRequestAdminService = async (query: any) => {
+    let queryText;
+    if (!!query) {
+      queryText = AxiosQueryCustom(query);
+    }
   return await HttpServises.get(
-    `${BASE_URL}${GET_PRODUCT_REQUEST_ADMIN_POINT}`
+    `${BASE_URL}${GET_PRODUCT_REQUEST_ADMIN_POINT}?${queryText ? queryText : null}`
   );
 };
 

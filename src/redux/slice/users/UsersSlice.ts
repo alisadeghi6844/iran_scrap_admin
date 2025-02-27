@@ -8,7 +8,7 @@ const initialState = {
   getUsersData: [],
 };
 
-const authSlice = createSlice({
+const usersSlice = createSlice({
   name: USERS,
   initialState,
   reducers: {},
@@ -36,10 +36,10 @@ const authSlice = createSlice({
 
 
 export const selectGetUsersError = (state: any) =>
-  state.auth.getUsersError;
+  state.users.getUsersError;
 export const selectGetUsersLoading = (state: any) =>
-  state.auth.getUsersLoading;
-export const selectGetUsersData = (state: any) => state.auth.getUsersData;
+  state.users.getUsersLoading;
+export const selectGetUsersData = (state: any) => state.users.getUsersData;
 
-export default authSlice.reducer;
+export default usersSlice.reducer;
 
