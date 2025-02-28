@@ -107,7 +107,7 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
         </TableBody>
       </Table>
       <Typography className="mt-12 font-bold">لیست تامین کنندگان</Typography>
-      {mode === "update" ? <UsersTable /> : null}
+      {mode === "update" ? <UsersTable id={id} setCloseModal={handleSubmit}/> : null}
     </>
   );
 };

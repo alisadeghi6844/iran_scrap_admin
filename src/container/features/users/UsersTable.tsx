@@ -19,13 +19,16 @@ import { GetUsersAction } from "../../../redux/actions/users/UsersActions";
 import SearchInputField from "../../../components/molcols/formik-fields/SearchInputField";
 import Checkbox from "../../../components/checkbox";
 import Button from "../../../components/button";
+import { UpdateRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 
 interface UsersTableTypes {
   onRowClick?: any;
+  id?:any;
+  setCloseModal?:any
 }
 
 const UsersTable: React.FC<UsersTableTypes> = (props) => {
-  const { onRowClick } = props;
+  const { onRowClick,id,setCloseModal } = props;
 
   const dispatch: any = useDispatch();
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]); // وضعیت برای نگهداری آی‌دی‌های انتخاب شده
@@ -82,12 +85,16 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
     );
   };
 
-  useEffect(() => {
-    console.log("productStatusData", usersData);
-    console.log("Selected User IDs:", selectedUserIds); // نمایش آی‌دی‌های انتخاب شده
-  }, [usersData, selectedUserIds]);
+  const onSuccess=()=>{
+    setCloseModal(false)
+  }
 
-  const handleRegisterBuyers = () => {};
+  const handleRegisterBuyers = () => {
+
+    dispatch(UpdateRequestProductAdminAction({credentials:id,item:{
+      providerIds:selectedUserIds
+    },onSuccess}))
+  };
 
   return (
     <>

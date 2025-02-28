@@ -2,9 +2,11 @@ import { BASE_URL } from "../../../api/config";
 import HttpServises from "../../../api/HttpServises";
 import { AxiosQueryCustom } from "../../../utils/AxiosQuery";
 import {
+  GET_PRODUCT_REQUEST_ADMIN_BY_ID_POINT,
   GET_PRODUCT_REQUEST_ADMIN_POINT,
   GET_PRODUCT_REQUEST_STATUS_BY_ID_POINT,
   GET_PRODUCT_REQUEST_STATUS_POINT,
+  UPDATE_PRODUCT_REQUEST_ADMIN_POINT,
   UPDATE_PRODUCT_REQUEST_STATUS_POINT,
 } from "../../api/productRequestStatus/ProductRequestStatusApi";
 
@@ -42,6 +44,12 @@ export const getProductRequestAdminService = async (query: any) => {
 
 export const getProductRequestAdminByIdService = async (items: any) => {
   return await HttpServises.get(
-    `${BASE_URL}${GET_PRODUCT_REQUEST_ADMIN_POINT}/${items}`
+    `${BASE_URL}${GET_PRODUCT_REQUEST_ADMIN_BY_ID_POINT}/${items}`
+  );
+};
+
+export const updateProductRequestAdminService = async (id: any,item:any) => {
+  return await HttpServises.patch(
+    `${BASE_URL}${UPDATE_PRODUCT_REQUEST_ADMIN_POINT}/${id}`,item
   );
 };

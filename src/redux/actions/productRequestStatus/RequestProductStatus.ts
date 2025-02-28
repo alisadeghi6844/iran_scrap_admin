@@ -4,6 +4,7 @@ import {
   getProductRequestAdminService,
   getProductRequestStatusByIdService,
   getProductRequestStatusService,
+  updateProductRequestAdminService,
   updateProductRequestStatusService,
 } from "../../service/productRequestStatus/ProductRequestStatusServices";
 
@@ -13,6 +14,7 @@ import {
   GET_PRODUCT_REQUEST_BY_ID_STATUS,
   GET_PRODUCT_REQUEST_STATUS,
   PRODUCT_REQUEST_STATUS,
+  UPDATE_PRODUCT_REQUEST_ADMIN,
   UPDATE_PRODUCT_REQUEST_STATUS,
 } from "../../types/productRequestStatus/ProductRequestStatusTypes";
 import { toast } from "react-toastify";
@@ -74,13 +76,13 @@ export const UpdateRequestProductStatusAction = createAsyncThunk(
   }
 );
 
-
+let myQuery:any=null;
 export const GetRequestProductAdminAction = createAsyncThunk(
   `${PRODUCT_REQUEST_STATUS}/${GET_PRODUCT_REQUEST_ADMIN}`,
   async (credentials: any, { rejectWithValue }: any) => {
-
     try {
-      const response = await getProductRequestAdminService(credentials);
+      myQuery=credentials;
+      const response = await getProductRequestAdminService(myQuery);
       if (response?.status === 200) {
         return response.data;
       } else {
@@ -97,7 +99,6 @@ export const GetRequestProductAdminAction = createAsyncThunk(
 export const GetRequestProductAdminByIdAction = createAsyncThunk(
   `${PRODUCT_REQUEST_STATUS}/${GET_PRODUCT_REQUEST_ADMIN_BY_ID}`,
   async (credentials: any, { rejectWithValue }: any) => {
-
     try {
       const response = await getProductRequestAdminByIdService(credentials);
       if (response?.status === 200) {
@@ -109,6 +110,30 @@ export const GetRequestProductAdminByIdAction = createAsyncThunk(
       return rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }
       );
+    }
+  }
+);
+
+export const UpdateRequestProductAdminAction = createAsyncThunk(
+  `${PRODUCT_REQUEST_STATUS}/${UPDATE_PRODUCT_REQUEST_ADMIN}`,
+  async (
+    { credentials, item, onSuccess, thunkAPI }: { credentials: any; item: any; onSuccess: any; thunkAPI: any; },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await updateProductRequestAdminService(credentials, item);
+      if (response?.status === 200) {
+        onSuccess();
+        toast.success("عملیات با موفقیت انجام شد");
+        
+        await thunkAPI.dispatch(GetRequestProductAdminAction(myQuery));
+        
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || { message: "خطای ناشناخته" });
     }
   }
 );
