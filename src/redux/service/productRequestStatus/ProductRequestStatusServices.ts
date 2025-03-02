@@ -7,6 +7,7 @@ import {
   GET_PRODUCT_REQUEST_STATUS_BY_ID_POINT,
   GET_PRODUCT_REQUEST_STATUS_POINT,
   UPDATE_PRODUCT_REQUEST_ADMIN_POINT,
+  UPDATE_PRODUCT_REQUEST_ADMIN_PROVIDER_POINT,
   UPDATE_PRODUCT_REQUEST_STATUS_POINT,
 } from "../../api/productRequestStatus/ProductRequestStatusApi";
 
@@ -33,12 +34,14 @@ export const updateProductRequestStatusService = async (
 };
 
 export const getProductRequestAdminService = async (query: any) => {
-    let queryText;
-    if (!!query) {
-      queryText = AxiosQueryCustom(query);
-    }
+  let queryText;
+  if (!!query) {
+    queryText = AxiosQueryCustom(query);
+  }
   return await HttpServises.get(
-    `${BASE_URL}${GET_PRODUCT_REQUEST_ADMIN_POINT}?${queryText ? queryText : null}`
+    `${BASE_URL}${GET_PRODUCT_REQUEST_ADMIN_POINT}?${
+      queryText ? queryText : null
+    }`
   );
 };
 
@@ -48,8 +51,19 @@ export const getProductRequestAdminByIdService = async (items: any) => {
   );
 };
 
-export const updateProductRequestAdminService = async (id: any,item:any) => {
+export const updateProductRequestAdminService = async (id: any, item: any) => {
   return await HttpServises.patch(
-    `${BASE_URL}${UPDATE_PRODUCT_REQUEST_ADMIN_POINT}/${id}`,item
+    `${BASE_URL}${UPDATE_PRODUCT_REQUEST_ADMIN_POINT}/${id}`,
+    item
+  );
+};
+
+export const updateProductRequestAdminProviderService = async (
+  item: any,
+  id: any
+) => {
+  return await HttpServises.patch(
+    `${BASE_URL}${UPDATE_PRODUCT_REQUEST_ADMIN_PROVIDER_POINT}/${id}`,
+    item
   );
 };

@@ -6,6 +6,7 @@ import {
   GetRequestProductStatusAction,
   GetRequestProductStatusByIdAction,
   UpdateRequestProductAdminAction,
+  UpdateRequestProductAdminProviderAction,
   UpdateRequestProductStatusAction,
 } from "../../actions/productRequestStatus/RequestProductStatus";
 
@@ -33,6 +34,10 @@ interface productRequestStatusState {
   updateProductRequestAdminError: string | null;
   updateProductRequestAdminLoading: boolean;
   updateProductRequestAdminData: any;
+
+  updateProductRequestProviderAdminError: string | null;
+  updateProductRequestProviderAdminLoading: boolean;
+  updateProductRequestProviderAdminData: any;
 }
 
 const initialState: productRequestStatusState = {
@@ -59,6 +64,10 @@ const initialState: productRequestStatusState = {
   updateProductRequestAdminError: null,
   updateProductRequestAdminLoading: false,
   updateProductRequestAdminData: [],
+
+  updateProductRequestProviderAdminError: null,
+  updateProductRequestProviderAdminLoading: false,
+  updateProductRequestProviderAdminData: [],
 };
 
 const productRequestStatusSlice = createSlice({
@@ -173,6 +182,7 @@ const productRequestStatusSlice = createSlice({
       .addCase(
         UpdateRequestProductAdminAction.fulfilled,
         (state, action: PayloadAction<any>) => {
+          console.log("action.payload",action.payload)
           state.updateProductRequestAdminLoading = false;
           state.updateProductRequestAdminData = action.payload;
           state.updateProductRequestAdminError = null;
@@ -184,6 +194,27 @@ const productRequestStatusSlice = createSlice({
           state.updateProductRequestAdminLoading = false;
           state.updateProductRequestAdminError = action.payload;
           state.updateProductRequestAdminData = [];
+        }
+      ) // update products request provider admin
+      .addCase(UpdateRequestProductAdminProviderAction.pending, (state) => {
+        state.updateProductRequestProviderAdminLoading = true;
+        state.updateProductRequestProviderAdminData = [];
+        state.updateProductRequestProviderAdminError = null;
+      })
+      .addCase(
+        UpdateRequestProductAdminProviderAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.updateProductRequestProviderAdminLoading = false;
+          state.updateProductRequestProviderAdminData = action.payload;
+          state.updateProductRequestProviderAdminError = null;
+        }
+      )
+      .addCase(
+        UpdateRequestProductAdminProviderAction.rejected,
+        (state, action: PayloadAction<string>) => {
+          state.updateProductRequestProviderAdminLoading = false;
+          state.updateProductRequestProviderAdminError = action.payload;
+          state.updateProductRequestProviderAdminData = [];
         }
       );
   },
@@ -230,5 +261,12 @@ export const selectUpdateProductRequestAdminLoading = (state: any) =>
   state.productRequestStatus.updateProductRequestAdminLoading;
 export const selectUpdateProductRequestAdminData = (state: any) =>
   state.productRequestStatus.updateProductRequestAdminData;
+
+export const selectUpdateProductRequestProviderAdminError = (state: any) =>
+  state.productRequestStatus.updateProductRequestProviderAdminError;
+export const selectUpdateProductRequestProviderAdminLoading = (state: any) =>
+  state.productRequestStatus.updateProductRequestProviderAdminLoading;
+export const selectUpdateProductRequestProviderAdminData = (state: any) =>
+  state.productRequestStatus.updateProductRequestProviderAdminData;
 
 export default productRequestStatusSlice.reducer;

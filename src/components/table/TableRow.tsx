@@ -5,10 +5,10 @@ interface TableRowProps {
 }
 
 const TableRow: React.FC<TableRowProps> = (props) => {
-  const { children, ...rest } = props;
+  const { children,className, ...rest } = props;
 
   return (
-    <tr className="cursor-pointer" {...rest}>
+    <tr className={`cursor-pointer ${className}`} {...rest}>
       {children}
     </tr>
   );

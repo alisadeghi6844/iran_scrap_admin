@@ -15,16 +15,17 @@ import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import {
   selectGetProductRequestAdminData,
   selectGetProductRequestAdminLoading,
-  selectUpdateProductRequestAdminData,
+  selectUpdateProductRequestProviderAdminData,
 } from "../../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import { convertToJalali } from "../../../utils/MomentConvertor";
+import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
 }
 
-const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
+const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const { onRowClick } = props;
 
   const dispatch: any = useDispatch();
@@ -37,11 +38,18 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
 
   const loading = useSelector(selectGetProductRequestAdminLoading);
   const productAdminData = useSelector(selectGetProductRequestAdminData);
-  const updateData = useSelector(selectUpdateProductRequestAdminData);
+  const updateData = useSelector(
+    selectUpdateRequestProductOfferSendToBuyerData
+  );
+  const updateData_2 = useSelector(selectUpdateProductRequestProviderAdminData);
 
   useEffect(() => {
     dispatch(
-      GetRequestProductAdminAction({ page: 0, size: 20, status: "REGISTERED" })
+      GetRequestProductAdminAction({
+        page: 0,
+        size: 20,
+        status: "WAITING_FOR_OFFERS",
+      })
     );
   }, []);
 
@@ -73,20 +81,20 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
   };
 
   useEffect(() => {
-    if (updateData?.status == 200) {
+    if (updateData?.status == 200 || updateData_2?.status == 200) {
       dispatch(
         GetRequestProductAdminAction({
           page: 0,
           size: 20,
-          status: "REGISTERED",
+          status: "WAITING_FOR_OFFERS",
         })
       );
     }
-  }, [updateData]);
+  }, [updateData, updateData_2]);
 
   return (
     <CollectionControls
-      title="مدیریت درخواست ها"
+      title="درخواست های باز"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
       onFilter={handleFilterParameters}
@@ -108,10 +116,12 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableHeadCell>آدرس</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
             <TableHeadCell />
+            <TableHeadCell />
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
@@ -135,15 +145,26 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                   </TableCell>
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>{row?.statusTitle ?? "_"}</TableCell>
-
                   <TableCell className="flex justify-center">
                     <Button
+                              type="button"
+                      onClick={() => {
+                        onRowClick && onRowClick("detail", row);
+                      }}
+                      variant="outline-warning"
+                    >
+                      تغییر وضعیت
+                    </Button>
+                  </TableCell>
+                  <TableCell className="flex justify-center">
+                    <Button
+                    type="button"
                       onClick={() => {
                         onRowClick && onRowClick("update", row);
                       }}
                       variant="outline-primary"
                     >
-                      پردازش درخواست
+                      مشاهده پیشنهادات
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -167,4 +188,4 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
     </CollectionControls>
   );
 };
-export default ProductRequestAdmin;
+export default OpenRequest;

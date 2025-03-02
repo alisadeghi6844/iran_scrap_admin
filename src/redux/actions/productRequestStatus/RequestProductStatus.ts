@@ -4,6 +4,7 @@ import {
   getProductRequestAdminService,
   getProductRequestStatusByIdService,
   getProductRequestStatusService,
+  updateProductRequestAdminProviderService,
   updateProductRequestAdminService,
   updateProductRequestStatusService,
 } from "../../service/productRequestStatus/ProductRequestStatusServices";
@@ -15,6 +16,7 @@ import {
   GET_PRODUCT_REQUEST_STATUS,
   PRODUCT_REQUEST_STATUS,
   UPDATE_PRODUCT_REQUEST_ADMIN,
+  UPDATE_PRODUCT_REQUEST_PROVIDER_ADMIN,
   UPDATE_PRODUCT_REQUEST_STATUS,
 } from "../../types/productRequestStatus/ProductRequestStatusTypes";
 import { toast } from "react-toastify";
@@ -122,11 +124,32 @@ export const UpdateRequestProductAdminAction = createAsyncThunk(
   ) => {
     try {
       const response = await updateProductRequestAdminService(credentials, item);
+      console.log("response",response)
       if (response?.status === 200) {
         onSuccess();
         toast.success("عملیات با موفقیت انجام شد");
         
-        await thunkAPI.dispatch(GetRequestProductAdminAction(myQuery));
+        return response;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || { message: "خطای ناشناخته" });
+    }
+  }
+);
+
+export const UpdateRequestProductAdminProviderAction = createAsyncThunk(
+  `${PRODUCT_REQUEST_STATUS}/${UPDATE_PRODUCT_REQUEST_PROVIDER_ADMIN}`,
+  async (
+    { credentials, id, handleSubmit, thunkAPI }: { credentials: any; id: any; handleSubmit: any; thunkAPI: any; },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await updateProductRequestAdminProviderService(credentials, id);
+      if (response?.status === 200) {
+        handleSubmit();
+        toast.success("عملیات با موفقیت انجام شد");
         
         return response.data;
       } else {

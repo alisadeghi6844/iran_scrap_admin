@@ -3,6 +3,9 @@ import Typography from "../../../components/typography/Typography";
 import { Link } from "react-router-dom";
 import DynamicMenu from "../../../components/menu/vertical/DynamicMenu";
 import { LuGitPullRequest } from "react-icons/lu";
+import { LuPackageOpen } from "react-icons/lu";
+import { BsBoxSeam } from "react-icons/bs";
+
 import { MdProductionQuantityLimits } from "react-icons/md";
 
 const DesktopSidebar = () => {
@@ -20,6 +23,26 @@ const DesktopSidebar = () => {
           title: "درخواست های جدید",
           icon: <LuGitPullRequest className="text-2xl" />,
           id: 110,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+        {
+          path: "/open-request",
+          title: "درخواست های باز",
+          icon: <LuPackageOpen className="text-2xl" />,
+          id: 160,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+        {
+          path: "/close-request",
+          title: "درخواست های بسته",
+          icon: <BsBoxSeam className="text-2xl" />,
+          id: 190,
           isNew: false,
           subRoutes: [],
           notif: "",

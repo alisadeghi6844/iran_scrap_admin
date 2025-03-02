@@ -33,10 +33,6 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
     }
   }, [id]);
 
-  useEffect(() => {
-    console.log("reqData", reqData);
-  }, [reqData]);
-
   return (
     <>
       <Typography className="font-bold mb-2">جزئیات درخواست کاربر</Typography>

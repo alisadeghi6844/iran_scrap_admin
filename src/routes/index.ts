@@ -9,6 +9,20 @@ const routes = [
     role: ["admin", "client", "reservation"],
   },
   {
+    path: "/open-request",
+    breadCrumb: "درخواست های باز",
+    component: lazy(() => import("../page/openRequest")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
+  {
+    path: "/close-request",
+    breadCrumb: "درخواست های بسته",
+    component: lazy(() => import("../page/closeRequest")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
+  {
     path: "/product-request-status",
     breadCrumb: "مدیریت وضعیت درخواست ها",
     component: lazy(() => import("../page/productRequestStatus")),
