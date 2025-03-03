@@ -48,7 +48,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       GetRequestProductAdminAction({
         page: 0,
         size: 20,
-        status: "CONSIDERING_SUGGESTIONS",
+        status: "WAITING_FOR_OFFERS",
       })
     );
   }, []);
@@ -87,7 +87,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         GetRequestProductAdminAction({
           page: 0,
           size: 20,
-          status: "CONSIDERING_SUGGESTIONS",
+          status: "WAITING_FOR_OFFERS",
         })
       );
     }
