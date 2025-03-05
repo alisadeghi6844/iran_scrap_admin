@@ -5,6 +5,7 @@ import DynamicMenu from "../../../components/menu/vertical/DynamicMenu";
 import { LuGitPullRequest } from "react-icons/lu";
 import { LuPackageOpen } from "react-icons/lu";
 import { BsBoxSeam } from "react-icons/bs";
+import { MdOutlineCategory } from "react-icons/md";
 
 import { MdProductionQuantityLimits } from "react-icons/md";
 
@@ -53,6 +54,16 @@ const DesktopSidebar = () => {
         title: "مدیریت وضعیت درخواست ها",
         icon: <MdProductionQuantityLimits className="text-2xl" />,
         id: 230,
+        isNew: false,
+        subRoutes: [],
+        notif: "",
+        role: ["admin", "client", "reservation"],
+      },
+      {
+        path: "/category-management",
+        title: "مدیریت دسته بندی",
+        icon: <MdOutlineCategory className="text-2xl" />,
+        id: 240,
         isNew: false,
         subRoutes: [],
         notif: "",
