@@ -1,21 +1,22 @@
 import React, { lazy, Suspense, useState } from "react";
 import CRUD from "../../container/organism/CRUD";
+import CategoryDeleteConfirmation from "../../container/features/account/createUser/CreateUserDeleteConfirmation";
+import CategoryAttributeForm from "../../container/features/category/CategoryAttributeForm";
 
-const ProductRequestAdminTable = lazy(
+const CategoryTable = lazy(
   () =>
     import(
-      /* webpackChunkName: "ProductRequestAdmin" */ "../../container/features/productRequestAdmin/ProductRequestAdminTable"
+      /* webpackChunkName: "Category" */ "../../container/features/category/CategoryTable"
     )
 );
-const ProductRequestAdminForm = lazy(
+const CategoryForm = lazy(
   () =>
     import(
-      /* webpackChunkName: "ProductRequestAdmin" */ "../../container/features/productRequestAdmin/ProductRequestAdminForm"
+      /* webpackChunkName: "Category" */ "../../container/features/category/CategoryForm"
     )
 );
 
-
-const HomePage = () => {
+const Category = () => {
   const [mode, setMode] = useState<string>("content");
   const [selectedRow, setSelectedRow] = useState<any>({});
 
@@ -27,11 +28,12 @@ const HomePage = () => {
       }}
     >
       <CRUD
-      formModalSize="2xl"
+        formModalSize="xl"
+        confirmModalSize="xl"
         mode={mode}
         content={
           <Suspense>
-            <ProductRequestAdminTable
+            <CategoryTable
               onRowClick={(name: string, row: any) => {
                 setMode(name);
 
@@ -44,9 +46,8 @@ const HomePage = () => {
         }
         form={
           <Suspense>
-            <ProductRequestAdminForm
-              handleSubmit={() => setMode("content")}
-              id={selectedRow?.id ?? null}
+            <CategoryForm
+              id={selectedRow?._id ?? null}
               mode={mode}
               onSubmitForm={() => {
                 setMode("content");
@@ -54,16 +55,27 @@ const HomePage = () => {
             />
           </Suspense>
         }
-        // confirmation={
-        //   <Suspense>
-        //     <FoodDeleteConfirmation
-        //       value={selectedRow ?? {}}
-        //       onSubmit={() => {
-        //         setMode("content");
-        //       }}
-        //     />
-        //   </Suspense>
-        // }
+        confirmation={
+          <Suspense>
+            <CategoryAttributeForm
+              id={selectedRow?._id ?? null}
+              mode={mode}
+              onSubmitForm={() => {
+                setMode("content");
+              }}
+            />
+          </Suspense>
+        }
+        //  confirmation={
+        //    <Suspense>
+        //      <CategoryDeleteConfirmation
+        //        value={selectedRow ?? {}}
+        //        onSubmit={() => {
+        //          setMode("content");
+        //        }}
+        //      />
+        //    </Suspense>
+        //  }
         onModalClose={() => {
           setMode("content");
         }}
@@ -72,4 +84,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default Category;

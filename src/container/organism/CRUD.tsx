@@ -13,6 +13,7 @@ const CRUD: React.FC<CRUDProps> = (props) => {
     closeLov,
     confirmModalSize = "md",
     formModalSize = "md",
+    deleteModalSize = "md",
     modalHeaders = {},
     onModalClose,
   } = props;
