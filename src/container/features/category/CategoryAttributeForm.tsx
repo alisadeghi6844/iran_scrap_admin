@@ -71,7 +71,6 @@ const CategoryAttributeForm: React.FC<FormProps> = (props) => {
     });
 
   const handleSubmit = (data: any, resetForm: any) => {
-    console.log("data",data)
     if (data) {
       const items={
         name:data?.Name,
@@ -79,11 +78,9 @@ const CategoryAttributeForm: React.FC<FormProps> = (props) => {
         categoryId:data?.Category?.value,
         type:data?.Type?.value
       }
-      if (mode === "create") {
+
         dispatch(CreateCategoryAttributeAction({ credentials: items, onSubmitForm, resetForm }));
-      } else if (mode === "update") {
-        dispatch(UpdateCategoryAttributeAction({ credentials: items, onSubmitForm, resetForm }));
-      }
+      
     }
   };
 

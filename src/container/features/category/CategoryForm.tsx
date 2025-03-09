@@ -52,16 +52,17 @@ const CategoryForm: React.FC<FormProps> = (props) => {
   }, [loadData]);
 
   useEffect(() => {
-    if (getValue?.data && mode === "update") {
+    console.log("getValue",getValue)
+    if (getValue?.id && mode === "update") {
       setInitialValues({
-        Name: getValue.data.name || "",
-        Code: getValue.data.code || "",
-        ParentId: getValue.data.parentId,
-        Image: getValue.data.image || [],
+        Name: getValue?.name || "",
+        Code: getValue?.code || "",
+        ParentId: getValue?.parentId,
+        Image: getValue?.image || [],
       });
       setEditImageFile(
-        getValue.data.image
-          ? getValue.data.image.map((item: any) => ({
+        getValue?.image
+          ? getValue?.image.map((item: any) => ({
               file: item.file,
               contentType: item.contentType,
               fileName: item.fileName,
@@ -85,7 +86,7 @@ const CategoryForm: React.FC<FormProps> = (props) => {
       const formData = new FormData();
       formData.append("name", data?.Name);
       formData.append("code", data?.Code);
-      formData.append("parentId", data?.Category?.value);
+      formData.append("parentId", data?.Category?.value??null);
 
       // اضافه کردن فایل‌ها به FormData
       if (data?.Image && data.Image.length > 0) {
@@ -105,6 +106,7 @@ const CategoryForm: React.FC<FormProps> = (props) => {
       } else if (mode === "update") {
         dispatch(
           UpdateCategoryAction({
+            id,
             credentials: formData,
             onSubmitForm,
             resetForm,

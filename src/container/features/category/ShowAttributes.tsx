@@ -23,14 +23,13 @@ import {
 } from "../../../redux/slice/category/CategorySlice";
 import { GetCategoryAction } from "../../../redux/actions/category/CategoryActions";
 import { FaRegEdit } from "react-icons/fa";
-import { FaRegTrashCan } from "react-icons/fa6";
 import Image from "../../../components/image";
 
 interface CategoryTypes {
   onRowClick?: any;
 }
 
-const CategoryTable: React.FC<CategoryTypes> = (props) => {
+const ShowAttributes: React.FC<CategoryTypes> = (props) => {
   const { onRowClick } = props;
 
   const dispatch: any = useDispatch();
@@ -90,7 +89,6 @@ const CategoryTable: React.FC<CategoryTypes> = (props) => {
 
   return (
     <CollectionControls
-      buttons={["create"]}
       createTitle="ساخت دسته بندی جدید"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
@@ -197,4 +195,4 @@ const CategoryTable: React.FC<CategoryTypes> = (props) => {
     </CollectionControls>
   );
 };
-export default CategoryTable;
+export default ShowAttributes;

@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useState } from "react";
 import CRUD from "../../container/organism/CRUD";
 import CategoryDeleteConfirmation from "../../container/features/account/createUser/CreateUserDeleteConfirmation";
 import CategoryAttributeForm from "../../container/features/category/CategoryAttributeForm";
+import ShowAttributes from "../../container/features/category/ShowAttributes";
 
 const CategoryTable = lazy(
   () =>
@@ -66,16 +67,16 @@ const Category = () => {
             />
           </Suspense>
         }
-        //  confirmation={
-        //    <Suspense>
-        //      <CategoryDeleteConfirmation
-        //        value={selectedRow ?? {}}
-        //        onSubmit={() => {
-        //          setMode("content");
-        //        }}
-        //      />
-        //    </Suspense>
-        //  }
+         detail={
+           <Suspense>
+             <ShowAttributes
+               value={selectedRow ?? {}}
+               onSubmit={() => {
+                 setMode("content");
+               }}
+             />
+           </Suspense>
+         }
         onModalClose={() => {
           setMode("content");
         }}

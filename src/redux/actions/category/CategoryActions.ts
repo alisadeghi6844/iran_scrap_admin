@@ -68,7 +68,6 @@ export const CreateCategoryAction = createAsyncThunk(
         onSubmitForm && onSubmitForm();
         resetForm && resetForm();
       }
-      console.log("response", response);
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
@@ -80,9 +79,14 @@ export const CreateCategoryAction = createAsyncThunk(
 
 export const UpdateCategoryAction = createAsyncThunk(
   `${CATEGORY}/${UPDATE_CATEGORY}`,
-  async ({ credentials }: any, thunkAPI) => {
+  async ({ id,credentials, onSubmitForm, resetForm }: any, thunkAPI) => {
     try {
-      const response = await updateCategoryService(credentials);
+      const response = await updateCategoryService(credentials,id);
+      if (response?.status == 200) {
+        toast.success("دسته بندی با موفقیت ویرایش شد");
+        onSubmitForm && onSubmitForm();
+        resetForm && resetForm();
+      }
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
@@ -94,9 +98,14 @@ export const UpdateCategoryAction = createAsyncThunk(
 
 export const CreateCategoryAttributeAction = createAsyncThunk(
   `${CATEGORY}/${CEATE_CATEGORY_ATTRIBUTE}`,
-  async ({ credentials }: any, thunkAPI) => {
+  async ({ credentials, onSubmitForm, resetForm }: any, thunkAPI) => {
     try {
       const response = await createCategoryAttributeService(credentials);
+      if (response?.status == 201) {
+        toast.success("ویژگی دسته بندی با موفقیت ساخته شد");
+        onSubmitForm && onSubmitForm();
+        resetForm && resetForm();
+      }
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(

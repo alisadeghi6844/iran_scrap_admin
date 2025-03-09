@@ -1,5 +1,5 @@
 export const GET_CATEGORY_POINT = "category-admin/categories";
-export const GET_CATEGORY_BY_ID_POINT = "category-admin/categories";
+export const GET_CATEGORY_BY_ID_POINT = "category";
 export const CREATE_CATEGORY_POINT = "category-admin";
 
 export const UPDATE_CATEGORY_POINT = "category-admin";

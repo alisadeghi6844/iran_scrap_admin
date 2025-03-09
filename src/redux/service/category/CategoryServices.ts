@@ -20,26 +20,26 @@ export const getCategoryService = async (query: any) => {
   );
 };
 export const getCategoryByIdService = async (items: any) => {
-  console.log("items",items)
+  console.log("items", items);
   return await HttpServises.get(
     `${BASE_URL}${GET_CATEGORY_BY_ID_POINT}/${items.credentials?.credentials}`
   );
 };
 export const createCategoryService = async (items: any) => {
-  return await HttpServises.post(
-    `${BASE_URL}${CREATE_CATEGORY_POINT}`,items
-  );
+  return await HttpServises.post(`${BASE_URL}${CREATE_CATEGORY_POINT}`, items);
 };
 
-export const updateCategoryService = async (items: any) => {
+export const updateCategoryService = async (items: any, id: any) => {
   return await HttpServises.patch(
-    `${BASE_URL}${UPDATE_CATEGORY_POINT}/${items}`
+    `${BASE_URL}${UPDATE_CATEGORY_POINT}/${id}`,
+    items
   );
 };
 
 export const createCategoryAttributeService = async (items: any) => {
   return await HttpServises.post(
-    `${BASE_URL}${CREATE_CATEGORY_ATTRIBUTE_POINT}/${items}`
+    `${BASE_URL}${CREATE_CATEGORY_ATTRIBUTE_POINT}`,
+    items
   );
 };
 
