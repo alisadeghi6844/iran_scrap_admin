@@ -41,7 +41,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
 
   useEffect(() => {
     dispatch(
-      GetRequestProductAdminAction({ page: 0, size: 20, status: "REGISTERED" })
+      GetRequestProductAdminAction({ page: 0, size: 20, status: ["REGISTERED"] })
     );
   }, []);
 
@@ -78,7 +78,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
         GetRequestProductAdminAction({
           page: 0,
           size: 20,
-          status: "REGISTERED",
+          status: ["REGISTERED"],
         })
       );
     }

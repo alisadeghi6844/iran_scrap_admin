@@ -48,7 +48,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       GetRequestProductAdminAction({
         page: 0,
         size: 20,
-        status: "WAITING_FOR_OFFERS",
+        status: ["WAITING_FOR_OFFERS"],
       })
     );
   }, []);
@@ -86,7 +86,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         GetRequestProductAdminAction({
           page: 0,
           size: 20,
-          status: "WAITING_FOR_OFFERS",
+          status: ["WAITING_FOR_OFFERS"],
         })
       );
     }
