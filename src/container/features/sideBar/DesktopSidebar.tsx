@@ -75,11 +75,11 @@ const DesktopSidebar = () => {
   return (
     <div className="fixed right-0 z-40 bg-white border-l-2 border-dashed border-gray-300 top-0 min-h-screen w-full max-w-[14.4%]">
       <Link to="/" className="pb-8 pt-6 px-4 flex items-center gap-x-2">
-        <Image
+        {/* <Image
           src="/images/core/logo1.svg"
           alt="ویرا"
           className="w-[55px] h-[55px]"
-        />
+        /> */}
         <Typography className="font-bold text-lg text-primary">
           {import.meta.env.VITE_APP_COMPANY_NAME}
         </Typography>
