@@ -12,39 +12,19 @@ import routes, { privateRoutes } from "./routes";
 import Content from "./routes/Content";
 import MainTheme from "./container/themes/MainTheme.tsx";
 import FeatureLoading from "./components/loading/FeatureLoading";
-import {
-  getCurrentUserInfoAction,
-  IsTokenValidAction,
-} from "./redux/actions/account/AccountActions.ts";
-import {
-  selectGetCurrentUserData,
-  selectIsAuthenticated,
-  selectIsTokenValidLoading,
-} from "./redux/slice/account/AccountSlice.ts";
+
+import { GetUserProfileAction } from "./redux/actions/account/AccountActions.ts";
+import { selectGetUserProfileLoading } from "./redux/slice/account/AccountSlice.ts";
 import LoadingPage from "./components/loading/LoadingPage.tsx";
 
 const App = () => {
   const dispatch = useDispatch();
-  const isTokenValidLoading = useSelector(selectIsTokenValidLoading);
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-  const userData = useSelector(selectGetCurrentUserData);
 
-  const [installApp, setInstallApp] = useState(false);
+  const pageLoading = useSelector(selectGetUserProfileLoading);
 
-  // useEffect(() => {
-  //   dispatch(IsTokenValidAction());
-
-  //   window.addEventListener("beforeinstallprompt", (e: any) => {
-  //     e.preventDefault();
-  //     setInstallApp(e);
-  //   });
-  // }, []);
-
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     dispatch(getCurrentUserInfoAction());
-  //   }
-  // }, [isAuthenticated]);
+  useEffect(() => {
+    dispatch(GetUserProfileAction());
+  }, []);
 
   const renderRoutes = (
     basePath: any,
@@ -81,7 +61,7 @@ const App = () => {
                             },
                           ]}
                           title={breadCrumb}
-                          userData={userData} // ارسال userData به کامپوننت
+                          // userData={userData} // ارسال userData به کامپوننت
                         />
                       ) : (
                         <Navigate
@@ -104,7 +84,7 @@ const App = () => {
                           },
                         ]}
                         title={breadCrumb}
-                        userData={userData} // ارسال userData به کامپوننت
+                        // userData={userData} // ارسال userData به کامپوننت
                       />
                     ) : (
                       <Navigate
@@ -117,8 +97,8 @@ const App = () => {
                 ) : null
               }
               permission={role}
-              role={userData}
-              userId={userData.id}
+              // role={userData}
+              // userId={userData.id}
             />
           }
         />
@@ -144,7 +124,7 @@ const App = () => {
 
   return (
     <>
-      {isTokenValidLoading ? (
+      {pageLoading ? (
         <LoadingPage />
       ) : (
         <Router>

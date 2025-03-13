@@ -1,10 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
+  AUTH,
   CHANGE_CLIENT_PASSWORD,
   CHANGE_PASSWORD,
   GET_ALL_USERS,
   GET_CURRENT_USER_INFO,
-  IS_TOKEN_VALID,
+  GET_USER_PROFILE,
   LOG_OUT_AUTH,
   LOGIN_AUTH,
   SEND_CLIENT_OTP,
@@ -15,7 +16,7 @@ import {
   ChangePasswordService,
   getAllUsersService,
   GetCurrentUserInfoService,
-  IsTokenValidService,
+  GetUserProfileService,
   LoginService,
   LogOutService,
   SendClientOtpService,
@@ -34,12 +35,13 @@ export const LoginAction = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await LoginService(credentials);
-      if (response?.status === 200) {
-        if (response?.data?.accessToken) {
-          SetToken("token", response.data.accessToken, 2000 * 60 * 1000);
+      if (response?.status === 201) {
+        console.log("response",response);
+        if (response?.data?.access_token) {
+          SetToken("access_token", response.data.access_token, 2000 * 60 * 1000);
 
         }
-        return response.data;
+        return response?.data;
       } else {
         return rejectWithValue(response.data);
       }
@@ -57,7 +59,7 @@ export const LogOutAction = createAsyncThunk(
     try {
       const response = await LogOutService(credentials);
       if (response?.status === 200) {
-        SetToken("token", null, 0);
+        SetToken("access_token", null, 0);
         SetToken("refresh-token", null, 0);
 
         return response.data;
@@ -91,18 +93,6 @@ export const ChangePasswordAction = createAsyncThunk(
       return thunkAPI.rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }
       );
-    }
-  }
-);
-
-export const IsTokenValidAction = createAsyncThunk(
-  IS_TOKEN_VALID,
-  async (credentials, { rejectWithValue }) => {
-    try {
-      const response = await IsTokenValidService(credentials);
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
     }
   }
 );
@@ -162,7 +152,7 @@ export const VerifyOtpAction = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await VerifyOtpService(credentials);
-      return response.data;
+      return response;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }
@@ -181,6 +171,21 @@ export const ChangeClientPasswordAction = createAsyncThunk(
         toast.success("رمز عبور با موفقیت ویرایش شد")
       }
       return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const GetUserProfileAction = createAsyncThunk(
+  GET_USER_PROFILE,
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await GetUserProfileService(credentials);
+      console.log("response", response);
+      return response;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }

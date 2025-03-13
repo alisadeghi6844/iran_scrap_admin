@@ -16,20 +16,9 @@ const OtpCode = (props: any) => {
   const [timeLeft, actions] = useCountdown(300000, 1000); // 5 دقیقه برای status send
 
   useEffect(() => {
-    if (status === "send") {
       actions.reset();
       actions.start();
-    } else if (status === "has") {
-      const currentTime = new Date().getTime();
-      const expireTime = new Date(date).getTime();
-      const remainingTime = expireTime - currentTime;
 
-      if (remainingTime > 0) {
-        actions.start(remainingTime); // شروع تایمر با زمان باقیمانده
-      } else {
-        actions.reset(); // اگر زمان اکسپایر شده باشد، تایمر را ریست کن
-      }
-    }
   }, [status, date]);
 
   useEffect(() => {

@@ -6,12 +6,12 @@ import {
   CHANGE_PASSWORD_POINT,
   GET_ALL_USERS_POINT,
   GET_CURRENT_USER_INFO_POINT,
-  IS_TOKEN_VALID_POINT,
   LOG_OUT_POINT,
   LOGIN_POINT,
   SEND_CLIENT_OTP_POINT,
   VERIFY_OTP_POINT,
 } from "../../api/account/AccountApi";
+import { GET_USER_PROFILE_POINT } from "../../api/users/UsersApi";
 
 export const LoginService = async (items: any) => {
   return await HttpServises.post(`${BASE_URL}${LOGIN_POINT}`, items);
@@ -25,9 +25,6 @@ export const ChangePasswordService = async (items: any) => {
   return await HttpServises.post(`${BASE_URL}${CHANGE_PASSWORD_POINT}`, items);
 };
 
-export const IsTokenValidService = async (items: any) => {
-  return await HttpServises.get(`${BASE_URL}${IS_TOKEN_VALID_POINT}`);
-};
 
 export const getAllUsersService = async (query: any) => {
   let queryParams;
@@ -53,4 +50,14 @@ export const VerifyOtpService = async (items: any) => {
 
 export const ChangeClientPasswordService = async (items: any) => {
   return await HttpServises.post(`${BASE_URL}${CHANGE_CLIENT_PASSWORD_POINT}`, items);
+};
+
+export const GetUserProfileService = async (query: any) => {
+  let queryText;
+  if (!!query) {
+    queryText = AxiosQueryCustom(query);
+  }
+  return await HttpServises.get(
+    `${BASE_URL}${GET_USER_PROFILE_POINT}?${queryText ? queryText : null}`
+  );
 };

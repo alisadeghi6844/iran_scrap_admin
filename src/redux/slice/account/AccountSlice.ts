@@ -8,12 +8,13 @@ import {
   ChangePasswordAction,
   getAllUsersAction,
   getCurrentUserInfoAction,
-  IsTokenValidAction,
+  GetUserProfileAction,
   LoginAction,
   LogOutAction,
   SendClientOtpAction,
   VerifyOtpAction,
 } from "../../actions/account/AccountActions";
+
 
 const initialState = {
   user: null,
@@ -24,8 +25,7 @@ const initialState = {
   loginError: null,
   logOutLoading: false,
   logOut: null,
-  isTokenValidLoading: false,
-  isTokenValidError: null,
+
 
   getAllUsersError: null,
   getAllUsersLoading: false,
@@ -49,6 +49,10 @@ const initialState = {
 
   changePasswordLoading: false,
   changePasswordError: null,
+
+  getUserProfileError: null,
+  getUserProfileLoading: false,
+  getUserProfileData: [],
 };
 
 const authSlice = createSlice({
@@ -89,6 +93,26 @@ const authSlice = createSlice({
         state.logOutLoading = false;
         state.logOutError = action.payload;
         state.isAuthenticated = false;
+      })  
+         // Get User Profile
+      .addCase(GetUserProfileAction.pending, (state) => {
+        state.getUserProfileLoading = true;
+        state.getUserProfileData = [];
+        state.getUserProfileError = null;
+        // state.isAuthenticated=false;
+      })
+      .addCase(GetUserProfileAction.fulfilled, (state, action) => {
+        console.log("get user ",GetUserProfileAction)
+        state.getUserProfileLoading = false;
+        state.getUserProfileData = action.payload;
+        state.getUserProfileError = null;
+        state.isAuthenticated=true;
+      })
+      .addCase(GetUserProfileAction.rejected, (state, action) => {
+        state.getUserProfileLoading = false;
+        state.getUserProfileError = action.payload;
+        state.getUserProfileData = [];
+        // state.isAuthenticated=false;
       })
 
       // change password
@@ -103,24 +127,9 @@ const authSlice = createSlice({
       .addCase(ChangePasswordAction.rejected, (state: any, action: any) => {
         state.ChangePasswordLoading = false;
         state.ChangePasswordError = action.payload;
-      });
+      })
 
-    // is active token
-    builder
-      .addCase(IsTokenValidAction.pending, (state: any) => {
-        state.isTokenValidLoading = true;
-        state.isTokenValidError = null;
-      })
-      .addCase(IsTokenValidAction.fulfilled, (state: any, action: any) => {
-        state.isTokenValidLoading = false;
-        state.isAuthenticated = action.payload;
-        state.isTokenValidError = null;
-      })
-      .addCase(IsTokenValidAction.rejected, (state: any, action: any) => {
-        state.isTokenValidLoading = false;
-        state.isTokenValidError = action.payload;
-        state.isAuthenticated = false;
-      })
+    
       // Get Users
       .addCase(getAllUsersAction.pending, (state) => {
         state.getAllUsersLoading = true;
@@ -173,6 +182,7 @@ const authSlice = createSlice({
       .addCase(VerifyOtpAction.pending, (state: any) => {
         state.verifyOtpLoading = true;
         state.verifyOtpError = null;
+        state.verifyOtpData=null;
       })
       .addCase(VerifyOtpAction.fulfilled, (state: any, action: any) => {
         state.verifyOtpLoading = false;
@@ -182,6 +192,7 @@ const authSlice = createSlice({
       .addCase(VerifyOtpAction.rejected, (state: any, action: any) => {
         state.verifyOtpLoading = false;
         state.verifyOtpError = action.payload;
+        state.verifyOtpData=null;
       })
 
       // verify otp
@@ -212,8 +223,7 @@ export const selectIsAuthenticated = (state: any) => state.auth.isAuthenticated;
 export const selectRoles = (state: any) => state.auth.roles;
 export const selectPermissions = (state: any) => state.auth.permissions;
 export const selectLoginLoading = (state: any) => state.auth.loginLoading;
-export const selectIsTokenValidLoading = (state: any) =>
-  state.auth.isTokenValidLoading;
+
 export const selectLoginError = (state: any) => state.auth.loginError;
 
 export const selectGetAllUsersError = (state: any) =>
@@ -255,5 +265,12 @@ export const selectChangePasswordLoading = (state: any) =>
   state.auth.changePasswordLoading;
 export const selectChangePasswordError = (state: any) =>
   state.auth.changePasswordError;
+
+export const selectGetUserProfileError = (state: any) =>
+  state.users.getUserProfileError;
+export const selectGetUserProfileLoading = (state: any) =>
+  state.users.getUserProfileLoading;
+export const selectGetUserProfileData = (state: any) =>
+  state.users.getUserProfileData;
 
 export default authSlice.reducer;

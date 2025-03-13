@@ -29,6 +29,7 @@ const PermissionRoute: React.FC<PermissionRouteProps> = ({
   const [isChangePasswordActive, setIsChangePasswordActive] = useState(false);
 
   useEffect(() => {
+    console.log("isAuthenticated",isAuthenticated)
     if (!isAuthenticated) {
       setRedirect(true);
     }
