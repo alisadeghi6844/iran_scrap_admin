@@ -8,7 +8,7 @@ interface ContentRouteProps extends RouteProps {
     element: React.ComponentType;
 }
 const Content: React.FC<ContentRouteProps> = ({element: Component}) => {
-    const isAuthenticated = true; // استفاده از useSelector برای دسترسی به وضعیت
+    const isAuthenticated = useSelector(selectIsAuthenticated); // استفاده از useSelector برای دسترسی به وضعیت
     const location = useLocation();
     const from = location.state?.from || "/";
     return !isAuthenticated ? <Component /> : <Navigate to={from} replace />;

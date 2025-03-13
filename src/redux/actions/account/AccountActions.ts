@@ -100,7 +100,7 @@ export const IsTokenValidAction = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await IsTokenValidService(credentials);
-      return true;
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response.data);
     }

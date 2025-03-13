@@ -22,7 +22,7 @@ const PermissionRoute: React.FC<PermissionRouteProps> = ({
   role,
   userId,
 }) => {
-  const isAuthenticated = true;//todo
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const location = useLocation();
   const navigate = useNavigate();
   const [redirect, setRedirect] = useState(false);

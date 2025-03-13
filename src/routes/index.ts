@@ -39,13 +39,13 @@ const routes = [
 ];
 
 export const privateRoutes = [
-  // {
-  //   path: "/login",
-  //   breadCrumb: "ورود",
-  //   layout: "login",
-  //   component: lazy(() => import("../page/auth/Login")),
-  //   role: null,
-  // },
+  {
+    path: "/login",
+    breadCrumb: "ورود",
+    layout: "login",
+    component: lazy(() => import("../page/auth/Login")),
+    role: null,
+  },
   // {
   //   path: "/forget-password",
   //   breadCrumb: "فراموشی رمز عبور",
