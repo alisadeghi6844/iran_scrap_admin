@@ -1,4 +1,5 @@
 import { BASE_URL } from "../../../api/config";
+import { GetToken } from "../../../api/getToken";
 import HttpServises from "../../../api/HttpServises";
 import { AxiosQueryCustom } from "../../../utils/AxiosQuery";
 import {
@@ -55,9 +56,22 @@ export const ChangeClientPasswordService = async (items: any) => {
 export const GetUserProfileService = async (query: any) => {
   let queryText;
   if (!!query) {
-    queryText = AxiosQueryCustom(query);
+    queryText = AxiosQueryCustom(query); // فرض بر این است که این تابع به درستی کار می‌کند
   }
-  return await HttpServises.get(
-    `${BASE_URL}${GET_USER_PROFILE_POINT}?${queryText ? queryText : null}`
-  );
+
+  const url = `${BASE_URL}${GET_USER_PROFILE_POINT}?${queryText ? queryText : ''}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json', 
+      'Authorization': `Bearer ${GetToken("access_token")}`
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return await response.json(); // فرض بر این است که پاسخ JSON است
 };

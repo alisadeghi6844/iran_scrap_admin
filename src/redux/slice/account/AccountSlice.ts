@@ -99,10 +99,8 @@ const authSlice = createSlice({
         state.getUserProfileLoading = true;
         state.getUserProfileData = [];
         state.getUserProfileError = null;
-        // state.isAuthenticated=false;
       })
       .addCase(GetUserProfileAction.fulfilled, (state, action) => {
-        console.log("get user ",GetUserProfileAction)
         state.getUserProfileLoading = false;
         state.getUserProfileData = action.payload;
         state.getUserProfileError = null;
@@ -112,7 +110,7 @@ const authSlice = createSlice({
         state.getUserProfileLoading = false;
         state.getUserProfileError = action.payload;
         state.getUserProfileData = [];
-        // state.isAuthenticated=false;
+       state.isAuthenticated=false;
       })
 
       // change password

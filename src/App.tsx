@@ -14,16 +14,20 @@ import MainTheme from "./container/themes/MainTheme.tsx";
 import FeatureLoading from "./components/loading/FeatureLoading";
 
 import { GetUserProfileAction } from "./redux/actions/account/AccountActions.ts";
-import { selectGetUserProfileLoading } from "./redux/slice/account/AccountSlice.ts";
+import {
+  selectGetUserProfileLoading,
+  selectIsAuthenticated,
+} from "./redux/slice/account/AccountSlice.ts";
 import LoadingPage from "./components/loading/LoadingPage.tsx";
 
 const App = () => {
   const dispatch = useDispatch();
+  const isAuth = useSelector(selectIsAuthenticated);
 
   const pageLoading = useSelector(selectGetUserProfileLoading);
 
   useEffect(() => {
-    dispatch(GetUserProfileAction());
+      dispatch(GetUserProfileAction());
   }, []);
 
   const renderRoutes = (

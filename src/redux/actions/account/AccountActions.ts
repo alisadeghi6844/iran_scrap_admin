@@ -184,7 +184,6 @@ export const GetUserProfileAction = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await GetUserProfileService(credentials);
-      console.log("response", response);
       return response;
     } catch (error: any) {
       return rejectWithValue(
