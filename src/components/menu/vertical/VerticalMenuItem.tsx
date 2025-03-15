@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import Typography from "../../typography/Typography";
 import { FaChevronLeft } from "react-icons/fa6";
 import { VerticalMenuItemTypes } from "../../../types/components/VerticalMenuItemTypes";
@@ -18,21 +19,28 @@ const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
     ...rest
   } = props;
   const [isVisible, setIsVisible] = useState(false);
+  
+  // استفاده از useLocation برای دریافت مسیر فعلی
+  const location = useLocation();
+  
+  // بررسی می‌کنیم که آیا لینک کامپوننت با مسیر فعلی برابر است
+  const isActive = link && location.pathname === link;
 
   return (
     <>
-      
-        <li
+      <li
         onClick={() => setIsVisible((prevState) => !prevState)}
         className={`${
           isVisible ? "open-child" : null
-        } px-2 py-3 font-semibold text-gray-600 rounded-lg hover:bg-primary-100 transition-all menu-item-custom`}
+        } ${
+          isActive ? "bg-primary-500" : "text-gray-600 hover:bg-primary-100"
+        } px-2 py-3 font-semibold rounded-lg transition-all menu-item-custom`}
         {...rest}
       >
         <Typography
           tag={link ? "a" : "span"}
           link={link ?? null}
-          className="flex items-center justify-between cursor-pointer"
+          className={`flex items-center justify-between cursor-pointer ${isActive ? "text-white" : ""}`}
         >
           <div className="flex items-center gap-x-2">
             {icon ?? null}

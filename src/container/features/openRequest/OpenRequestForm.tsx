@@ -12,13 +12,12 @@ import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import { convertToJalali } from "../../../utils/MomentConvertor";
 import Typography from "../../../components/typography/Typography";
-import {
-  GetRequestProductOfferAction,
-} from "../../../redux/actions/productRequestOffer/RequestProductOffer";
+import { GetRequestProductOfferAction } from "../../../redux/actions/productRequestOffer/RequestProductOffer";
 import {
   selectGetProductRequestOfferData,
   selectGetProductRequestOfferLoading,
 } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
+import { formatNumber } from "../../../utils/NumberFormated";
 
 const OpenRequestForm: React.FC<FormProps> = (props) => {
   const { mode = "create", id, onSubmitForm, ...rest } = props;
@@ -27,8 +26,6 @@ const OpenRequestForm: React.FC<FormProps> = (props) => {
   const reqData = useSelector(selectGetProductRequestOfferData);
   const reqLoading = useSelector(selectGetProductRequestOfferLoading);
 
-
-
   useEffect(() => {
     if (id && mode === "update") {
       dispatch(
@@ -36,7 +33,6 @@ const OpenRequestForm: React.FC<FormProps> = (props) => {
       );
     }
   }, [id, mode]);
-
 
   return (
     <>
@@ -74,7 +70,9 @@ const OpenRequestForm: React.FC<FormProps> = (props) => {
                       ? convertToJalali(row?.deliveryTime)
                       : "_"}
                   </TableCell>
-                  <TableCell>{row?.price + " " + "تومان"}</TableCell>
+                  <TableCell>
+                    {formatNumber(row?.price) + " " + "تومان"}
+                  </TableCell>
                   <TableCell>{row?.status}</TableCell>
                   <TableCell>
                     {row?.request?.amount

@@ -5,7 +5,7 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import PermissionRoute from "./routes/PermissionRoute";
 import routes, { privateRoutes } from "./routes";
@@ -14,21 +14,27 @@ import MainTheme from "./container/themes/MainTheme.tsx";
 import FeatureLoading from "./components/loading/FeatureLoading";
 
 import { GetUserProfileAction } from "./redux/actions/account/AccountActions.ts";
-import {
-  selectGetUserProfileLoading,
-  selectIsAuthenticated,
-} from "./redux/slice/account/AccountSlice.ts";
 import LoadingPage from "./components/loading/LoadingPage.tsx";
 
 const App = () => {
   const dispatch = useDispatch();
-  const isAuth = useSelector(selectIsAuthenticated);
-
-  const pageLoading = useSelector(selectGetUserProfileLoading);
+  const [profileLoading, setProfileLoading] = useState(true); // وضعیت لودینگ پروفایل
+  const [isAuth, setIsAuth] = useState(false); // وضعیت احراز هویت
 
   useEffect(() => {
-      dispatch(GetUserProfileAction());
-  }, []);
+    const fetchUserProfile = async () => {
+      try {
+        await dispatch(GetUserProfileAction());
+        setIsAuth(true); // فرض بر این است که کاربر احراز هویت شده است
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      } finally {
+        setProfileLoading(false); // در هر صورت لودینگ را متوقف کن
+      }
+    };
+
+    fetchUserProfile();
+  }, [dispatch]);
 
   const renderRoutes = (
     basePath: any,
@@ -65,7 +71,6 @@ const App = () => {
                             },
                           ]}
                           title={breadCrumb}
-                          // userData={userData} // ارسال userData به کامپوننت
                         />
                       ) : (
                         <Navigate
@@ -88,7 +93,6 @@ const App = () => {
                           },
                         ]}
                         title={breadCrumb}
-                        // userData={userData} // ارسال userData به کامپوننت
                       />
                     ) : (
                       <Navigate
@@ -101,8 +105,6 @@ const App = () => {
                 ) : null
               }
               permission={role}
-              // role={userData}
-              // userId={userData.id}
             />
           }
         />
@@ -128,7 +130,7 @@ const App = () => {
 
   return (
     <>
-      {pageLoading ? (
+      {profileLoading ? (
         <LoadingPage />
       ) : (
         <Router>

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { HandleFilterParams } from "../../../types/FilterParams";
 import CollectionControls from "../../organism/CollectionControls";
@@ -20,6 +20,7 @@ import {
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import { convertToJalali } from "../../../utils/MomentConvertor";
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
+import StatusSelect from "../status/StatusSelect";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
@@ -31,10 +32,10 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const dispatch: any = useDispatch();
 
   const filterDefaultInitialValues = {
-    FoodName: "",
-    Category: null,
-    Restaurant: null,
+    StatusSelect: "",
   };
+
+  const [selectedStatus, setSelectedStatus] = useState("");
 
   const loading = useSelector(selectGetProductRequestAdminLoading);
   const productAdminData = useSelector(selectGetProductRequestAdminData);
@@ -44,14 +45,38 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const updateData_2 = useSelector(selectUpdateProductRequestProviderAdminData);
 
   useEffect(() => {
-    dispatch(
-      GetRequestProductAdminAction({
-        page: 0,
-        size: 20,
-        status: ["WAITING_FOR_OFFERS",]
-      })
-    );
-  }, []);
+    if (selectedStatus) {
+      dispatch(
+        GetRequestProductAdminAction({
+          page: 0,
+          size: 20,
+          status: selectedStatus ? [selectedStatus?.value] : [
+                  "WAITING_FOR_OFFERS",
+                  "CONSIDERING_SUGGESTIONS",
+                  "SEND_FINAL_OFFER_TO_BUYER",
+                  "CONFIRMATION_REQUEST_BY_BUYER",
+                  "BUYER_FAILURE_APPROVE",
+                  "NOT_RECEIVING_ENOUGH_OFFERS",
+                ],
+        })
+      );
+    } else {
+      dispatch(
+        GetRequestProductAdminAction({
+          page: 0,
+          size: 20,
+          status:[
+            "WAITING_FOR_OFFERS",
+            "CONSIDERING_SUGGESTIONS",
+            "SEND_FINAL_OFFER_TO_BUYER",
+            "CONFIRMATION_REQUEST_BY_BUYER",
+            "BUYER_FAILURE_APPROVE",
+            "NOT_RECEIVING_ENOUGH_OFFERS",
+          ]
+        })
+      );
+    }
+  }, [selectedStatus]); // اضافه کردن selectedStatus به dependency
 
   const handleFilter = ({
     filter,
@@ -59,37 +84,76 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
     page,
     pageSize,
   }: HandleFilterParams) => {
-    dispatch(
-      GetRequestProductAdminAction({
-        filter,
-        search,
-        page,
-        pageSize,
-      })
-    );
-  };
-
-  const handleFilterParameters = (data: any) => {
-    const { FoodName, Category, Restaurant } = data;
-    let queryParam = "";
-    if (FoodName) queryParam += "title=" + FoodName + ",";
-    if (Category?.label) queryParam += "categoriesId=" + Category?.value + ",";
-    if (Restaurant?.label)
-      queryParam += "restaurantId=" + Restaurant?.value + ",";
-
-    return queryParam.substring(0, queryParam.length - 1);
+    if (selectedStatus) {
+      dispatch(
+        GetRequestProductAdminAction({
+          filter,
+          search,
+          page,
+          pageSize,
+          status: selectedStatus ? [selectedStatus?.value] : [
+                  "WAITING_FOR_OFFERS",
+                  "CONSIDERING_SUGGESTIONS",
+                  "SEND_FINAL_OFFER_TO_BUYER",
+                  "CONFIRMATION_REQUEST_BY_BUYER",
+                  "BUYER_FAILURE_APPROVE",
+                  "NOT_RECEIVING_ENOUGH_OFFERS",
+                ],
+        })
+      );
+    } else {
+      dispatch(
+        GetRequestProductAdminAction({
+          filter,
+          search,
+          page,
+          pageSize,
+          status:[
+            "WAITING_FOR_OFFERS",
+            "CONSIDERING_SUGGESTIONS",
+            "SEND_FINAL_OFFER_TO_BUYER",
+            "CONFIRMATION_REQUEST_BY_BUYER",
+            "BUYER_FAILURE_APPROVE",
+            "NOT_RECEIVING_ENOUGH_OFFERS",
+          ]
+        })
+      );
+    }
   };
 
   useEffect(() => {
-    console.log("updateData_2",updateData_2)
-    if (updateData?.status == 200 || updateData_2?.status == 200) {
-      dispatch(
-        GetRequestProductAdminAction({
-          page: 0,
-          size: 20,
-          status: ["WAITING_FOR_OFFERS"],
-        })
-      );
+    if (updateData?.status === 200 || updateData_2?.status === 200) {
+      if (selectedStatus) {
+        dispatch(
+          GetRequestProductAdminAction({
+            page: 0,
+            size: 20,
+            status: selectedStatus ? [selectedStatus?.value] : [
+                  "WAITING_FOR_OFFERS",
+                  "CONSIDERING_SUGGESTIONS",
+                  "SEND_FINAL_OFFER_TO_BUYER",
+                  "CONFIRMATION_REQUEST_BY_BUYER",
+                  "BUYER_FAILURE_APPROVE",
+                  "NOT_RECEIVING_ENOUGH_OFFERS",
+                ],
+          })
+        );
+      } else {
+        dispatch(
+          GetRequestProductAdminAction({
+            page: 0,
+            size: 20,
+            status:[
+              "WAITING_FOR_OFFERS",
+              "CONSIDERING_SUGGESTIONS",
+              "SEND_FINAL_OFFER_TO_BUYER",
+              "CONFIRMATION_REQUEST_BY_BUYER",
+              "BUYER_FAILURE_APPROVE",
+              "NOT_RECEIVING_ENOUGH_OFFERS",
+            ]
+          })
+        );
+      }
     }
   }, [updateData, updateData_2]);
 
@@ -98,9 +162,8 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       title="درخواست های بسته"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
-      onFilter={handleFilterParameters}
-      data={productAdminData}
       onMetaChange={handleFilter}
+      data={productAdminData}
       onButtonClick={(button) => {
         if (!!onRowClick) {
           button === "create" && onRowClick("create");
@@ -115,7 +178,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableHeadCell>توضیحات</TableHeadCell>
             <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
-            <TableHeadCell>وضعیت</TableHeadCell>
+            <TableHeadCell className="min-w-[170px]">وضعیت</TableHeadCell>
             <TableHeadCell />
           </TableRow>
         </TableHead>
@@ -126,7 +189,23 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <StatusSelect
+                codes={[
+                  "WAITING_FOR_OFFERS",
+                  "CONSIDERING_SUGGESTIONS",
+                  "SEND_FINAL_OFFER_TO_BUYER",
+                  "CONFIRMATION_REQUEST_BY_BUYER",
+                  "BUYER_FAILURE_APPROVE",
+                  "NOT_RECEIVING_ENOUGH_OFFERS",
+                ]}
+                name="StatusSelect"
+                label=""
+                noBorder
+                value={selectedStatus}
+                onChange={(status: any) => setSelectedStatus(status)} // به روز رسانی وضعیت انتخاب شده
+              />
+            </TableFilterCell>
           </TableRow>
           {!loading ? (
             productAdminData?.data?.length > 0 ? (
@@ -144,16 +223,6 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                   </TableCell>
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>{row?.statusTitle ?? "_"}</TableCell>
-                  {/* <TableCell className="flex justify-center">
-                    <Button
-                      onClick={() => {
-                        onRowClick && onRowClick("detail", row);
-                      }}
-                      variant="outline-warning"
-                    >
-                      تغییر وضعیت
-                    </Button>
-                  </TableCell> */}
                   <TableCell className="flex justify-center">
                     <Button
                       onClick={() => {
@@ -168,14 +237,14 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colSpan={7} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="9" className="flex justify-center !py-4">
+              <TableCell colSpan={7} className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>
@@ -185,4 +254,5 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
     </CollectionControls>
   );
 };
+
 export default CloseRequest;

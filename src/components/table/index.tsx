@@ -17,7 +17,7 @@ const Table:React.FC<TableTypes> = (props) => {
       }  bg-clip-border ${className} overflow-auto`}
     >
       <table
-        className="dark:border-dark mb-0 w-full items-center border-gray-200 align-top text-text-primary "
+        className="dark:border-dark mb-0 w-full items-center border-gray-200 align-top text-text-primary"
         {...rest}
       >
         {children}

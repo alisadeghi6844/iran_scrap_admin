@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { HandleFilterParams } from "../../../types/FilterParams";
 import CollectionControls from "../../organism/CollectionControls";
@@ -20,6 +20,7 @@ import {
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import { convertToJalali } from "../../../utils/MomentConvertor";
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
+import StatusSelect from "../status/StatusSelect";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
@@ -27,7 +28,7 @@ interface ProductRequestAdminTypes {
 
 const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const { onRowClick } = props;
-
+  const [selectedStatus, setSelectedStatus] = useState("");
   const dispatch: any = useDispatch();
 
   const filterDefaultInitialValues = {
@@ -38,20 +39,35 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
 
   const loading = useSelector(selectGetProductRequestAdminLoading);
   const productAdminData = useSelector(selectGetProductRequestAdminData);
+  const updateProviderData = useSelector(
+    selectUpdateProductRequestProviderAdminData
+  );
   const updateData = useSelector(
     selectUpdateRequestProductOfferSendToBuyerData
   );
   const updateData_2 = useSelector(selectUpdateProductRequestProviderAdminData);
 
   useEffect(() => {
-    dispatch(
-      GetRequestProductAdminAction({
-        page: 0,
-        size: 20,
-        status: ["WAITING_FOR_OFFERS"],
-      })
-    );
-  }, []);
+    if (selectedStatus) {
+      dispatch(
+        GetRequestProductAdminAction({
+          page: 0,
+          size: 20,
+          status: selectedStatus
+            ? [selectedStatus?.value]
+            : ["REGISTERED", "BUYER_CANCELLATION", "RETURN_TO_BUYER_REQUEST"],
+        })
+      );
+    } else {
+      dispatch(
+        GetRequestProductAdminAction({
+          page: 0,
+          size: 20,
+          status:["REGISTERED", "BUYER_CANCELLATION", "RETURN_TO_BUYER_REQUEST"]
+        })
+      );
+    }
+  }, [selectedStatus]);
 
   const handleFilter = ({
     filter,
@@ -59,45 +75,64 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
     page,
     pageSize,
   }: HandleFilterParams) => {
-    dispatch(
-      GetRequestProductAdminAction({
-        filter,
-        search,
-        page,
-        pageSize,
-      })
-    );
-  };
-
-  const handleFilterParameters = (data: any) => {
-    const { FoodName, Category, Restaurant } = data;
-    let queryParam = "";
-    if (FoodName) queryParam += "title=" + FoodName + ",";
-    if (Category?.label) queryParam += "categoriesId=" + Category?.value + ",";
-    if (Restaurant?.label)
-      queryParam += "restaurantId=" + Restaurant?.value + ",";
-
-    return queryParam.substring(0, queryParam.length - 1);
-  };
-
-  useEffect(() => {
-    if (updateData?.status == 200 || updateData_2?.status == 200) {
+    if (selectedStatus) {
       dispatch(
         GetRequestProductAdminAction({
-          page: 0,
-          size: 20,
-          status: ["WAITING_FOR_OFFERS"],
+          filter,
+          search,
+          page,
+          pageSize,
+          status: selectedStatus
+            ? [selectedStatus?.value]
+            : ["REGISTERED", "BUYER_CANCELLATION", "RETURN_TO_BUYER_REQUEST"],
+        })
+      );
+    } else {
+      dispatch(
+        GetRequestProductAdminAction({
+          filter,
+          search,
+          page,
+          pageSize,
+          status:["REGISTERED", "BUYER_CANCELLATION", "RETURN_TO_BUYER_REQUEST"]
         })
       );
     }
-  }, [updateData, updateData_2]);
+  };
+
+  useEffect(() => {
+    if (
+      updateData?.status == 200 ||
+      updateData_2?.status == 200 ||
+      updateProviderData?.status?.id
+    ) {
+      if (selectedStatus) {
+        dispatch(
+          GetRequestProductAdminAction({
+            page: 0,
+            size: 20,
+            status: selectedStatus
+              ? [selectedStatus?.value]
+              : ["REGISTERED", "BUYER_CANCELLATION", "RETURN_TO_BUYER_REQUEST"],
+          })
+        );
+      } else {
+        dispatch(
+          GetRequestProductAdminAction({
+            page: 0,
+            size: 20,
+            status:["REGISTERED", "BUYER_CANCELLATION", "RETURN_TO_BUYER_REQUEST"]
+          })
+        );
+      }
+    }
+  }, [updateData, updateData_2, updateProviderData]);
 
   return (
     <CollectionControls
       title="درخواست های باز"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
-      onFilter={handleFilterParameters}
       data={productAdminData}
       onMetaChange={handleFilter}
       onButtonClick={(button) => {
@@ -114,7 +149,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableHeadCell>توضیحات</TableHeadCell>
             <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
-            <TableHeadCell>وضعیت</TableHeadCell>
+            <TableHeadCell className="min-w-[170px]">وضعیت</TableHeadCell>
             <TableHeadCell />
             <TableHeadCell />
           </TableRow>
@@ -126,6 +161,21 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+
+            <TableFilterCell>
+              <StatusSelect
+                codes={[
+                  "REGISTERED",
+                  "BUYER_CANCELLATION",
+                  "RETURN_TO_BUYER_REQUEST",
+                ]}
+                name="StatusSelect"
+                label=""
+                noBorder
+                value={selectedStatus}
+                onChange={(status: any) => setSelectedStatus(status)} // به روز رسانی وضعیت انتخاب شده
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
@@ -147,7 +197,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                   <TableCell>{row?.statusTitle ?? "_"}</TableCell>
                   <TableCell className="flex justify-center">
                     <Button
-                              type="button"
+                      type="button"
                       onClick={() => {
                         onRowClick && onRowClick("detail", row);
                       }}
@@ -158,7 +208,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                   </TableCell>
                   <TableCell className="flex justify-center">
                     <Button
-                    type="button"
+                      type="button"
                       onClick={() => {
                         onRowClick && onRowClick("update", row);
                       }}

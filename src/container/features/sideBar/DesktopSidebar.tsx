@@ -6,6 +6,7 @@ import { LuGitPullRequest } from "react-icons/lu";
 import { LuPackageOpen } from "react-icons/lu";
 import { BsBoxSeam } from "react-icons/bs";
 import { MdOutlineCategory } from "react-icons/md";
+import { RiBloggerLine } from "react-icons/ri";
 
 import { MdProductionQuantityLimits } from "react-icons/md";
 
@@ -14,7 +15,7 @@ const DesktopSidebar = () => {
     {
       id: 1,
       isNew: false,
-      menuTitle: "صفحات مدیریتی",
+      menuTitle: "مدیریت درخواست ها",
       order: "1",
       role: ["admin", "client", "reservation"],
       notif: "",
@@ -50,25 +51,46 @@ const DesktopSidebar = () => {
           role: ["admin", "client", "reservation"],
         },
         {
-        path: "/product-request-status",
-        title: "مدیریت وضعیت درخواست ها",
-        icon: <MdProductionQuantityLimits className="text-2xl" />,
-        id: 230,
-        isNew: false,
-        subRoutes: [],
-        notif: "",
-        role: ["admin", "client", "reservation"],
-      },
-      {
-        path: "/category-management",
-        title: "مدیریت دسته بندی",
-        icon: <MdOutlineCategory className="text-2xl" />,
-        id: 240,
-        isNew: false,
-        subRoutes: [],
-        notif: "",
-        role: ["admin", "client", "reservation"],
-      },
+          path: "/product-request-status",
+          title: "مدیریت وضعیت درخواست ها",
+          icon: <MdProductionQuantityLimits className="text-2xl" />,
+          id: 230,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+      ],
+    },
+
+    {
+      id: 12,
+      isNew: false,
+      menuTitle: "فرم های پایه",
+      order: "1",
+      role: ["admin", "client", "reservation"],
+      notif: "",
+      menus: [
+        {
+          path: "/category-management",
+          title: "مدیریت دسته بندی",
+          icon: <MdOutlineCategory className="text-2xl" />,
+          id: 2402,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+        {
+          path: "/blog-management",
+          title: "مدیریت مقالات",
+          icon: <RiBloggerLine className="text-2xl" />,
+          id: 24012,
+          isNew: true,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
       ],
     },
   ];

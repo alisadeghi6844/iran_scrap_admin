@@ -44,7 +44,7 @@ const OpenRequestDetail: React.FC<FormProps> = (props) => {
     dispatch(
       UpdateRequestProductAdminProviderAction({
         credentials: { status: selectedItem },
-        id: id,
+        id: id?.id,
         handleSubmit,
       })
     );
@@ -57,6 +57,16 @@ const OpenRequestDetail: React.FC<FormProps> = (props) => {
       setSelectedItem(code); // به‌روزرسانی مقدار
     }
   };
+
+  // پیدا کردن آیتم فعلی بر اساس id.status
+  const currentStatusItem = productStatusData?.data?.find(
+    (item:any) => item.code === id?.status
+  );
+
+  // فیلتر کردن وضعیت‌های مجاز برای تغییر
+  const allowedStatuses = productStatusData?.data?.filter(
+    (item:any) => currentStatusItem?.allowedChangeCodes?.includes(item.code)
+  );
 
   // مقادیر اولیه برای کامپوننت FORM
   const initialValues = {
@@ -77,7 +87,7 @@ const OpenRequestDetail: React.FC<FormProps> = (props) => {
             {
               component: (
                 <>
-                  {productStatusData?.data?.map((item: any) => (
+                  {allowedStatuses?.map((item:any) => (
                     <div className="col-span-12" key={item?.code}>
                       <Checkbox
                         id={item?.code}

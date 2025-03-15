@@ -1,21 +1,23 @@
 import React, { lazy, Suspense, useState } from "react";
 import CRUD from "../../container/organism/CRUD";
-import OpenRequestDetail from "../../container/features/openRequest/OpenRequestDetail";
+import CategoryDeleteConfirmation from "../../container/features/account/createUser/CreateUserDeleteConfirmation";
+import CategoryAttributeForm from "../../container/features/category/CategoryAttributeForm";
+import ShowAttributes from "../../container/features/category/ShowAttributes";
 
-const OpenRequestTable = lazy(
+const BlogTable = lazy(
   () =>
     import(
-      /* webpackChunkName: "openRequest" */ "../../container/features/openRequest/OpenRequestTable"
+      /* webpackChunkName: "Blog" */ "../../container/features/blog/BlogTable"
     )
 );
-const OpenRequestForm = lazy(
+const CategoryForm = lazy(
   () =>
     import(
-      /* webpackChunkName: "openRequest" */ "../../container/features/openRequest/OpenRequestForm"
+      /* webpackChunkName: "Category" */ "../../container/features/category/CategoryForm"
     )
 );
 
-const OpenRequest = () => {
+const BlogManagement = () => {
   const [mode, setMode] = useState<string>("content");
   const [selectedRow, setSelectedRow] = useState<any>({});
 
@@ -27,11 +29,12 @@ const OpenRequest = () => {
       }}
     >
       <CRUD
-        formModalSize="2xl"
+        formModalSize="xl"
+        confirmModalSize="xl"
         mode={mode}
         content={
           <Suspense>
-            <OpenRequestTable
+            {/* <BlogTable
               onRowClick={(name: string, row: any) => {
                 setMode(name);
 
@@ -39,14 +42,24 @@ const OpenRequest = () => {
                   setSelectedRow(row);
                 }
               }}
-            />
+            /> */}
           </Suspense>
         }
         form={
           <Suspense>
-            <OpenRequestForm
-              handleSubmit={() => setMode("content")}
-              id={selectedRow?.id ?? null}
+            <CategoryForm
+              id={selectedRow?._id ?? null}
+              mode={mode}
+              onSubmitForm={() => {
+                setMode("content");
+              }}
+            />
+          </Suspense>
+        }
+        confirmation={
+          <Suspense>
+            <CategoryAttributeForm
+              id={selectedRow?._id ?? null}
               mode={mode}
               onSubmitForm={() => {
                 setMode("content");
@@ -56,11 +69,9 @@ const OpenRequest = () => {
         }
         detail={
           <Suspense>
-            <OpenRequestDetail
-              handleSubmit={() => setMode("content")}
-              id={selectedRow ?? null}
-              mode={mode}
-              onSubmitForm={() => {
+            <ShowAttributes
+              value={selectedRow ?? {}}
+              onSubmit={() => {
                 setMode("content");
               }}
             />
@@ -74,4 +85,4 @@ const OpenRequest = () => {
   );
 };
 
-export default OpenRequest;
+export default BlogManagement;

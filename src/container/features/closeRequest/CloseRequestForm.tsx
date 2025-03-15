@@ -22,6 +22,7 @@ import {
 } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
 import Checkbox from "../../../components/checkbox";
 import Button from "../../../components/button";
+import { formatNumber } from "../../../utils/NumberFormated";
 
 const CloseRequestForm: React.FC<FormProps> = (props) => {
   const { mode = "create", id, onSubmitForm, ...rest } = props;
@@ -112,7 +113,7 @@ const CloseRequestForm: React.FC<FormProps> = (props) => {
                       ? convertToJalali(row?.deliveryTime)
                       : "_"}
                   </TableCell>
-                  <TableCell>{row?.price + " " + "تومان"}</TableCell>
+                  <TableCell>{formatNumber(row?.price) + " " + "تومان"}</TableCell>
                   <TableCell>{row?.status}</TableCell>
                   <TableCell>
                     {row?.request?.amount

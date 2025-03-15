@@ -43,7 +43,7 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
   const usersData = useSelector(selectGetUsersData);
 
   useEffect(() => {
-    dispatch(GetUsersAction({ credentials: { page: 0, size: 20 } }));
+    dispatch(GetUsersAction({ credentials: { page: 0, size: 20,usertype:"Provider" } }));
   }, []);
 
   const handleFilter = ({
@@ -60,6 +60,7 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
           firstName: filter.firstName,
           lastName: filter.lastName,
           mobile: filter.phoneNumber,
+          usertype:"Provider"
         },
       })
     );
