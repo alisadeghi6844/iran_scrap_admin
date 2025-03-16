@@ -52,16 +52,14 @@ const CategoryTable: React.FC<CategoryTypes> = (props) => {
 
   const handleFilter = ({
     filter,
-    search,
     page,
     pageSize,
   }: HandleFilterParams) => {
     dispatch(
       GetCategoryAction({
         filter,
-        search,
-        page,
-        pageSize,
+        page: page ?? 0,
+        size: pageSize??20,
       })
     );
   };

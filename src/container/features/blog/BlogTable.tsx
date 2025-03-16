@@ -17,8 +17,14 @@ import { MdOutlineFeaturedPlayList } from "react-icons/md";
 import { LuGitPullRequestCreateArrow } from "react-icons/lu";
 
 import { FaRegEdit } from "react-icons/fa";
-import { FaRegTrashCan } from "react-icons/fa6";
 import Image from "../../../components/image";
+import {
+  selectCreateBlogData,
+  selectGetBlogData,
+  selectGetBlogLoading,
+  selectUpdateBlogData,
+} from "../../../redux/slice/blog/BlogSlice";
+import { GetBlogAction } from "../../../redux/actions/blog/BlogActions";
 
 interface BlogTypes {
   onRowClick?: any;
@@ -44,18 +50,12 @@ const BlogTable: React.FC<BlogTypes> = (props) => {
     dispatch(GetBlogAction({ page: 0, size: 20 }));
   }, []);
 
-  const handleFilter = ({
-    filter,
-    search,
-    page,
-    pageSize,
-  }: HandleFilterParams) => {
+  const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     dispatch(
       GetBlogAction({
         filter,
-        search,
-        page,
-        pageSize,
+        page: page ?? 0,
+        size: pageSize ?? 20,
       })
     );
   };
@@ -81,6 +81,10 @@ const BlogTable: React.FC<BlogTypes> = (props) => {
       );
     }
   }, [updateData, createData]);
+
+  useEffect(()=>{
+    console.log("blogData",blogData)
+  },[blogData]);
 
   return (
     <CollectionControls

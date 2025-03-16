@@ -42,16 +42,14 @@ const ProductRequestStatus: React.FC<ProductRequestStatusTypes> = (props) => {
 
   const handleFilter = ({
     filter,
-    search,
     page,
     pageSize,
   }: HandleFilterParams) => {
     dispatch(
       GetRequestProductStatusAction({
         filter,
-        search,
-        page,
-        pageSize,
+        page: page ?? 0,
+        size: pageSize??20,
       })
     );
   };

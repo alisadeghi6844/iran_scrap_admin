@@ -47,16 +47,14 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
 
   const handleFilter = ({
     filter,
-    search,
     page,
     pageSize,
   }: HandleFilterParams) => {
     dispatch(
       GetRequestProductAdminAction({
         filter,
-        search,
-        page,
-        pageSize,
+        page: page ?? 0,
+        size: pageSize??20,
       })
     );
   };

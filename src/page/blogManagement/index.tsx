@@ -10,10 +10,10 @@ const BlogTable = lazy(
       /* webpackChunkName: "Blog" */ "../../container/features/blog/BlogTable"
     )
 );
-const CategoryForm = lazy(
+const BlogForm = lazy(
   () =>
     import(
-      /* webpackChunkName: "Category" */ "../../container/features/category/CategoryForm"
+      /* webpackChunkName: "Blog" */ "../../container/features/blog/BlogForm"
     )
 );
 
@@ -34,7 +34,7 @@ const BlogManagement = () => {
         mode={mode}
         content={
           <Suspense>
-            {/* <BlogTable
+            <BlogTable
               onRowClick={(name: string, row: any) => {
                 setMode(name);
 
@@ -42,12 +42,12 @@ const BlogManagement = () => {
                   setSelectedRow(row);
                 }
               }}
-            /> */}
+            />
           </Suspense>
         }
         form={
           <Suspense>
-            <CategoryForm
+            <BlogForm
               id={selectedRow?._id ?? null}
               mode={mode}
               onSubmitForm={() => {

@@ -4,37 +4,43 @@ import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { FormProps } from "../../../types/organism/Form";
 import {
-  selectCreateCategoryLoading,
-  selectGetCategoryByIdData,
-  selectGetCategoryByIdLoading,
-  selectUpdateCategoryLoading,
-} from "../../../redux/slice/category/CategorySlice";
+  selectCreateBlogLoading,
+  selectGetBlogByIdData,
+  selectGetBlogByIdLoading,
+  selectUpdateBlogLoading,
+} from "../../../redux/slice/blog/BlogSlice";
 import {
-  CreateCategoryAction,
-  GetCategoryByIdAction,
-  UpdateCategoryAction,
-} from "../../../redux/actions/category/CategoryActions";
+  CreateBlogAction,
+  GetBlogByIdAction,
+  UpdateBlogAction,
+} from "../../../redux/actions/blog/BlogActions";
 import FormSkeleton from "../../organism/skeleton/FormSkeleton";
 import FORM from "../../organism/FORM";
 import InputField from "../../../components/molcols/formik-fields/InputField";
 import FileFieldUploader from "../../../components/molcols/formik-fields/FIleFieldUploader";
-import CategorySelect from "./CategorySelect";
+import TextAreaField from "../../../components/molcols/formik-fields/TextAreaField";
+import CategorySelect from "../category/CategorySelect";
+import { SelectValidation } from "../../../utils/SelectValidation";
+import IsActiveSelect from "../isActive/IsActiveSelect";
+import BlogCategorySelect from "../category/BlogCategorySelect copy";
 
-const CategoryForm: React.FC<FormProps> = (props) => {
+const BlogForm: React.FC<FormProps> = (props) => {
   const { mode = "create", onSubmitForm, id, ...rest } = props;
 
   const dispatch: any = useDispatch();
 
-  const getValue = useSelector(selectGetCategoryByIdData);
-  const getLoading = useSelector(selectGetCategoryByIdLoading);
+  const getValue = useSelector(selectGetBlogByIdData);
+  const getLoading = useSelector(selectGetBlogByIdLoading);
 
-  const createLoading: any = useSelector(selectCreateCategoryLoading);
-  const updateLoading: any = useSelector(selectUpdateCategoryLoading);
+  const createLoading: any = useSelector(selectCreateBlogLoading);
+  const updateLoading: any = useSelector(selectUpdateBlogLoading);
 
   const initialData = {
     Name: "",
-    Code: "",
+    Summery: "",
+    Description: "",
     Category: null,
+    IsActive: null,
     Image: [],
   };
 
@@ -43,7 +49,7 @@ const CategoryForm: React.FC<FormProps> = (props) => {
 
   const loadData = useCallback(() => {
     if (id && mode === "update") {
-      dispatch(GetCategoryByIdAction({ credentials: id }));
+      dispatch(GetBlogByIdAction({ credentials: id }));
     }
   }, [id, mode]);
 
@@ -52,12 +58,13 @@ const CategoryForm: React.FC<FormProps> = (props) => {
   }, [loadData]);
 
   useEffect(() => {
-    console.log("getValue",getValue)
     if (getValue?.id && mode === "update") {
       setInitialValues({
-        Name: getValue?.name || "",
-        Code: getValue?.code || "",
-        ParentId: getValue?.parentId,
+        Name: getValue?.title || "",
+        Summery: getValue?.summery || "",
+        Description: getValue?.description || "",
+        Category: getValue?.category || "",
+        IsActive: getValue?.isActive || "",
         Image: getValue?.image || [],
       });
       setEditImageFile(
@@ -77,16 +84,20 @@ const CategoryForm: React.FC<FormProps> = (props) => {
 
   const validationSchema = () =>
     Yup.object({
-      Name: Yup.string().required("پر کردن نام دسته بندی الزامی است"),
-      Code: Yup.string().required("پر کردن کد دسته بندی الزامی است"),
+      Name: Yup.string().required("پر کردن نام مقاله الزامی است"),
+      Summery: Yup.string().required("پر کردن توضیح مختصر مقاله الزامی است"),
+      Category: SelectValidation(Yup),
+      Description: Yup.string().required("پر کردن متن مقاله الزامی است"),
     });
 
   const handleSubmit = (data: any, resetForm: any) => {
     if (data) {
       const formData = new FormData();
-      formData.append("name", data?.Name);
-      formData.append("code", data?.Code);
-      formData.append("parentId", data?.Category?.value??null);
+      formData.append("title", data?.Name);
+      formData.append("summery", data?.Summery);
+      formData.append("description", data?.Description);
+      formData.append("categoryId", data?.Category?.value);
+      formData.append("isActive", data?.IsActive?.value);
 
       // اضافه کردن فایل‌ها به FormData
       if (data?.Image && data.Image.length > 0) {
@@ -97,7 +108,7 @@ const CategoryForm: React.FC<FormProps> = (props) => {
 
       if (mode === "create") {
         dispatch(
-          CreateCategoryAction({
+          CreateBlogAction({
             credentials: formData,
             onSubmitForm,
             resetForm,
@@ -105,7 +116,7 @@ const CategoryForm: React.FC<FormProps> = (props) => {
         );
       } else if (mode === "update") {
         dispatch(
-          UpdateCategoryAction({
+          UpdateBlogAction({
             id,
             credentials: formData,
             onSubmitForm,
@@ -139,21 +150,43 @@ const CategoryForm: React.FC<FormProps> = (props) => {
             {
               component: (
                 <div className="col-span-6">
-                  <InputField name="Name" label={`نام دسته بندی`} required />
+                  <InputField name="Name" label={`عنوان مقاله`} required />
                 </div>
               ),
             },
             {
               component: (
                 <div className="col-span-6">
-                  <InputField name="Code" label={`کد دسته بندی`} required />
+                  <InputField name="Summery" label={`توضیح کوتاه`} required />
                 </div>
               ),
             },
             {
               component: (
                 <div className="col-span-6">
-                  <CategorySelect name="Category" />
+                  <BlogCategorySelect
+                    name="Category"
+                    label={`دسته بندی مقاله`}
+                    required
+                  />
+                </div>
+              ),
+            },
+            {
+              component: (
+                <div className="col-span-6">
+                  <IsActiveSelect name="IsActive" label={`وضعیت`} required />
+                </div>
+              ),
+            },
+            {
+              component: (
+                <div className="col-span-12">
+                  <TextAreaField
+                    name="Description"
+                    label={`متن مقاله`}
+                    required
+                  />
                 </div>
               ),
             },
@@ -166,7 +199,7 @@ const CategoryForm: React.FC<FormProps> = (props) => {
                     errorLabel="فرمت فایل وارد شده صحیح نمیباشد ."
                     errorLabelSize="اندازه فایل بیش از حد مجاز است ."
                     mode={mode ?? null}
-                    label={`تصویر دسته بندی`}
+                    label={`تصویر مقاله`}
                     name="Image"
                     acceptedFileTypes={[
                       "image/png",
@@ -186,4 +219,4 @@ const CategoryForm: React.FC<FormProps> = (props) => {
   );
 };
 
-export default CategoryForm;
+export default BlogForm;

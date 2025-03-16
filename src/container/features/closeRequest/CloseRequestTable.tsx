@@ -42,120 +42,54 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const updateData = useSelector(
     selectUpdateRequestProductOfferSendToBuyerData
   );
+  
   const updateData_2 = useSelector(selectUpdateProductRequestProviderAdminData);
 
-  useEffect(() => {
-    if (selectedStatus) {
-      dispatch(
-        GetRequestProductAdminAction({
-          page: 0,
-          size: 20,
-          status: selectedStatus ? [selectedStatus?.value] : [
-                  "WAITING_FOR_OFFERS",
-                  "CONSIDERING_SUGGESTIONS",
-                  "SEND_FINAL_OFFER_TO_BUYER",
-                  "CONFIRMATION_REQUEST_BY_BUYER",
-                  "BUYER_FAILURE_APPROVE",
-                  "NOT_RECEIVING_ENOUGH_OFFERS",
-                ],
-        })
-      );
-    } else {
-      dispatch(
-        GetRequestProductAdminAction({
-          page: 0,
-          size: 20,
-          status:[
-            "WAITING_FOR_OFFERS",
-            "CONSIDERING_SUGGESTIONS",
-            "SEND_FINAL_OFFER_TO_BUYER",
-            "CONFIRMATION_REQUEST_BY_BUYER",
-            "BUYER_FAILURE_APPROVE",
-            "NOT_RECEIVING_ENOUGH_OFFERS",
-          ]
-        })
-      );
-    }
-  }, [selectedStatus]); // اضافه کردن selectedStatus به dependency
+  // تعریف آرایه وضعیت‌های پیش‌فرض برای جلوگیری از تکرار
+  const defaultStatuses = [
+    "WAITING_FOR_OFFERS",
+    "CONSIDERING_SUGGESTIONS",
+    "SEND_FINAL_OFFER_TO_BUYER",
+    "CONFIRMATION_REQUEST_BY_BUYER",
+    "BUYER_FAILURE_APPROVE",
+    "NOT_RECEIVING_ENOUGH_OFFERS",
+  ];
 
-  const handleFilter = ({
-    filter,
-    search,
-    page,
-    pageSize,
-  }: HandleFilterParams) => {
-    if (selectedStatus) {
-      dispatch(
-        GetRequestProductAdminAction({
-          filter,
-          search,
-          page,
-          pageSize,
-          status: selectedStatus ? [selectedStatus?.value] : [
-                  "WAITING_FOR_OFFERS",
-                  "CONSIDERING_SUGGESTIONS",
-                  "SEND_FINAL_OFFER_TO_BUYER",
-                  "CONFIRMATION_REQUEST_BY_BUYER",
-                  "BUYER_FAILURE_APPROVE",
-                  "NOT_RECEIVING_ENOUGH_OFFERS",
-                ],
-        })
-      );
-    } else {
-      dispatch(
-        GetRequestProductAdminAction({
-          filter,
-          search,
-          page,
-          pageSize,
-          status:[
-            "WAITING_FOR_OFFERS",
-            "CONSIDERING_SUGGESTIONS",
-            "SEND_FINAL_OFFER_TO_BUYER",
-            "CONFIRMATION_REQUEST_BY_BUYER",
-            "BUYER_FAILURE_APPROVE",
-            "NOT_RECEIVING_ENOUGH_OFFERS",
-          ]
-        })
-      );
-    }
+  useEffect(() => {
+    dispatch(
+      GetRequestProductAdminAction({
+        page: 0,
+        size: 20,
+        status: selectedStatus ? [selectedStatus?.value] : defaultStatuses,
+      })
+    );
+  }, [selectedStatus, dispatch]);
+
+  const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
+    console.log("search ", filter, page, pageSize);
+    dispatch(
+      GetRequestProductAdminAction({
+        filter,
+        page: page ?? 0,
+        size: pageSize??20,
+        status: selectedStatus ? [selectedStatus?.value] : defaultStatuses,
+      })
+    );
   };
 
   useEffect(() => {
-    if (updateData?.status === 200 || updateData_2?.status === 200) {
-      if (selectedStatus) {
-        dispatch(
-          GetRequestProductAdminAction({
-            page: 0,
-            size: 20,
-            status: selectedStatus ? [selectedStatus?.value] : [
-                  "WAITING_FOR_OFFERS",
-                  "CONSIDERING_SUGGESTIONS",
-                  "SEND_FINAL_OFFER_TO_BUYER",
-                  "CONFIRMATION_REQUEST_BY_BUYER",
-                  "BUYER_FAILURE_APPROVE",
-                  "NOT_RECEIVING_ENOUGH_OFFERS",
-                ],
-          })
-        );
-      } else {
-        dispatch(
-          GetRequestProductAdminAction({
-            page: 0,
-            size: 20,
-            status:[
-              "WAITING_FOR_OFFERS",
-              "CONSIDERING_SUGGESTIONS",
-              "SEND_FINAL_OFFER_TO_BUYER",
-              "CONFIRMATION_REQUEST_BY_BUYER",
-              "BUYER_FAILURE_APPROVE",
-              "NOT_RECEIVING_ENOUGH_OFFERS",
-            ]
-          })
-        );
-      }
+    console.log("updateData_2",updateData_2)
+    if (updateData?.status === 200 || updateData_2?.id) {
+      dispatch(
+        GetRequestProductAdminAction({
+          page: 0,
+          size: 20,
+          status: selectedStatus ? [selectedStatus?.value] : defaultStatuses,
+        })
+      );
     }
-  }, [updateData, updateData_2]);
+  }, [updateData, updateData_2, dispatch, selectedStatus]);
+
 
   return (
     <CollectionControls
@@ -180,6 +114,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableHeadCell>آدرس</TableHeadCell>
             <TableHeadCell className="min-w-[170px]">وضعیت</TableHeadCell>
             <TableHeadCell />
+            <TableHeadCell />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -191,21 +126,16 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
               <StatusSelect
-                codes={[
-                  "WAITING_FOR_OFFERS",
-                  "CONSIDERING_SUGGESTIONS",
-                  "SEND_FINAL_OFFER_TO_BUYER",
-                  "CONFIRMATION_REQUEST_BY_BUYER",
-                  "BUYER_FAILURE_APPROVE",
-                  "NOT_RECEIVING_ENOUGH_OFFERS",
-                ]}
+                codes={defaultStatuses}
                 name="StatusSelect"
                 label=""
                 noBorder
                 value={selectedStatus}
-                onChange={(status: any) => setSelectedStatus(status)} // به روز رسانی وضعیت انتخاب شده
+                onChange={(status: any) => setSelectedStatus(status)}
               />
             </TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             productAdminData?.data?.length > 0 ? (
@@ -223,6 +153,17 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                   </TableCell>
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>{row?.statusTitle ?? "_"}</TableCell>
+                  <TableCell className="flex justify-center">
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        onRowClick && onRowClick("detail", row);
+                      }}
+                      variant="outline-warning"
+                    >
+                      تغییر وضعیت
+                    </Button>
+                  </TableCell>
                   <TableCell className="flex justify-center">
                     <Button
                       onClick={() => {

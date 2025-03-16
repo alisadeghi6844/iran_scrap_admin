@@ -1,5 +1,6 @@
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Form, Formik, useFormikContext } from "formik";
+import ReactPaginate from "react-paginate";
 
 import Button from "../../components/button";
 import { FiRefreshCw } from "react-icons/fi";
@@ -14,7 +15,6 @@ import PageNumberSelect from "../../components/molcols/PageNumberSelect";
 import OutsideClickHandler from "react-outside-click-handler";
 import { Tooltip } from "react-tooltip";
 import { CollectionControlsProps } from "../../types/organism/CollectionControlsTypes";
-import Pagination from "../../components/pagination";
 import useDebounce from "../../hooks/UseDebounce";
 
 interface FormObserverProps {
@@ -31,6 +31,41 @@ const FormObserver: React.FC<FormObserverProps> = ({ onChange }) => {
     1000
   );
   return null;
+};
+
+// پیاده‌سازی ساده‌تر pagination
+const SimplePagination = ({ 
+  currentPage, 
+  pageCount, 
+  onPageChange 
+}: { 
+  currentPage: number, 
+  pageCount: number, 
+  onPageChange: (page: number) => void 
+}) => {
+  return (
+    <div className="flex gap-2 items-center">
+      <Button
+        onClick={() => currentPage > 0 && onPageChange(currentPage - 1)}
+        disabled={currentPage <= 0}
+        className="border rounded px-3 py-1 cursor-pointer hover:bg-gray-100 disabled:opacity-50"
+      >
+        قبلی
+      </Button>
+      
+      <span className="px-3 py-1">
+        صفحه {currentPage + 1} از {pageCount}
+      </span>
+      
+      <Button 
+        onClick={() => currentPage < pageCount - 1 && onPageChange(currentPage + 1)}
+        disabled={currentPage >= pageCount - 1}
+        className="border rounded px-3 py-1 cursor-pointer hover:bg-gray-100 disabled:opacity-50"
+      >
+        بعدی
+      </Button>
+    </div>
+  );
 };
 
 const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
@@ -51,19 +86,23 @@ const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
     className,
     errorTitle,
     excelTitle,
-    excelLoading=false,
+    excelLoading = false,
   } = props;
 
   const [meta, setMeta] = useState<any>(); // نوع meta را می‌توانید با توجه به نیاز خود تغییر دهید
   const [filter, setFilter] = useState<string>("");
-  const [pageNumberFilterOpen, setPageNumberFilterOpen] =
-    useState<boolean>(false);
+  const [pageNumberFilterOpen, setPageNumberFilterOpen] = useState<boolean>(false);
+  
+  // برای ذخیره صفحه فعلی
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  // برای جلوگیری از فراخوانی‌های مکرر
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
     setMeta({
-      page: data?.pageNumber ?? data?.page,
-      pageSize: data?.pageSize,
-      totalCount: data?.totalCount,
+      page: data?.pageNumber ?? Number(data?.page) + 1,
+      pageSize: data?.size,
+      totalCount: data?.totalCount ?? data?.countAll,
       totalCountDisplay: data?.totalCountDisplay,
       totalPages: data?.totalPages,
       hasPreviousPage: data?.hasPreviousPage,
@@ -73,7 +112,30 @@ const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
         data?.pageCountAndCurrentLocationDisplay,
       rowCounterNumber: data?.rowCounterNumber,
     });
+    
+    // به‌روزرسانی صفحه فعلی فقط وقتی data تغییر می‌کند
+    if (data?.page !== undefined) {
+      setCurrentPage(Number(data.page));
+    }
+    
+    console.log("data", data);
   }, [data]);
+
+  const handlePageChange = (page: number) => {
+    // اگر صفحه انتخاب شده با صفحه فعلی متفاوت باشد، فقط در این صورت onMetaChange را فراخوانی کن
+    if (page !== currentPage && onMetaChange) {
+      onMetaChange({
+        ...meta,
+        filter: filter,
+        page: page,
+      });
+    }
+  };
+
+  // محاسبه تعداد کل صفحات
+  const pageCount = meta?.pageSize > 0 && meta?.totalCount > 0
+    ? Math.ceil(Number(meta?.totalCount) / Number(meta?.pageSize))
+    : 1;
 
   return (
     <div>
@@ -93,7 +155,6 @@ const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
                     onMetaChange &&
                       onMetaChange({
                         ...meta,
-                        page: 1,
                         filter: queryString,
                       });
                   }
@@ -123,9 +184,7 @@ const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
                   </div>
                   <div className="flex justify-end p-0 max-md:mt-3">
                     <div className="xs:gap-0 mb-2 flex justify-start gap-2 md:justify-end ">
-                      <div className="w-[370px]">
-                      {buttonsBefore}
-                      </div>
+                      <div className="w-[370px]">{buttonsBefore}</div>
                       {buttons.includes("word") && (
                         <Button
                           variant="outline-secondary"
@@ -140,7 +199,7 @@ const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
                       {buttons.includes("excel") && (
                         <Button
                           type="button"
-                          loading={excelLoading??false}
+                          loading={excelLoading ?? false}
                           variant="outline-success"
                           size="sm"
                           className="px-[5px] ml-2"
@@ -212,7 +271,7 @@ const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
                             {pageNumberFilterOpen && (
                               <div className="absolute left-8 top-8 z-10 ">
                                 <PageNumberSelect
-                                  defaultValue={meta?.pageSize}
+                                  defaultValue={meta?.pageSize ?? meta?.size}
                                   onChange={(number: any) => {
                                     setPageNumberFilterOpen(false);
                                     !!onMetaChange &&
@@ -238,22 +297,15 @@ const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
                 {!!data && (
                   <div className="flex justify-between pl-0">
                     <div>
-                      {meta?.totalPages > 1 && (
-                        <div className="py-4 mt-2">
-                          <Pagination
-                            setChangePage={(pageNumber: any) => {
-                              !!onMetaChange &&
-                                onMetaChange({
-                                  ...meta,
-                                  filter: filter,
-                                  page: pageNumber,
-                                });
-                            }}
-                            page={meta?.page}
-                            totalPages={meta?.totalPages}
+                      <div className="py-4 mt-2">
+                        {pageCount > 1 && (
+                          <SimplePagination
+                            currentPage={currentPage}
+                            pageCount={pageCount}
+                            onPageChange={handlePageChange}
                           />
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                     <div className="flex flex-wrap items-center justify-end gap-2">
                       {buttons.includes("submit") && (
@@ -282,7 +334,6 @@ const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
           </Form>
         )}
       </Formik>
-      {/* Pagination */}
     </div>
   );
 };

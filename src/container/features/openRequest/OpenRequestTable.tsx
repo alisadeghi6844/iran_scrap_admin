@@ -71,7 +71,6 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
 
   const handleFilter = ({
     filter,
-    search,
     page,
     pageSize,
   }: HandleFilterParams) => {
@@ -79,9 +78,8 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       dispatch(
         GetRequestProductAdminAction({
           filter,
-          search,
-          page,
-          pageSize,
+          page: page ?? 0,
+          size: pageSize??20,
           status: selectedStatus
             ? [selectedStatus?.value]
             : ["REGISTERED", "BUYER_CANCELLATION", "RETURN_TO_BUYER_REQUEST"],
@@ -91,9 +89,8 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       dispatch(
         GetRequestProductAdminAction({
           filter,
-          search,
-          page,
-          pageSize,
+          page: page ?? 0,
+          size: pageSize??20,
           status:["REGISTERED", "BUYER_CANCELLATION", "RETURN_TO_BUYER_REQUEST"]
         })
       );

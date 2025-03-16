@@ -48,15 +48,15 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
 
   const handleFilter = ({
     filter,
-    search,
     page,
     pageSize,
   }: HandleFilterParams) => {
     dispatch(
       GetUsersAction({
         credentials: {
-          page,
-          size: pageSize,
+          filter,
+          page: page ?? 0,
+          size: pageSize??20,
           firstName: filter.firstName,
           lastName: filter.lastName,
           mobile: filter.phoneNumber,

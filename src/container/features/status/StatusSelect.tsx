@@ -39,7 +39,6 @@ const StatusSelect: React.FC<StatusSelectProps> = (props) => {
   };
 
   useEffect(() => {
-    console.log("statusData", statusData);
     if (statusData?.data) {
       const filteredOptions = statusData.data
         .filter((item: any) => codes?.includes(item.code)) // فیلتر کردن بر اساس codes

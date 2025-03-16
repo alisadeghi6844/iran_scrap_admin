@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useState } from "react";
 import CRUD from "../../container/organism/CRUD";
-import CloseRequestDetail from "../../container/features/closeRequest/CloseRequestDetail";
+import OpenRequestDetail from "../../container/features/openRequest/OpenRequestDetail";
 
 const CloseRequestTable = lazy(
   () =>
@@ -54,18 +54,18 @@ const CloseRequest = () => {
             />
           </Suspense>
         }
-        // detail={
-        //   <Suspense>
-        //     <CloseRequestDetail
-        //       handleSubmit={() => setMode("content")}
-        //       id={selectedRow?.id ?? null}
-        //       mode={mode}
-        //       onSubmitForm={() => {
-        //         setMode("content");
-        //       }}
-        //     />
-        //   </Suspense>
-        // }
+        detail={
+          <Suspense>
+            <OpenRequestDetail
+              handleSubmit={() => setMode("content")}
+              id={selectedRow ?? null}
+              mode={mode}
+              onSubmitForm={() => {
+                setMode("content");
+              }}
+            />
+          </Suspense>
+        }
         onModalClose={() => {
           setMode("content");
         }}

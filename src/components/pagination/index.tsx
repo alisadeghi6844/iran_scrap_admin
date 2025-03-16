@@ -61,7 +61,6 @@ const Pagination: React.FC<PaginationProps> = (props) => {
 
   return (
     <>
-      {totalPages > 1 ? (
         <div className="flex items-center gap-x-3">
           <div className="flex items-center">
             <FaChevronRight
@@ -97,7 +96,7 @@ const Pagination: React.FC<PaginationProps> = (props) => {
             <Typography>{totalPages}</Typography>
           </div>
         </div>
-      ) : null}
+
     </>
   );
 };

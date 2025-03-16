@@ -10,7 +10,7 @@ import TableBody from "../../../components/table/TableBody";
 import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
-import { convertToJalali } from "../../../utils/MomentConvertor";
+import { convertToJalali, convertToJalali_2 } from '../../../utils/MomentConvertor';
 import Typography from "../../../components/typography/Typography";
 import {
   GetRequestProductOfferAction,
@@ -110,7 +110,7 @@ const CloseRequestForm: React.FC<FormProps> = (props) => {
                   <TableCell>{row?.description ?? "_"}</TableCell>
                   <TableCell>
                     {row?.deliveryTime
-                      ? convertToJalali(row?.deliveryTime)
+                      ? convertToJalali_2(row?.deliveryTime)
                       : "_"}
                   </TableCell>
                   <TableCell>{formatNumber(row?.price) + " " + "تومان"}</TableCell>
