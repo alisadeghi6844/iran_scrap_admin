@@ -10,7 +10,10 @@ import TableBody from "../../../components/table/TableBody";
 import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
-import { convertToJalali, convertToJalali_2 } from '../../../utils/MomentConvertor';
+import {
+  convertToJalali,
+  convertToJalali_2,
+} from "../../../utils/MomentConvertor";
 import Typography from "../../../components/typography/Typography";
 import {
   GetRequestProductOfferAction,
@@ -54,7 +57,7 @@ const CloseRequestForm: React.FC<FormProps> = (props) => {
       dispatch(
         UpdateRequestProductOfferSendToBuyerAction({
           credentials: [selectedItem.id],
-          onSubmitForm
+          onSubmitForm,
         })
       );
     }
@@ -70,7 +73,7 @@ const CloseRequestForm: React.FC<FormProps> = (props) => {
           onClick={handleSubmitProviders}
           disable={!selectedItem} // Disable if no item is selected
         >
-          ثبت تامین کنندگان
+          ارسال به خریدار
         </Button>
       </div>
       <Table className="w-full" isLoading={false} shadow={false}>
@@ -113,7 +116,9 @@ const CloseRequestForm: React.FC<FormProps> = (props) => {
                       ? convertToJalali_2(row?.deliveryTime)
                       : "_"}
                   </TableCell>
-                  <TableCell>{formatNumber(row?.price) + " " + "تومان"}</TableCell>
+                  <TableCell>
+                    {formatNumber(row?.price) + " " + "تومان"}
+                  </TableCell>
                   <TableCell>{row?.status}</TableCell>
                   <TableCell>
                     {row?.request?.amount
