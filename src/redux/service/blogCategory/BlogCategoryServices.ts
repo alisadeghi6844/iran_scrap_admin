@@ -20,12 +20,14 @@ export const getBlogCategoryService = async (query: any) => {
 };
 
 export const getBlogCategoryByIdService = async (items: any) => {
+  console.log("items",items)
   return await HttpServises.get(
     `${BASE_URL}${GET_BLOG_CATEGORY_BY_ID_POINT}/${items.credentials?.credentials}`
   );
 };
 
 export const createBlogCategoryService = async (items: any) => {
+  console.log(items);
   return await HttpServises.post(`${BASE_URL}${CREATE_BLOG_CATEGORY_POINT}`, items);
 };
 

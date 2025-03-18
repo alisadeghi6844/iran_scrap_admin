@@ -42,4 +42,5 @@ export const PublicDictionary = {
   user_password: "پسوورد کاربر",
   oldPassword: "پسوورد قبلی",
   phoneNumber: "شماره تلفن",
+  blogCategory:"دسته بندی مقاله"
 };

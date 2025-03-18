@@ -43,6 +43,13 @@ const routes = [
     layout: "admin",
     role: ["admin", "client", "reservation"],
   },
+  {
+    path: "/blog-category-management",
+    breadCrumb: "مدیریت دسته بندی مقالات",
+    component: lazy(() => import("../page/blogCategoryManagement")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
 ];
 
 export const privateRoutes = [

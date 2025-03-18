@@ -6,7 +6,7 @@ import usersSlice from "./slice/users/UsersSlice";
 import productRequestOfferSlice from "./slice/productRequestOffer/ProductStatusRequestSlice";
 import categorySlice from "./slice/category/CategorySlice";
 import blogSlice from "./slice/blog/BlogSlice";
-import blogCategorySlice from "./slice/blogCategory/BlogSlice";
+import blogCategorySlice from "./slice/blogCategory/BlogCategorySlice";
 
 export const store = configureStore({
   reducer: {

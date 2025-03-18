@@ -1,4 +1,3 @@
-import Image from "../../../components/image";
 import Typography from "../../../components/typography/Typography";
 import { Link } from "react-router-dom";
 import DynamicMenu from "../../../components/menu/vertical/DynamicMenu";
@@ -7,6 +6,7 @@ import { LuPackageOpen } from "react-icons/lu";
 import { BsBoxSeam } from "react-icons/bs";
 import { MdOutlineCategory } from "react-icons/md";
 import { RiBloggerLine } from "react-icons/ri";
+import { BiCategoryAlt } from "react-icons/bi";
 
 import { MdProductionQuantityLimits } from "react-icons/md";
 
@@ -87,6 +87,16 @@ const DesktopSidebar = () => {
           icon: <RiBloggerLine className="text-2xl" />,
           id: 24012,
           isNew: true,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+        {
+          path: "/blog-category-management",
+          title: "مدیریت دسته بندی مقالات",
+          icon: <BiCategoryAlt className="text-2xl" />,
+          id: 2582,
+          isNew: false,
           subRoutes: [],
           notif: "",
           role: ["admin", "client", "reservation"],

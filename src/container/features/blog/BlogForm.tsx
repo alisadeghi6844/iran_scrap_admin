@@ -22,7 +22,7 @@ import TextAreaField from "../../../components/molcols/formik-fields/TextAreaFie
 import CategorySelect from "../category/CategorySelect";
 import { SelectValidation } from "../../../utils/SelectValidation";
 import IsActiveSelect from "../isActive/IsActiveSelect";
-import BlogCategorySelect from "../category/BlogCategorySelect copy";
+import BlogCategorySelect from "../category/BlogCategorySelect";
 
 const BlogForm: React.FC<FormProps> = (props) => {
   const { mode = "create", onSubmitForm, id, ...rest } = props;

@@ -13,7 +13,7 @@ import SingleSelect from "../../../components/select/SingleSelect";
 import {
   selectGetBlogCategoryData,
   selectGetBlogCategoryLoading,
-} from "../../../redux/slice/blogCategory/BlogSlice";
+} from "../../../redux/slice/blogCategory/BlogCategorySlice";
 
 const BlogCategorySelect: React.FC<CategorySelectTypes> = (props) => {
   const { mode, name, required, ...rest } = props;
@@ -39,9 +39,10 @@ const BlogCategorySelect: React.FC<CategorySelectTypes> = (props) => {
   };
 
   useEffect(() => {
-    const option = blogCategoryData?.data?.map((item: any) => ({
-      value: item._id,
-      label: item.name,
+    console.log("blogCategoryData",blogCategoryData)
+    const option = blogCategoryData?.map((item: any) => ({
+      value: item.id,
+      label: item.title,
     }));
     setSelectOptions(option || []);
   }, [blogCategoryData]);
