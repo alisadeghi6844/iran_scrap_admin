@@ -40,7 +40,7 @@ const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
         <Typography
           tag={link ? "a" : "span"}
           link={link ?? null}
-          className={`flex items-center justify-between cursor-pointer ${isActive ? "text-white" : ""}`}
+          className={`flex items-center text-sm justify-between cursor-pointer ${isActive ? "text-white" : ""}`}
         >
           <div className="flex items-center gap-x-2">
             {icon ?? null}

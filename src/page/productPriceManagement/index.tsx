@@ -1,21 +1,23 @@
 import React, { lazy, Suspense, useState } from "react";
 import CRUD from "../../container/organism/CRUD";
-import OpenRequestDetail from "../../container/features/openRequest/OpenRequestDetail";
+import ProductPriceDeleteConfirmation from "../../container/features/productPrice/ProductPriceDeleteConfirmation";
+// import CategoryAttributeForm from "../../container/features/category/CategoryAttributeForm";
+// import ShowAttributes from "../../container/features/category/ShowAttributes";
 
-const OpenRequestTable = lazy(
+const ProductPriceTable = lazy(
   () =>
     import(
-      /* webpackChunkName: "openRequest" */ "../../container/features/openRequest/OpenRequestTable"
+      /* webpackChunkName: "ProductPrice" */ "../../container/features/productPrice/ProductPriceTable"
     )
 );
-const OpenRequestForm = lazy(
+const ProductPriceForm = lazy(
   () =>
     import(
-      /* webpackChunkName: "openRequest" */ "../../container/features/openRequest/OpenRequestForm"
+      /* webpackChunkName: "ProductPrice" */ "../../container/features/productPrice/ProductPriceForm"
     )
 );
 
-const OpenRequest = () => {
+const ProductPriceManagement = () => {
   const [mode, setMode] = useState<string>("content");
   const [selectedRow, setSelectedRow] = useState<any>({});
 
@@ -27,11 +29,12 @@ const OpenRequest = () => {
       }}
     >
       <CRUD
-        formModalSize="2xl"
+        formModalSize="xl"
+        confirmModalSize="xl"
         mode={mode}
         content={
           <Suspense>
-            <OpenRequestTable
+            <ProductPriceTable
               onRowClick={(name: string, row: any) => {
                 setMode(name);
 
@@ -44,9 +47,7 @@ const OpenRequest = () => {
         }
         form={
           <Suspense>
-            <OpenRequestForm
-              handleSubmit={() => setMode("content")}
-              id={selectedRow?.id ?? null}
+            <ProductPriceForm
               value={selectedRow ?? null}
               mode={mode}
               onSubmitForm={() => {
@@ -55,18 +56,27 @@ const OpenRequest = () => {
             />
           </Suspense>
         }
-        detail={
+        confirmation={
           <Suspense>
-            <OpenRequestDetail
-              handleSubmit={() => setMode("content")}
-              id={selectedRow ?? null}
+            <ProductPriceDeleteConfirmation
+              id={selectedRow?._id ?? null}
               mode={mode}
-              onSubmitForm={() => {
+              onSubmit={() => {
                 setMode("content");
               }}
             />
           </Suspense>
         }
+        // detail={
+        //   <Suspense>
+        //     <ShowAttributes
+        //       value={selectedRow ?? {}}
+        //       onSubmit={() => {
+        //         setMode("content");
+        //       }}
+        //     />
+        //   </Suspense>
+        // }
         onModalClose={() => {
           setMode("content");
         }}
@@ -75,4 +85,4 @@ const OpenRequest = () => {
   );
 };
 
-export default OpenRequest;
+export default ProductPriceManagement;

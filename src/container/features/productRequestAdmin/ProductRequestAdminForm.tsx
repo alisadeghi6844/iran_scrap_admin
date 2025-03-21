@@ -15,7 +15,7 @@ import TableBody from "../../../components/table/TableBody";
 import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
-import { convertToJalali } from "../../../utils/MomentConvertor";
+import { convertToJalali, convertToJalali_2 } from "../../../utils/MomentConvertor";
 import Typography from "../../../components/typography/Typography";
 import UsersTable from "../users/UsersTable";
 
@@ -39,12 +39,11 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
       <Table className="w-full" isLoading={false} shadow={false}>
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
-            <TableHeadCell>نام درخواست کننده</TableHeadCell>
-            <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
             <TableHeadCell>توضیحات</TableHeadCell>
-            <TableHeadCell>دسته بندی را</TableHeadCell>
+            <TableHeadCell>دسته بندی </TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
             <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
+            <TableHeadCell>تاریخ تحویل</TableHeadCell>
             <TableHeadCell>مقدار درخواستی</TableHeadCell>
             <TableHeadCell>نوع درخواست</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
@@ -54,12 +53,6 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
           {!reqLoading ? (
             reqData?._id ? (
               <TableRow>
-                <TableCell>
-                  {reqData?.user?.firstName
-                    ? reqData?.user?.firstName + " " + reqData?.user?.lastName
-                    : "_"}
-                </TableCell>
-                <TableCell>{reqData?.user?.mobile ?? "_"}</TableCell>
                 <TableCell>{reqData?.description ?? "_"}</TableCell>
                 <TableCell>{reqData?.category?.name ?? "_"}</TableCell>
                 <TableCell>
@@ -68,6 +61,11 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
                 <TableCell>
                   {reqData?.createdAt
                     ? convertToJalali(reqData?.createdAt)
+                    : "_"}
+                </TableCell>
+                <TableCell>
+                  {reqData?.expectedDate
+                    ? convertToJalali_2(reqData?.expectedDate)
                     : "_"}
                 </TableCell>
                 <TableCell>

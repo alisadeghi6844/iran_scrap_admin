@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"; // useState را اضافه کنید
+import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { HandleFilterParams } from "../../../types/FilterParams";
 import CollectionControls from "../../organism/CollectionControls";
@@ -20,18 +20,27 @@ import SearchInputField from "../../../components/molcols/formik-fields/SearchIn
 import Checkbox from "../../../components/checkbox";
 import Button from "../../../components/button";
 import { UpdateRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
+import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import { debounce } from 'lodash';
 
 interface UsersTableTypes {
   onRowClick?: any;
-  id?:any;
-  setCloseModal?:any
+  id?: any;
+  setCloseModal?: any;
+}
+
+interface SortState {
+  field: string;
+  direction: 'asc' | 'desc' | null;
 }
 
 const UsersTable: React.FC<UsersTableTypes> = (props) => {
-  const { onRowClick,id,setCloseModal } = props;
+  const { onRowClick, id, setCloseModal } = props;
 
   const dispatch: any = useDispatch();
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]); // وضعیت برای نگهداری آی‌دی‌های انتخاب شده
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [sortState, setSortState] = useState<SortState>({ field: '', direction: null });
+  const [currentFilter, setCurrentFilter] = useState<any>({});
 
   const filterDefaultInitialValues = {
     firstName: "",
@@ -42,28 +51,45 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
   const loading = useSelector(selectGetUsersLoading);
   const usersData = useSelector(selectGetUsersData);
 
-  useEffect(() => {
-    dispatch(GetUsersAction({ credentials: { page: 0, size: 20,usertype:"Provider" } }));
-  }, []);
-
-  const handleFilter = ({
-    filter,
-    page,
-    pageSize,
-  }: HandleFilterParams) => {
+  // ایجاد تابع fetchData برای ترکیب منطق فیلتر و مرتب‌سازی
+  const fetchData = useCallback((filter = {}, sort = sortState) => {
     dispatch(
       GetUsersAction({
         credentials: {
-          filter,
-          page: page ?? 0,
-          size: pageSize??20,
-          firstName: filter.firstName,
-          lastName: filter.lastName,
-          mobile: filter.phoneNumber,
-          usertype:"Provider"
+          ...filter,
+          page: 0,
+          size: 20,
+          usertype: "Provider",
+          ...(sort.field && sort.direction ? {
+            sortBy: sort.field,
+            sortDirection: sort.direction
+          } : {})
         },
       })
     );
+  }, [dispatch]);
+
+  // ایجاد نسخه debounce شده از fetchData
+  const debouncedFetchData = useCallback(
+    debounce((filter, sort) => fetchData(filter, sort), 500),
+    [fetchData]
+  );
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
+    const newFilter = {
+      filter,
+      page: page ?? 0,
+      size: pageSize ?? 20,
+      firstName: filter.firstName,
+      lastName: filter.lastName,
+      mobile: filter.phoneNumber,
+    };
+    setCurrentFilter(newFilter);
+    debouncedFetchData(newFilter, sortState);
   };
 
   const handleFilterParameters = (data: any) => {
@@ -86,15 +112,42 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
     );
   };
 
-  const onSuccess=()=>{
-    setCloseModal(false)
-  }
+  const onSuccess = () => {
+    setCloseModal(false);
+  };
 
   const handleRegisterBuyers = () => {
+    dispatch(
+      UpdateRequestProductAdminAction({
+        credentials: id,
+        item: {
+          providerIds: selectedUserIds,
+        },
+        onSuccess,
+      })
+    );
+  };
 
-    dispatch(UpdateRequestProductAdminAction({credentials:id,item:{
-      providerIds:selectedUserIds
-    },onSuccess}))
+  const handleSort = (field: string) => {
+    const newSortState = {
+      field,
+      direction: sortState.field === field 
+        ? sortState.direction === 'asc' 
+          ? 'desc' 
+          : sortState.direction === 'desc' 
+            ? null 
+            : 'asc'
+        : 'asc'
+    };
+    setSortState(newSortState);
+    debouncedFetchData(currentFilter, newSortState);
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortState.field !== field) return <FaSort className="inline ml-1" />;
+    if (sortState.direction === 'asc') return <FaSortUp className="inline ml-1" />;
+    if (sortState.direction === 'desc') return <FaSortDown className="inline ml-1" />;
+    return <FaSort className="inline ml-1" />;
   };
 
   return (
@@ -104,7 +157,7 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
           onClick={handleRegisterBuyers}
           disable={!selectedUserIds?.length}
         >
-          ثبت فروشندگان
+          اختصاص درخواست
         </Button>
       </div>
       <CollectionControls
@@ -122,10 +175,19 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
         <Table className="w-full" isLoading={false} shadow={false}>
           <TableHead className="w-full" isLoading={false} shadow={false}>
             <TableRow>
-              <TableHeadCell>انتخاب</TableHeadCell> {/* ستون انتخاب */}
-              <TableHeadCell>نام</TableHeadCell>
-              <TableHeadCell>نام خانوادگی</TableHeadCell>
-              <TableHeadCell>تلفن همراه</TableHeadCell>
+              <TableHeadCell>انتخاب</TableHeadCell>
+              <TableHeadCell onClick={() => handleSort('firstName')} className="cursor-pointer">
+                نام {getSortIcon('firstName')}
+              </TableHeadCell>
+              <TableHeadCell onClick={() => handleSort('lastName')} className="cursor-pointer">
+                نام خانوادگی {getSortIcon('lastName')}
+              </TableHeadCell>
+              <TableHeadCell onClick={() => handleSort('mobile')} className="cursor-pointer">
+                تلفن همراه {getSortIcon('mobile')}
+              </TableHeadCell>
+              <TableHeadCell onClick={() => handleSort('userSort')} className="cursor-pointer">
+                نوع کاربر {getSortIcon('userSort')}
+              </TableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -140,20 +202,43 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
               <TableFilterCell>
                 <SearchInputField name="phoneNumber" />
               </TableFilterCell>
+              <TableFilterCell></TableFilterCell>
             </TableRow>
             {!loading ? (
               usersData?.data?.data?.length > 0 ? (
                 usersData?.data?.data?.map((row: any) => (
                   <TableRow key={row?.id}>
-                    <TableCell>
+                    <TableCell style={{ 
+                      backgroundColor: selectedUserIds.includes(row?.id) ? '#f0fdf4' : 'transparent',
+                      transition: 'background-color 0.2s'
+                    }}>
                       <Checkbox
-                        checked={selectedUserIds.includes(row?.id)} // چک باکس بر اساس انتخاب‌ها
-                        onChange={() => handleCheckboxChange(row?.id)} // مدیریت تغییرات چک باکس
+                        checked={selectedUserIds.includes(row?.id)}
+                        onChange={() => handleCheckboxChange(row?.id)}
                       />
                     </TableCell>
-                    <TableCell>{row?.firstName ?? "_"}</TableCell>
-                    <TableCell>{row?.lastName ?? "_"}</TableCell>
-                    <TableCell>{row?.mobile ?? "_"}</TableCell>
+                    <TableCell style={{ 
+                      backgroundColor: selectedUserIds.includes(row?.id) ? '#f0fdf4' : 'transparent',
+                      transition: 'background-color 0.2s'
+                    }}>{row?.firstName ?? "_"}</TableCell>
+                    <TableCell style={{ 
+                      backgroundColor: selectedUserIds.includes(row?.id) ? '#f0fdf4' : 'transparent',
+                      transition: 'background-color 0.2s'
+                    }}>{row?.lastName ?? "_"}</TableCell>
+                    <TableCell style={{ 
+                      backgroundColor: selectedUserIds.includes(row?.id) ? '#f0fdf4' : 'transparent',
+                      transition: 'background-color 0.2s'
+                    }}>{row?.mobile ?? "_"}</TableCell>
+                    <TableCell style={{ 
+                      backgroundColor: selectedUserIds.includes(row?.id) ? '#f0fdf4' : 'transparent',
+                      transition: 'background-color 0.2s'
+                    }}>
+                      {row?.userSort === "Hagh"
+                        ? "حقیقی"
+                        : row?.userSort === "Hogh"
+                        ? "حقوقی"
+                        : "نامشخص"}
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (

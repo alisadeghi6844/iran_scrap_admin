@@ -127,7 +127,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
 
   return (
     <CollectionControls
-      title="درخواست های باز"
+      title="درخواست های بسته"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
       data={productAdminData}

@@ -10,14 +10,14 @@ const routes = [
   },
   {
     path: "/open-request",
-    breadCrumb: "درخواست های باز",
+    breadCrumb: "درخواست های بسته",
     component: lazy(() => import("../page/openRequest")),
     layout: "admin",
     role: ["admin", "client", "reservation"],
   },
   {
     path: "/close-request",
-    breadCrumb: "درخواست های بسته",
+    breadCrumb: "درخواست های درحال پردازش",
     component: lazy(() => import("../page/closeRequest")),
     layout: "admin",
     role: ["admin", "client", "reservation"],
@@ -57,6 +57,13 @@ const routes = [
     layout: "admin",
   },
 
+  {
+    path: "/product-price-management",
+    breadCrumb: "مدیریت قیمت گذاری محصولات",
+    component: lazy(() => import("../page/productPriceManagement")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
 ];
 
 export const privateRoutes = [

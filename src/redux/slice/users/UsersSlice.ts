@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { USERS } from "../../types/users/UsersTypes";
 import {
   GetUsersAction,
+  GetUsersProvidersAction,
 } from "../../actions/users/UsersActions";
 
 const initialState = {
@@ -9,7 +10,9 @@ const initialState = {
   getUsersLoading: false,
   getUsersData: [],
 
-
+  getUsersProvidersError: null,
+  getUsersProvidersLoading: false,
+  getUsersProvidersData: [],
 };
 
 const usersSlice = createSlice({
@@ -34,7 +37,23 @@ const usersSlice = createSlice({
         state.getUsersError = action.payload;
         state.getUsersData = [];
       })
-      
+
+      // Get Users Providers
+      .addCase(GetUsersProvidersAction.pending, (state) => {
+        state.getUsersProvidersLoading = true;
+        state.getUsersProvidersData = [];
+        state.getUsersProvidersError = null;
+      })
+      .addCase(GetUsersProvidersAction.fulfilled, (state, action) => {
+        state.getUsersProvidersLoading = false;
+        state.getUsersProvidersData = action.payload;
+        state.getUsersProvidersError = null;
+      })
+      .addCase(GetUsersProvidersAction.rejected, (state, action) => {
+        state.getUsersProvidersLoading = false;
+        state.getUsersProvidersError = action.payload;
+        state.getUsersProvidersData = [];
+      });
   },
 });
 
@@ -43,6 +62,11 @@ export const selectGetUsersLoading = (state: any) =>
   state.users.getUsersLoading;
 export const selectGetUsersData = (state: any) => state.users.getUsersData;
 
-
+export const selectGetUsersProvidersError = (state: any) =>
+  state.users.getUsersProvidersError;
+export const selectGetUsersProvidersLoading = (state: any) =>
+  state.users.getUsersProvidersLoading;
+export const selectGetUsersProvidersData = (state: any) =>
+  state.users.getUsersProvidersData;  
 
 export default usersSlice.reducer;

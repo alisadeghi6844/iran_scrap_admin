@@ -18,7 +18,7 @@ import {
   selectUpdateProductRequestAdminData,
 } from "../../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
-import { convertToJalali } from "../../../utils/MomentConvertor";
+import { convertToJalali, convertToJalali_2 } from "../../../utils/MomentConvertor";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
@@ -99,10 +99,10 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
       <Table className="w-full" isLoading={false} shadow={false}>
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
-            <TableHeadCell>نام درخواست کننده</TableHeadCell>
-            <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
+
             <TableHeadCell>توضیحات</TableHeadCell>
             <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
+            <TableHeadCell>تاریخ تحویل</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
             <TableHeadCell />
@@ -114,23 +114,20 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             productAdminData?.data?.length > 0 ? (
               productAdminData?.data?.map((row: any) => (
                 <TableRow key={row?.id}>
-                  <TableCell>
-                    {row?.user?.firstName
-                      ? row?.user?.firstName + " " + row?.user?.lastName
-                      : "_"}
-                  </TableCell>
-                  <TableCell>{row?.user?.mobile ?? "_"}</TableCell>
                   <TableCell>{row?.description ?? "_"}</TableCell>
                   <TableCell>
                     {row?.createdAt ? convertToJalali(row?.createdAt) : "_"}
                   </TableCell>
+                  <TableCell>
+                  {row?.expectedDate
+                    ? convertToJalali_2(row?.expectedDate)
+                    : "_"}
+                </TableCell>
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>{row?.statusTitle ?? "_"}</TableCell>
 

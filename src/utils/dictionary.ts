@@ -43,5 +43,6 @@ export const PublicDictionary = {
   oldPassword: "پسوورد قبلی",
   phoneNumber: "شماره تلفن",
   blogCategory:"دسته بندی مقاله",
-  roleManagement:"دسترسی"
+  roleManagement:"دسترسی",
+  productPrice:"قیمت محصول"
 };

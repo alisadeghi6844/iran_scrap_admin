@@ -20,7 +20,7 @@ import {
 import { formatNumber } from "../../../utils/NumberFormated";
 
 const OpenRequestForm: React.FC<FormProps> = (props) => {
-  const { mode = "create", id, onSubmitForm, ...rest } = props;
+  const { mode = "create", id, onSubmitForm,value, ...rest } = props;
 
   const dispatch: any = useDispatch();
   const reqData = useSelector(selectGetProductRequestOfferData);
@@ -36,6 +36,71 @@ const OpenRequestForm: React.FC<FormProps> = (props) => {
 
   return (
     <>
+    <Typography className="font-bold mb-2">جزئیات درخواست کاربر</Typography>
+      <Table className="w-full mb-6" isLoading={false} shadow={false}>
+        <TableHead className="w-full" isLoading={false} shadow={false}>
+          <TableRow>
+            <TableHeadCell>توضیحات</TableHeadCell>
+            <TableHeadCell>دسته بندی </TableHeadCell>
+            <TableHeadCell>آدرس</TableHeadCell>
+            <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
+            <TableHeadCell>تاریخ تحویل</TableHeadCell>
+            <TableHeadCell>مقدار درخواستی</TableHeadCell>
+            <TableHeadCell>نوع درخواست</TableHeadCell>
+            <TableHeadCell>وضعیت</TableHeadCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {!reqLoading ? (
+            value?.id ? (
+              <TableRow>
+                <TableCell>{value?.description ?? "_"}</TableCell>
+                <TableCell>{value?.category?.name ?? "_"}</TableCell>
+                <TableCell>
+                  {value?.province + " , " + value?.city}
+                </TableCell>
+                <TableCell>
+                  {value?.createdAt
+                    ? convertToJalali(value?.createdAt)
+                    : "_"}
+                </TableCell>
+                <TableCell>
+                  {value?.expectedDate
+                    ? convertToJalali_2(value?.expectedDate)
+                    : "_"}
+                </TableCell>
+                <TableCell>
+                  {value?.amount
+                    ? `${value?.amount} (${
+                        value?.amountType === "TON" ? "تن" : "کیلوگرم"
+                      })`
+                    : "_"}
+                </TableCell>
+                <TableCell>
+                  {value?.requestType
+                    ? value?.requestType === "URGENT"
+                      ? "فوری"
+                      : "نرمال"
+                    : "_"}
+                </TableCell>
+                <TableCell>{value?.statusTitle ?? "_"}</TableCell>
+              </TableRow>
+            ) : (
+              <TableRow>
+                <TableCell colspan="9" className="flex justify-center !py-4">
+                  <EmptyImage />
+                </TableCell>
+              </TableRow>
+            )
+          ) : (
+            <TableRow>
+              <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableSkeleton />
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
       <div className="flex items-center justify-between my-3">
         <Typography className="font-bold mb-2">
           پیشنهادات تامین کنندگان

@@ -8,6 +8,7 @@ import { MdOutlineCategory } from "react-icons/md";
 import { RiBloggerLine } from "react-icons/ri";
 import { BiCategoryAlt } from "react-icons/bi";
 import { FaRegUser } from "react-icons/fa";
+import { MdOutlineProductionQuantityLimits } from "react-icons/md";
 
 import { MdProductionQuantityLimits } from "react-icons/md";
 
@@ -32,18 +33,8 @@ const DesktopSidebar = () => {
           role: ["admin", "client", "reservation"],
         },
         {
-          path: "/open-request",
-          title: "درخواست های باز",
-          icon: <LuPackageOpen className="text-2xl" />,
-          id: 160,
-          isNew: false,
-          subRoutes: [],
-          notif: "",
-          role: ["admin", "client", "reservation"],
-        },
-        {
           path: "/close-request",
-          title: "درخواست های بسته",
+          title: "درخواست های درحال پردازش",
           icon: <BsBoxSeam className="text-2xl" />,
           id: 190,
           isNew: false,
@@ -51,6 +42,17 @@ const DesktopSidebar = () => {
           notif: "",
           role: ["admin", "client", "reservation"],
         },
+        {
+          path: "/open-request",
+          title: "درخواست های بسته",
+          icon: <LuPackageOpen className="text-2xl" />,
+          id: 160,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+  
         {
           path: "/product-request-status",
           title: "مدیریت وضعیت درخواست ها",
@@ -115,10 +117,31 @@ const DesktopSidebar = () => {
         },
       ],
     },
+
+    {
+      id: 162,
+      isNew: false,
+      menuTitle: "مدیریت محصولات",
+      order: "1",
+      role: ["admin", "client", "reservation"],
+      notif: "",
+      menus: [
+        {
+          path: "/product-price-management",
+          title: "مدیریت قیمت گذاری محصولات",
+          icon: <MdOutlineProductionQuantityLimits className="text-2xl" />,
+          id: 250182,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+      ],
+    },
   ];
   return (
     <div className="fixed right-0 z-40 bg-white border-l-2 border-dashed border-gray-300 top-0 min-h-screen w-full max-w-[14.4%]">
-      <Link to="/" className="pb-8 pt-6 px-4 flex items-center gap-x-2">
+      <Link to="/" className="pb-8 pt-6 px-2 flex items-center gap-x-2">
         {/* <Image
           src="/images/core/logo1.svg"
           alt="ویرا"

@@ -26,6 +26,7 @@
     "formik": "^2.4.6",
     "jalali-moment": "^3.3.11",
     "katex": "^0.16.8",
+    "lodash": "^4.17.21",
     "lottie-react": "^2.4.0",
     "markdown-it": "^14.1.0",
     "markdown-it-katex": "^2.0.3",

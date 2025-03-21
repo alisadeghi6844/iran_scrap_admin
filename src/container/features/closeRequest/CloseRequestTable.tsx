@@ -93,7 +93,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
 
   return (
     <CollectionControls
-      title="درخواست های بسته"
+      title="درخواست های درحال پردازش"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
       onMetaChange={handleFilter}

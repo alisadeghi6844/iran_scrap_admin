@@ -8,7 +8,7 @@ import categorySlice from "./slice/category/CategorySlice";
 import blogSlice from "./slice/blog/BlogSlice";
 import blogCategorySlice from "./slice/blogCategory/BlogCategorySlice";
 import roleManagementSlice from "./slice/roleManagement/RolemanagementSlice";
-
+import productPriceSlice from "./slice/productPrice/ProductPriceSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -19,5 +19,6 @@ export const store = configureStore({
     blog: blogSlice,
     blogCategory: blogCategorySlice,
     roleManagement: roleManagementSlice,
+    productPrice: productPriceSlice,
   },
 });
