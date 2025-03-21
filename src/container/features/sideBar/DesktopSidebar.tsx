@@ -7,6 +7,7 @@ import { BsBoxSeam } from "react-icons/bs";
 import { MdOutlineCategory } from "react-icons/md";
 import { RiBloggerLine } from "react-icons/ri";
 import { BiCategoryAlt } from "react-icons/bi";
+import { FaRegUser } from "react-icons/fa";
 
 import { MdProductionQuantityLimits } from "react-icons/md";
 
@@ -71,6 +72,17 @@ const DesktopSidebar = () => {
       role: ["admin", "client", "reservation"],
       notif: "",
       menus: [
+        {
+          path: "/role-management",
+          title: "مدیریت نقش",
+          icon: <FaRegUser className="text-2xl" />,
+          id: 24362,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+
         {
           path: "/category-management",
           title: "مدیریت دسته بندی",

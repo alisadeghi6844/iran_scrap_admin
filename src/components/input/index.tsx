@@ -26,7 +26,6 @@ const Input = forwardRef<HTMLInputElement, InputTypes>((props, ref) => {
           ref={ref} // انتقال ref به input
           className={`block p-2 w-full text-sm text-gray-900
             bg-transparent border-0 border-b-2 border-gray-300 appearance-none
-            dark:text-white dark:border-gray-600 dark:focus:border-primary-500 
             focus:outline-none focus:ring-0 focus:border-primary-600 peer
             ${!!errorMessage ? "text-error-500 focus:text-error-500" : "border-gray-300"} 
             ${startAdornment && "pr-9"} 
@@ -48,7 +47,7 @@ const Input = forwardRef<HTMLInputElement, InputTypes>((props, ref) => {
         <label
           className="absolute flex gap-x-2 text-sm lg:text-base text-gray-400
             duration-300 transform -translate-y-7 top-2 -z-10 origin-right scale-90
-            peer-focus:right-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 
+            peer-focus:right-0 peer-focus:text-blue-600
             peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75
             peer-focus:-translate-y-7"
         >

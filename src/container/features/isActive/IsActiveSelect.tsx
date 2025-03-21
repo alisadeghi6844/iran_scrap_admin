@@ -8,7 +8,7 @@ interface IsActiveSelectProps extends CategorySelectTypes {
 }
 
 const IsActiveSelect: React.FC<IsActiveSelectProps> = (props) => {
-  const { mode, name, required, codes, ...rest } = props;
+  const { name, required, ...rest } = props;
 
   const [field, { error }, { setValue }] = useField(props);
 

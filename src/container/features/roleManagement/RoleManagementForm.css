@@ -1,0 +1,34 @@
+.system-theme-independent {
+  color-scheme: light !important;
+}
+
+.system-theme-independent input,
+.system-theme-independent select {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: #e2e8f0 !important;
+}
+
+.system-theme-independent input:focus,
+.system-theme-independent select:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 1px #3b82f6 !important;
+}
+
+.system-theme-independent input::placeholder {
+  color: #718096 !important;
+}
+
+/* برای حالت hover */
+.system-theme-independent input:hover,
+.system-theme-independent select:hover {
+  border-color: #cbd5e0 !important;
+}
+
+/* برای حالت disabled */
+.system-theme-independent input:disabled,
+.system-theme-independent select:disabled {
+  background-color: #f7fafc !important;
+  color: #a0aec0 !important;
+  border-color: #e2e8f0 !important;
+} 

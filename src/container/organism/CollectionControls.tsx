@@ -71,6 +71,7 @@ const SimplePagination = ({
 const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
   const {
     children,
+    isLoading = false,
     buttons = [],
     buttonsAfter,
     buttonsBefore,
@@ -227,6 +228,7 @@ const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
                           type="button"
                           variant="outline-primary"
                           size="sm"
+                          loading={isLoading}
                           className="px-[5px]"
                           onClick={() => {
                             onButtonClick && onButtonClick("create");

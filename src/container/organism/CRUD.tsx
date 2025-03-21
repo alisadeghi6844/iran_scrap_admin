@@ -13,7 +13,7 @@ const CRUD: React.FC<CRUDProps> = (props) => {
     closeLov,
     confirmModalSize = "md",
     formModalSize = "md",
-    deleteModalSize = "md",
+    detailModalSize = "md",
     modalHeaders = {},
     onModalClose,
   } = props;
@@ -82,7 +82,7 @@ const CRUD: React.FC<CRUDProps> = (props) => {
       {content}
       {renderModal("create", formModalSize, modalHeaders?.create)}
       {renderModal("update", formModalSize, modalHeaders?.update)}
-      {renderModal("detail", "lg", modalHeaders?.detail)}
+      {renderModal("detail", detailModalSize, modalHeaders?.detail)}
       {renderModal("LOV", "lg", modalHeaders?.lov)}
       {renderModal("delete", confirmModalSize, modalHeaders?.delete)}
     </div>

@@ -10,6 +10,7 @@ export const GetUsersService = async (query: any) => {
   if (!!query) {
     queryText = AxiosQueryCustom(query);
   }
+
   return await HttpServises.get(
     `${BASE_URL}${GET_USERS_POINT}?${queryText ? queryText : null}`
   );
