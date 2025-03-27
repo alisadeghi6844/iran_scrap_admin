@@ -102,7 +102,7 @@ const BlogForm: React.FC<FormProps> = (props) => {
       // اضافه کردن فایل‌ها به FormData
       if (data?.Image && data.Image.length > 0) {
         data.Image.forEach((file: any) => {
-          formData.append("image", file); // فرض بر این است که data.Image شامل فایل‌ها است
+          formData.append("thumbnail", file); // فرض بر این است که data.Image شامل فایل‌ها است
         });
       }
 

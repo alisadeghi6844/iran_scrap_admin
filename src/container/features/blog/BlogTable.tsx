@@ -25,6 +25,8 @@ import {
   selectUpdateBlogData,
 } from "../../../redux/slice/blog/BlogSlice";
 import { GetBlogAction } from "../../../redux/actions/blog/BlogActions";
+import TextOverflow from "../../../utils/TextOverflow";
+import { BiTrashAlt } from "react-icons/bi";
 
 interface BlogTypes {
   onRowClick?: any;
@@ -82,9 +84,9 @@ const BlogTable: React.FC<BlogTypes> = (props) => {
     }
   }, [updateData, createData]);
 
-  useEffect(()=>{
-    console.log("blogData",blogData)
-  },[blogData]);
+  useEffect(() => {
+    console.log("blogData", blogData);
+  }, [blogData]);
 
   return (
     <CollectionControls
@@ -105,12 +107,19 @@ const BlogTable: React.FC<BlogTypes> = (props) => {
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
             <TableHeadCell>تصویر مقاله</TableHeadCell>
-            <TableHeadCell>نام مقاله </TableHeadCell>
+            <TableHeadCell>عنوان مقاله </TableHeadCell>
+            <TableHeadCell>دسته بندی</TableHeadCell>
+            <TableHeadCell>وضعیت</TableHeadCell>
+            <TableHeadCell>توضیح کوتاه</TableHeadCell>
+            <TableHeadCell>متن مقاله</TableHeadCell>
             <TableHeadCell />
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
@@ -121,15 +130,21 @@ const BlogTable: React.FC<BlogTypes> = (props) => {
                 <TableRow key={row?._id}>
                   <TableCell>
                     <Image
-                      className="w-[60px] h-[60px] rounded-lg"
+                      className="w-[94px] h-[84px] rounded-lg"
                       src={
-                        row?.image
-                          ? row?.image
+                        row?.thumbnail
+                          ? row?.thumbnail
                           : "/images/core/default-image.png"
                       }
                     />
                   </TableCell>
-                  <TableCell>{row?.name ?? "_"}</TableCell>
+                  <TableCell>{row?.title ?? "_"}</TableCell>
+                  <TableCell>{row?.category?.title ?? "_"}</TableCell>
+                  <TableCell>{row?.isActive ? "فعال" : "غیر فعال"}</TableCell>
+                  <TableCell>{row?.summery ?? "_"}</TableCell>
+                  <TableCell>
+                    <TextOverflow>{row?.description ?? "_"}</TextOverflow>
+                  </TableCell>
                   <TableCell
                     onClick={(e: any) => {
                       e.stopPropagation();
@@ -147,31 +162,17 @@ const BlogTable: React.FC<BlogTypes> = (props) => {
                     >
                       ویرایش
                     </Button>
+
                     <Button
-                      startIcon={
-                        <LuGitPullRequestCreateArrow className="text-xl" />
-                      }
+                      startIcon={<BiTrashAlt className="text-xl" />}
                       type="button"
-                      variant="outline-warning"
+                      variant="outline-error"
                       size="sm"
                       onClick={() => {
                         onRowClick && onRowClick("delete", row);
                       }}
                     >
-                      ساخت ویژگی
-                    </Button>
-                    <Button
-                      startIcon={
-                        <MdOutlineFeaturedPlayList className="text-xl" />
-                      }
-                      type="button"
-                      variant="outline-primary"
-                      size="sm"
-                      onClick={() => {
-                        onRowClick && onRowClick("detail", row);
-                      }}
-                    >
-                      نمایش ویژگی ها
+                      حذف
                     </Button>
                   </TableCell>
                 </TableRow>
