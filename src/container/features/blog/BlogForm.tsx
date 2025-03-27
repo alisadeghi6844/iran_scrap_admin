@@ -1,37 +1,28 @@
-import React, { useCallback, useEffect, useState } from "react";
-
+"use client";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { FormProps } from "../../../types/organism/Form";
 import {
   selectCreateBlogLoading,
-  selectGetBlogByIdData,
-  selectGetBlogByIdLoading,
   selectUpdateBlogLoading,
 } from "../../../redux/slice/blog/BlogSlice";
 import {
   CreateBlogAction,
-  GetBlogByIdAction,
   UpdateBlogAction,
 } from "../../../redux/actions/blog/BlogActions";
-import FormSkeleton from "../../organism/skeleton/FormSkeleton";
 import FORM from "../../organism/FORM";
 import InputField from "../../../components/molcols/formik-fields/InputField";
 import FileFieldUploader from "../../../components/molcols/formik-fields/FIleFieldUploader";
 import TextAreaField from "../../../components/molcols/formik-fields/TextAreaField";
-import CategorySelect from "../category/CategorySelect";
-import { SelectValidation } from "../../../utils/SelectValidation";
-import IsActiveSelect from "../isActive/IsActiveSelect";
 import BlogCategorySelect from "../category/BlogCategorySelect";
+import IsActiveSelect from "../isActive/IsActiveSelect";
+import { SelectValidation } from "../../../utils/SelectValidation";
 
 const BlogForm: React.FC<FormProps> = (props) => {
-  const { mode = "create", onSubmitForm, id, ...rest } = props;
+  const { mode = "create", onSubmitForm, value, ...rest } = props;
 
   const dispatch: any = useDispatch();
-
-  const getValue = useSelector(selectGetBlogByIdData);
-  const getLoading = useSelector(selectGetBlogByIdLoading);
-
   const createLoading: any = useSelector(selectCreateBlogLoading);
   const updateLoading: any = useSelector(selectUpdateBlogLoading);
 
@@ -46,41 +37,52 @@ const BlogForm: React.FC<FormProps> = (props) => {
 
   const [initialValues, setInitialValues] = useState<any>(initialData);
   const [editImageFile, setEditImageFile] = useState([]);
+  const hasLoadedImage = useRef(false); // استفاده از useRef برای جلوگیری از بارگذاری مکرر
 
-  const loadData = useCallback(() => {
-    if (id && mode === "update") {
-      dispatch(GetBlogByIdAction({ credentials: id }));
-    }
-  }, [id, mode]);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  const fetchImageAsBlob = async (url: string) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const fileType = blob.type || "image/png";
+    return new File([blob], "thumbnail.png", { type: fileType });
+  };
 
   useEffect(() => {
-    if (getValue?.id && mode === "update") {
+    if (value?._id && mode === "update") {
       setInitialValues({
-        Name: getValue?.title || "",
-        Summery: getValue?.summery || "",
-        Description: getValue?.description || "",
-        Category: getValue?.category || "",
-        IsActive: getValue?.isActive || "",
-        Image: getValue?.image || [],
+        Name: value?.title || "",
+        Summery: value?.summery || "",
+        Description: value?.description || "",
+        Category: {
+          label: value?.category?.title || "",
+          value: value?.categoryId || "",
+        },
+        IsActive: {
+          label: value?.isActive ? "فعال" : "غیرفعال",
+          value: value?.isActive ? true : false,
+        },
+        //Image: value?.thumbnail || [],
       });
-      setEditImageFile(
-        getValue?.image
-          ? getValue?.image.map((item: any) => ({
-              file: item.file,
-              contentType: item.contentType,
-              fileName: item.fileName,
-            }))
-          : []
-      );
+
+      if (value?.thumbnail) {
+        fetchImageAsBlob(value.thumbnail).then((file) => {
+          setEditImageFile([
+            {
+              file: file,
+              contentType: "image/png",
+              fileName: "thumbnail.png",
+            },
+          ]);
+          hasLoadedImage.current = true; // علامت‌گذاری بارگذاری تصویر
+        });
+      } else {
+        setEditImageFile([]);
+      }
     } else {
       setInitialValues(initialData);
       setEditImageFile([]);
+      hasLoadedImage.current = false; // بازنشانی برای حالت جدید
     }
-  }, [getValue, mode]);
+  }, [value, mode]);
 
   const validationSchema = () =>
     Yup.object({
@@ -97,12 +99,11 @@ const BlogForm: React.FC<FormProps> = (props) => {
       formData.append("summery", data?.Summery);
       formData.append("description", data?.Description);
       formData.append("categoryId", data?.Category?.value);
-      formData.append("isActive", data?.IsActive?.value);
+      formData.append("isActive", data?.IsActive?.value ? 1 : 0);
 
-      // اضافه کردن فایل‌ها به FormData
       if (data?.Image && data.Image.length > 0) {
         data.Image.forEach((file: any) => {
-          formData.append("thumbnail", file); // فرض بر این است که data.Image شامل فایل‌ها است
+          formData.append("thumbnail", file);
         });
       }
 
@@ -117,32 +118,23 @@ const BlogForm: React.FC<FormProps> = (props) => {
       } else if (mode === "update") {
         dispatch(
           UpdateBlogAction({
-            id,
+            id:value?._id,
             credentials: formData,
             onSubmitForm,
             resetForm,
           })
         );
-      } else {
-        return null;
       }
     }
   };
 
   return (
     <>
-      {getLoading ? (
-        <>
-          <FormSkeleton />
-        </>
-      ) : (
+   
         <FORM
           mode={mode}
-          loading={[
-            createLoading && createLoading,
-            updateLoading && updateLoading,
-          ]}
-          initialValues={initialValues && initialValues}
+          loading={[createLoading, updateLoading]}
+          initialValues={initialValues}
           validationSchema={validationSchema}
           handleSubmit={handleSubmit}
           resetForm
@@ -214,7 +206,6 @@ const BlogForm: React.FC<FormProps> = (props) => {
           ]}
           {...rest}
         />
-      )}
     </>
   );
 };

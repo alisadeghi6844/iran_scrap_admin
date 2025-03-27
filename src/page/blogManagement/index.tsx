@@ -1,8 +1,6 @@
 import React, { lazy, Suspense, useState } from "react";
 import CRUD from "../../container/organism/CRUD";
-import CategoryDeleteConfirmation from "../../container/features/account/createUser/CreateUserDeleteConfirmation";
-import CategoryAttributeForm from "../../container/features/category/CategoryAttributeForm";
-import ShowAttributes from "../../container/features/category/ShowAttributes";
+import BlogDeleteConfirmation from "../../container/features/blog/BlogDeleteConfirmation";
 
 const BlogTable = lazy(
   () =>
@@ -48,7 +46,7 @@ const BlogManagement = () => {
         form={
           <Suspense>
             <BlogForm
-              id={selectedRow?._id ?? null}
+              value={selectedRow ?? null}
               mode={mode}
               onSubmitForm={() => {
                 setMode("content");
@@ -58,19 +56,8 @@ const BlogManagement = () => {
         }
         confirmation={
           <Suspense>
-            <CategoryAttributeForm
-              id={selectedRow?._id ?? null}
-              mode={mode}
-              onSubmitForm={() => {
-                setMode("content");
-              }}
-            />
-          </Suspense>
-        }
-        detail={
-          <Suspense>
-            <ShowAttributes
-              value={selectedRow ?? {}}
+            <BlogDeleteConfirmation
+              value={selectedRow ?? null}
               onSubmit={() => {
                 setMode("content");
               }}

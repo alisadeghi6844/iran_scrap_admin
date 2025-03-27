@@ -44,5 +44,6 @@ export const PublicDictionary = {
   phoneNumber: "شماره تلفن",
   blogCategory:"دسته بندی مقاله",
   roleManagement:"دسترسی",
-  productPrice:"قیمت محصول"
+  productPrice:"قیمت محصول",
+  blog:"مقاله",
 };

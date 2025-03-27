@@ -40,9 +40,8 @@ export const GetBlogAction = createAsyncThunk(
 export const GetBlogByIdAction = createAsyncThunk(
   `${BLOG}/${GET_BLOG_BY_ID}`,
   async (credentials: any, { rejectWithValue }: any) => {
-
     try {
-      const response = await getBlogByIdService({credentials});
+      const response = await getBlogByIdService({ credentials });
       if (response?.status === 200) {
         return response.data; // به درستی داده‌های کاربر را برمی‌گرداند
       } else {
@@ -77,9 +76,9 @@ export const CreateBlogAction = createAsyncThunk(
 
 export const UpdateBlogAction = createAsyncThunk(
   `${BLOG}/${UPDATE_BLOG}`,
-  async ({ id,credentials, onSubmitForm, resetForm }: any, thunkAPI) => {
+  async ({ id, credentials, onSubmitForm, resetForm }: any, thunkAPI) => {
     try {
-      const response = await updateBlogService(credentials,id);
+      const response = await updateBlogService(credentials, id);
       if (response?.status == 200) {
         toast.success("وبلاگ با موفقیت ویرایش شد");
         onSubmitForm && onSubmitForm();
@@ -96,13 +95,14 @@ export const UpdateBlogAction = createAsyncThunk(
 
 export const DeleteBlogAction = createAsyncThunk(
   `${BLOG}/${DELETE_BLOG}`,
-  async ({credentials, onSubmitForm, resetForm }: any, thunkAPI) => {
+  async ({ credentials, onSubmitForm, resetForm }: any, thunkAPI) => {
     try {
       const response = await deleteBlogService(credentials);
       if (response?.status == 200) {
         toast.success("وبلاگ با موفقیت حذف شد");
         onSubmitForm && onSubmitForm();
         resetForm && resetForm();
+        thunkAPI.dispatch(GetBlogAction(query));
       }
       return response;
     } catch (error: any) {
@@ -112,4 +112,3 @@ export const DeleteBlogAction = createAsyncThunk(
     }
   }
 );
-
