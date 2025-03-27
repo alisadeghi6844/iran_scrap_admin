@@ -19,6 +19,7 @@ import { FaRegEdit } from "react-icons/fa";
 import {
   selectCreateRoleManagementData,
   selectDeleteRoleManagementData,
+  selectGetPermissionsData,
   selectGetRoleManagementData,
   selectGetRoleManagementLoading,
   selectUpdateRoleManagementData,
@@ -46,6 +47,7 @@ const RoleManagementTable: React.FC<RoleManagementTypes> = (props) => {
   const updateData = useSelector(selectUpdateRoleManagementData);
   const createData = useSelector(selectCreateRoleManagementData);
   const deleteData = useSelector(selectDeleteRoleManagementData);
+  const persissionsData = useSelector(selectGetPermissionsData);
 
   useEffect(() => {
     dispatch(GetRoleManagementAction({ page: 0, size: 20 }));
@@ -65,7 +67,8 @@ const RoleManagementTable: React.FC<RoleManagementTypes> = (props) => {
     const { FoodName, RoleManagement, Restaurant } = data;
     let queryParam = "";
     if (FoodName) queryParam += "title=" + FoodName + ",";
-    if (RoleManagement?.label) queryParam += "categoriesId=" + RoleManagement?.value + ",";
+    if (RoleManagement?.label)
+      queryParam += "categoriesId=" + RoleManagement?.value + ",";
     if (Restaurant?.label)
       queryParam += "restaurantId=" + Restaurant?.value + ",";
 
@@ -73,7 +76,11 @@ const RoleManagementTable: React.FC<RoleManagementTypes> = (props) => {
   };
 
   useEffect(() => {
-    if (updateData?.status == 200 || createData?.status == 201||deleteData?.status==200) {
+    if (
+      updateData?.status == 200 ||
+      createData?.status == 201 ||
+      deleteData?.status == 200
+    ) {
       dispatch(
         GetRoleManagementAction({
           page: 0,
@@ -81,8 +88,11 @@ const RoleManagementTable: React.FC<RoleManagementTypes> = (props) => {
         })
       );
     }
-  }, [updateData, createData,deleteData]);
+  }, [updateData, createData, deleteData]);
 
+  useEffect(() => {
+    console.log("persissionsData", persissionsData);
+  }, [persissionsData]);
 
   return (
     <CollectionControls
@@ -103,13 +113,12 @@ const RoleManagementTable: React.FC<RoleManagementTypes> = (props) => {
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
             <TableHeadCell>نام دسترسی </TableHeadCell>
-            <TableHeadCell>مجوز ها  </TableHeadCell>
+            <TableHeadCell>مجوز ها </TableHeadCell>
             <TableHeadCell />
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
-
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
@@ -118,9 +127,24 @@ const RoleManagementTable: React.FC<RoleManagementTypes> = (props) => {
             roleManagementData?.length > 0 ? (
               roleManagementData?.map((row: any) => (
                 <TableRow key={row?.id}>
-               
                   <TableCell>{row?.title ?? "_"}</TableCell>
-                  <TableCell>{row?.permissions?.length ?row?.permissions?.map((item:any)=>item).join(",") : "_"}</TableCell>
+                  <TableCell>
+                    {row?.permissions?.length
+                      ? row.permissions
+                          .map((item: any) => {
+                            const permission = persissionsData?.find(
+                              (per: any) => per?.id === item
+                            );
+                            return permission
+                              ? permission.title
+                              : item == "*"
+                              ? "تمامی دسترسی ها"
+                              : null;
+                          })
+                          .filter(Boolean) // Filter out any null values
+                          .join(", ")
+                      : "_"}
+                  </TableCell>
                   <TableCell
                     onClick={(e: any) => {
                       e.stopPropagation();
@@ -152,9 +176,7 @@ const RoleManagementTable: React.FC<RoleManagementTypes> = (props) => {
                       دسترسی به کاربر
                     </Button>
                     <Button
-                      startIcon={
-                        <BiTrashAlt className="text-xl" />
-                      }
+                      startIcon={<BiTrashAlt className="text-xl" />}
                       type="button"
                       variant="outline-error"
                       size="sm"
@@ -162,7 +184,7 @@ const RoleManagementTable: React.FC<RoleManagementTypes> = (props) => {
                         onRowClick && onRowClick("delete", row);
                       }}
                     >
-                     حذف
+                      حذف
                     </Button>
                   </TableCell>
                 </TableRow>

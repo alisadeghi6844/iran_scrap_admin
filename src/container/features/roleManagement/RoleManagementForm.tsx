@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { FormProps } from "../../../types/organism/Form";
 import {
   selectCreateRoleManagementLoading,
+  selectGetPermissionsData,
   selectGetRoleManagementByIdData,
   selectGetRoleManagementByIdLoading,
   selectUpdateRoleManagementLoading,
@@ -30,7 +31,7 @@ const RoleManagementForm: React.FC<FormProps> = (props) => {
 
   const createLoading: any = useSelector(selectCreateRoleManagementLoading);
   const updateLoading: any = useSelector(selectUpdateRoleManagementLoading);
-
+  const persissionsData = useSelector(selectGetPermissionsData);
   const initialData = {
     Title: "",
     Name: "",
@@ -57,13 +58,16 @@ const RoleManagementForm: React.FC<FormProps> = (props) => {
       setInitialValues({
         Title: getValue?.title || "",
         Name: getValue?.name || "",
-        Permissions: getValue?.permissions || [],
+        Permissions: getValue?.permissions?.map((permission: any) => ({
+          value: permission,
+          label: persissionsData?.find((per: any) => per?.id === permission)?.title || ""
+        })) || [],
         IsActive: getValue?.isActive || "",
       });
     } else {
       setInitialValues(initialData);
     }
-  }, [getValue, mode]);
+  }, [getValue, mode,persissionsData]);
 
   const validationSchema = () =>
     Yup.object({
@@ -76,8 +80,8 @@ const RoleManagementForm: React.FC<FormProps> = (props) => {
   const handleSubmit = (data: any, resetForm: any) => {
     if (data) {
       const requestBody = {
-        title: data?.Name,
-        name: data?.Title,
+        title: data?.Title,
+        name: data?.Name,
         permissions: data?.Permissions?.map((item: any) => item.value),
         isAdmin: data?.IsActive?.value
       };
