@@ -10,7 +10,7 @@ import blogCategorySlice from "./slice/blogCategory/BlogCategorySlice";
 import productPriceSlice from "./slice/productPrice/ProductPriceSlice";
 import generalSettingSlice from "./slice/generalSetting/GeneralSettingSlice";
 import faqSlice from "./slice/faq/FaqSlice";
-import roleManagementSlice from "./slice/roleManagement/RolemanagementSlice";
+import roleManagementSlice from "./slice/roleManagement/RoleManagementSlice"; // اصلاح نام فایل
 export const store = configureStore({
   reducer: {
     auth: authReducer,
