@@ -12,16 +12,16 @@ import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import {
-  selectGetUsersData,
-  selectGetUsersLoading,
+  selectGetUsersProvidersData,
+  selectGetUsersProvidersLoading,
 } from "../../../redux/slice/users/UsersSlice";
-import { GetUsersAction } from "../../../redux/actions/users/UsersActions";
+import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
 import SearchInputField from "../../../components/molcols/formik-fields/SearchInputField";
 import Checkbox from "../../../components/checkbox";
 import Button from "../../../components/button";
 import { UpdateRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
-import { debounce } from 'lodash';
+import { debounce } from "lodash";
 
 interface UsersTableTypes {
   onRowClick?: any;
@@ -31,7 +31,7 @@ interface UsersTableTypes {
 
 interface SortState {
   field: string;
-  direction: 'asc' | 'desc' | null;
+  direction: "ASC" | "DESC" | null;
 }
 
 const UsersTable: React.FC<UsersTableTypes> = (props) => {
@@ -39,7 +39,10 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
 
   const dispatch: any = useDispatch();
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-  const [sortState, setSortState] = useState<SortState>({ field: '', direction: null });
+  const [sortState, setSortState] = useState<SortState>({
+    field: "",
+    direction: null,
+  });
   const [currentFilter, setCurrentFilter] = useState<any>({});
 
   const filterDefaultInitialValues = {
@@ -48,26 +51,30 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
     phoneNumber: null,
   };
 
-  const loading = useSelector(selectGetUsersLoading);
-  const usersData = useSelector(selectGetUsersData);
+  const loading = useSelector(selectGetUsersProvidersLoading);
+  const usersData = useSelector(selectGetUsersProvidersData);
 
   // ایجاد تابع fetchData برای ترکیب منطق فیلتر و مرتب‌سازی
-  const fetchData = useCallback((filter = {}, sort = sortState) => {
-    dispatch(
-      GetUsersAction({
-        credentials: {
-          ...filter,
-          page: 0,
-          size: 20,
-          usertype: "Provider",
-          ...(sort.field && sort.direction ? {
-            sortBy: sort.field,
-            sortDirection: sort.direction
-          } : {})
-        },
-      })
-    );
-  }, [dispatch]);
+  const fetchData = useCallback(
+    (filter = {}, sort = sortState) => {
+      dispatch(
+        GetUsersProvidersAction({
+          credentials: {
+            ...filter,
+            page: 0,
+            size: 20,
+            ...(sort.field && sort.direction
+              ? {
+                  orderBy: sort.field,
+                  order: sort.direction,
+                }
+              : {}),
+          },
+        })
+      );
+    },
+    [dispatch]
+  );
 
   // ایجاد نسخه debounce شده از fetchData
   const debouncedFetchData = useCallback(
@@ -131,13 +138,14 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
   const handleSort = (field: string) => {
     const newSortState = {
       field,
-      direction: sortState.field === field 
-        ? sortState.direction === 'asc' 
-          ? 'desc' 
-          : sortState.direction === 'desc' 
-            ? null 
-            : 'asc'
-        : 'asc'
+      direction:
+        sortState.field === field
+          ? sortState.direction === "ASC"
+            ? "DESC"
+            : sortState.direction === "DESC"
+            ? null
+            : "ASC"
+          : "ASC",
     };
     setSortState(newSortState);
     debouncedFetchData(currentFilter, newSortState);
@@ -145,11 +153,13 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
 
   const getSortIcon = (field: string) => {
     if (sortState.field !== field) return <FaSort className="inline ml-1" />;
-    if (sortState.direction === 'asc') return <FaSortUp className="inline ml-1" />;
-    if (sortState.direction === 'desc') return <FaSortDown className="inline ml-1" />;
+    if (sortState.direction === "ASC")
+      return <FaSortUp className="inline ml-1" />;
+    if (sortState.direction === "DESC")
+      return <FaSortDown className="inline ml-1" />;
     return <FaSort className="inline ml-1" />;
   };
-
+  console.log("usersData", usersData);
   return (
     <>
       <div className="flex justify-end -mb-3">
@@ -176,17 +186,29 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
           <TableHead className="w-full" isLoading={false} shadow={false}>
             <TableRow>
               <TableHeadCell>انتخاب</TableHeadCell>
-              <TableHeadCell onClick={() => handleSort('firstName')} className="cursor-pointer">
-                نام {getSortIcon('firstName')}
+              <TableHeadCell
+                onClick={() => handleSort("firstName")}
+                className="cursor-pointer"
+              >
+                نام {getSortIcon("firstName")}
               </TableHeadCell>
-              <TableHeadCell onClick={() => handleSort('lastName')} className="cursor-pointer">
-                نام خانوادگی {getSortIcon('lastName')}
+              <TableHeadCell
+                onClick={() => handleSort("lastName")}
+                className="cursor-pointer"
+              >
+                نام خانوادگی {getSortIcon("lastName")}
               </TableHeadCell>
-              <TableHeadCell onClick={() => handleSort('mobile')} className="cursor-pointer">
-                تلفن همراه {getSortIcon('mobile')}
+              <TableHeadCell
+                onClick={() => handleSort("mobile")}
+                className="cursor-pointer"
+              >
+                تلفن همراه {getSortIcon("mobile")}
               </TableHeadCell>
-              <TableHeadCell onClick={() => handleSort('userSort')} className="cursor-pointer">
-                نوع کاربر {getSortIcon('userSort')}
+              <TableHeadCell
+                onClick={() => handleSort("userSort")}
+                className="cursor-pointer"
+              >
+                نوع کاربر {getSortIcon("userSort")}
               </TableHeadCell>
             </TableRow>
           </TableHead>
@@ -208,31 +230,57 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
               usersData?.data?.data?.length > 0 ? (
                 usersData?.data?.data?.map((row: any) => (
                   <TableRow key={row?.id}>
-                    <TableCell style={{ 
-                      backgroundColor: selectedUserIds.includes(row?.id) ? '#f0fdf4' : 'transparent',
-                      transition: 'background-color 0.2s'
-                    }}>
+                    <TableCell
+                      style={{
+                        backgroundColor: selectedUserIds.includes(row?.id)
+                          ? "#f0fdf4"
+                          : "transparent",
+                        transition: "background-color 0.2s",
+                      }}
+                    >
                       <Checkbox
                         checked={selectedUserIds.includes(row?.id)}
                         onChange={() => handleCheckboxChange(row?.id)}
                       />
                     </TableCell>
-                    <TableCell style={{ 
-                      backgroundColor: selectedUserIds.includes(row?.id) ? '#f0fdf4' : 'transparent',
-                      transition: 'background-color 0.2s'
-                    }}>{row?.firstName ?? "_"}</TableCell>
-                    <TableCell style={{ 
-                      backgroundColor: selectedUserIds.includes(row?.id) ? '#f0fdf4' : 'transparent',
-                      transition: 'background-color 0.2s'
-                    }}>{row?.lastName ?? "_"}</TableCell>
-                    <TableCell style={{ 
-                      backgroundColor: selectedUserIds.includes(row?.id) ? '#f0fdf4' : 'transparent',
-                      transition: 'background-color 0.2s'
-                    }}>{row?.mobile ?? "_"}</TableCell>
-                    <TableCell style={{ 
-                      backgroundColor: selectedUserIds.includes(row?.id) ? '#f0fdf4' : 'transparent',
-                      transition: 'background-color 0.2s'
-                    }}>
+                    <TableCell
+                      style={{
+                        backgroundColor: selectedUserIds.includes(row?.id)
+                          ? "#f0fdf4"
+                          : "transparent",
+                        transition: "background-color 0.2s",
+                      }}
+                    >
+                      {row?.firstName ?? "_"}
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        backgroundColor: selectedUserIds.includes(row?.id)
+                          ? "#f0fdf4"
+                          : "transparent",
+                        transition: "background-color 0.2s",
+                      }}
+                    >
+                      {row?.lastName ?? "_"}
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        backgroundColor: selectedUserIds.includes(row?.id)
+                          ? "#f0fdf4"
+                          : "transparent",
+                        transition: "background-color 0.2s",
+                      }}
+                    >
+                      {row?.mobile ?? "_"}
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        backgroundColor: selectedUserIds.includes(row?.id)
+                          ? "#f0fdf4"
+                          : "transparent",
+                        transition: "background-color 0.2s",
+                      }}
+                    >
                       {row?.userSort === "Hagh"
                         ? "حقیقی"
                         : row?.userSort === "Hogh"
