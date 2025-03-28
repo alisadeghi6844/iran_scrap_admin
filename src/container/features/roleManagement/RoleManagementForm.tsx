@@ -9,7 +9,7 @@ import {
   selectGetRoleManagementByIdData,
   selectGetRoleManagementByIdLoading,
   selectUpdateRoleManagementLoading,
-} from "../../../redux/slice/roleManagement/RolemanagementSlice";
+} from "../../../redux/slice/roleManagement/RoleManagementSlice";
 import {
   CreateRoleManagementAction,
   GetRoleManagementByIdAction,

@@ -9,7 +9,7 @@ import SingleSelect from "../../../components/select/SingleSelect";
 import {
   selectGetPermissionsData,
   selectGetPermissionsLoading,
-} from "../../../redux/slice/roleManagement/RolemanagementSlice";
+} from "../../../redux/slice/roleManagement/RoleManagementSlice";
 import { GetPermissionsAction } from "../../../redux/actions/roleManagement/RoleManagementActions";
 
 const PermissionSelect = (props: any) => {

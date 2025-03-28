@@ -23,7 +23,7 @@ import {
   selectGetRoleManagementData,
   selectGetRoleManagementLoading,
   selectUpdateRoleManagementData,
-} from "../../../redux/slice/roleManagement/RolemanagementSlice";
+} from "../../../redux/slice/roleManagement/RoleManagementSlice";
 import { GetRoleManagementAction } from "../../../redux/actions/roleManagement/RoleManagementActions";
 import { BiTrashAlt } from "react-icons/bi";
 

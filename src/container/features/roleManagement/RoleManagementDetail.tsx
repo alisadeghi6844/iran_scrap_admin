@@ -19,7 +19,7 @@ import {
 import { GetUsersAction } from "../../../redux/actions/users/UsersActions";
 import Image from "../../../components/image";
 import { AssignRoleManagementAction } from "../../../redux/actions/roleManagement/RoleManagementActions";
-import { selectAssignRoleManagementLoading } from "../../../redux/slice/roleManagement/RolemanagementSlice";
+import { selectAssignRoleManagementLoading } from "../../../redux/slice/roleManagement/RoleManagementSlice";
 interface RoleManagementTypes {
   onRowClick?: any;
   mode?: string;
