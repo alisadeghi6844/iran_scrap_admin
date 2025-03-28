@@ -46,4 +46,5 @@ export const PublicDictionary = {
   roleManagement:"دسترسی",
   productPrice:"قیمت محصول",
   blog:"مقاله",
+  faq:"سوالات متداول",
 };

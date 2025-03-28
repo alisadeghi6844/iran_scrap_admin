@@ -10,6 +10,7 @@ import { BiCategoryAlt } from "react-icons/bi";
 import { FaRegUser } from "react-icons/fa";
 import { MdOutlineProductionQuantityLimits } from "react-icons/md";
 import { RiPagesLine } from "react-icons/ri";
+import { FaRegQuestionCircle } from "react-icons/fa";
 
 import { MdProductionQuantityLimits } from "react-icons/md";
 
@@ -90,6 +91,16 @@ const DesktopSidebar = () => {
           title: "مدیریت صفحات ",
           icon: <RiPagesLine className="text-2xl" />,
           id: 2432362,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+        {
+          path: "/faq-management",
+          title: "مدیریت سوالات متداول",
+          icon: <FaRegQuestionCircle className="text-2xl" />,
+          id: 24323262,
           isNew: false,
           subRoutes: [],
           notif: "",
