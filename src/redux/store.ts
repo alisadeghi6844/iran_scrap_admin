@@ -7,10 +7,10 @@ import productRequestOfferSlice from "./slice/productRequestOffer/ProductStatusR
 import categorySlice from "./slice/category/CategorySlice";
 import blogSlice from "./slice/blog/BlogSlice";
 import blogCategorySlice from "./slice/blogCategory/BlogCategorySlice";
-import roleManagementSlice from "./slice/roleManagement/RolemanagementSlice";
 import productPriceSlice from "./slice/productPrice/ProductPriceSlice";
 import generalSettingSlice from "./slice/generalSetting/GeneralSettingSlice";
 import faqSlice from "./slice/faq/FaqSlice";
+import roleManagementSlice from "./slice/roleManagement/RolemanagementSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
