@@ -9,6 +9,7 @@ import { RiBloggerLine } from "react-icons/ri";
 import { BiCategoryAlt } from "react-icons/bi";
 import { FaRegUser } from "react-icons/fa";
 import { MdOutlineProductionQuantityLimits } from "react-icons/md";
+import { RiPagesLine } from "react-icons/ri";
 
 import { MdProductionQuantityLimits } from "react-icons/md";
 
@@ -84,7 +85,16 @@ const DesktopSidebar = () => {
           notif: "",
           role: ["admin", "client", "reservation"],
         },
-
+        {
+          path: "/pages-management",
+          title: "مدیریت صفحات ",
+          icon: <RiPagesLine className="text-2xl" />,
+          id: 2432362,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
         {
           path: "/category-management",
           title: "مدیریت دسته بندی",

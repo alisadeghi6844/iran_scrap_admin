@@ -64,6 +64,13 @@ const routes = [
     layout: "admin",
     role: ["admin", "client", "reservation"],
   },
+  {
+    path: "/pages-management",
+    breadCrumb: "مدیریت صفحات",
+    component: lazy(() => import("../page/generalSetting")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
 ];
 
 export const privateRoutes = [
