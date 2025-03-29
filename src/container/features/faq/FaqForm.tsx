@@ -13,7 +13,7 @@ import {
 } from "../../../redux/actions/faq/FaqActions";
 import FORM from "../../organism/FORM";
 import InputField from "../../../components/molcols/formik-fields/InputField";
-import FaqCategorySelect from "./FaqCategorySelect";
+import FaqCategorySelect, { faqCategoryOption } from "./FaqCategorySelect";
 import { SelectValidation } from "../../../utils/SelectValidation";
 import TextAreaField from "../../../components/molcols/formik-fields/TextAreaField";
 const FaqForm: React.FC<FormProps> = (props) => {
@@ -36,7 +36,10 @@ const FaqForm: React.FC<FormProps> = (props) => {
     if (value?.id && mode === "update") {
       setInitialValues({
         Title: value?.title || "",
-        Category: value?.category || null,
+        Category: {
+          label:faqCategoryOption.find((item:any)=>item?.value==value?.category)?.label,
+          value:value?.category
+        },
         description: value?.description || "",
       });
     } else {

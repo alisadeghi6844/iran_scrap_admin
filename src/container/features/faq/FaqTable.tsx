@@ -23,6 +23,8 @@ import {
 } from "../../../redux/slice/faq/FaqSlice";
 import { GetFaqAction } from "../../../redux/actions/faq/FaqActions";
 import { BiTrash } from "react-icons/bi";
+import { faqCategoryOption } from "./FaqCategorySelect";
+import TextOverflow from "../../../utils/TextOverflow";
 
 interface FaqTypes {
   onRowClick?: any;
@@ -63,8 +65,7 @@ const FaqTable: React.FC<FaqTypes> = (props) => {
     const { FoodName, Faq, Restaurant } = data;
     let queryParam = "";
     if (FoodName) queryParam += "title=" + FoodName + ",";
-    if (Faq?.label)
-      queryParam += "categoriesId=" + Faq?.value + ",";
+    if (Faq?.label) queryParam += "categoriesId=" + Faq?.value + ",";
     if (Restaurant?.label)
       queryParam += "restaurantId=" + Restaurant?.value + ",";
 
@@ -104,7 +105,9 @@ const FaqTable: React.FC<FaqTypes> = (props) => {
       <Table className="w-full" isLoading={false} shadow={false}>
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
-            <TableHeadCell>سوال متداول</TableHeadCell>
+            <TableHeadCell>سوال </TableHeadCell>
+            <TableHeadCell>دسته بندی </TableHeadCell>
+            <TableHeadCell>پاسخ </TableHeadCell>
             <TableHeadCell />
           </TableRow>
         </TableHead>
@@ -112,12 +115,23 @@ const FaqTable: React.FC<FaqTypes> = (props) => {
           <TableRow>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
-            faqData?.length > 0 ? (
-              faqData?.map((row: any) => (
+            faqData?.data?.length > 0 ? (
+              faqData?.data?.map((row: any) => (
                 <TableRow key={row?._id}>
                   <TableCell>{row?.title ?? "_"}</TableCell>
+                  <TableCell>
+                    {row?.category
+                      ? faqCategoryOption.find(
+                          (item: any) => item?.value == row?.category
+                        )?.label
+                      : "_"}
+                  </TableCell>
+                  <TableCell>
+                    <TextOverflow>{row?.description ?? "_"}</TextOverflow>
+                  </TableCell>
                   <TableCell
                     onClick={(e: any) => {
                       e.stopPropagation();
