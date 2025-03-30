@@ -18,7 +18,10 @@ import {
   selectUpdateProductRequestAdminData,
 } from "../../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
-import { convertToJalali, convertToJalali_2 } from "../../../utils/MomentConvertor";
+import {
+  convertToJalali,
+  convertToJalali_2,
+} from "../../../utils/MomentConvertor";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
@@ -41,20 +44,20 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
 
   useEffect(() => {
     dispatch(
-      GetRequestProductAdminAction({ page: 0, size: 20, status: ["REGISTERED"] })
+      GetRequestProductAdminAction({
+        page: 0,
+        size: 20,
+        status: ["REGISTERED"],
+      })
     );
   }, []);
 
-  const handleFilter = ({
-    filter,
-    page,
-    pageSize,
-  }: HandleFilterParams) => {
+  const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     dispatch(
       GetRequestProductAdminAction({
         filter,
         page: page ?? 0,
-        size: pageSize??20,
+        size: pageSize ?? 20,
       })
     );
   };
@@ -99,8 +102,9 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
       <Table className="w-full" isLoading={false} shadow={false}>
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
-
             <TableHeadCell>توضیحات</TableHeadCell>
+            <TableHeadCell>دسته بندی</TableHeadCell>
+            <TableHeadCell> مقدار</TableHeadCell>
             <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
             <TableHeadCell>تاریخ تحویل</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
@@ -114,20 +118,31 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             productAdminData?.data?.length > 0 ? (
               productAdminData?.data?.map((row: any) => (
                 <TableRow key={row?.id}>
                   <TableCell>{row?.description ?? "_"}</TableCell>
+                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
+                  <TableCell>
+                    {" "}
+                    {row?.amount
+                      ? `${row?.amount} (${
+                          row?.amountType === "TON" ? "تن" : "کیلوگرم"
+                        })`
+                      : "_"}
+                  </TableCell>
                   <TableCell>
                     {row?.createdAt ? convertToJalali(row?.createdAt) : "_"}
                   </TableCell>
                   <TableCell>
-                  {row?.expectedDate
-                    ? convertToJalali_2(row?.expectedDate)
-                    : "_"}
-                </TableCell>
+                    {row?.expectedDate
+                      ? convertToJalali_2(row?.expectedDate)
+                      : "_"}
+                  </TableCell>
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>{row?.statusTitle ?? "_"}</TableCell>
 

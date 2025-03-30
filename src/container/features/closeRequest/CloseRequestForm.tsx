@@ -85,6 +85,7 @@ const CloseRequestForm: React.FC<FormProps> = (props) => {
             <TableHeadCell>توضیحات</TableHeadCell>
             <TableHeadCell>تاریخ تحویل</TableHeadCell>
             <TableHeadCell>قیمت</TableHeadCell>
+            <TableHeadCell>نوع پرداخت</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
             <TableHeadCell>مقدار درخواستی</TableHeadCell>
           </TableRow>
@@ -119,6 +120,15 @@ const CloseRequestForm: React.FC<FormProps> = (props) => {
                   <TableCell>
                     {formatNumber(row?.price) + " " + "تومان"}
                   </TableCell>
+                  <TableCell>
+                  {reqData?.paymentType
+                    ? reqData?.paymentType === "INSTALLMENTS"
+                      ? "اقساط"
+                      : reqData?.paymentType === "CASH_AND_INSTALLMENTS"
+                      ? "نقد و اقساط"
+                      : "نقد"
+                    : "_"}
+                </TableCell>
                   <TableCell>{row?.status}</TableCell>
                   <TableCell>
                     {row?.request?.amount

@@ -47,6 +47,7 @@ const OpenRequestForm: React.FC<FormProps> = (props) => {
             <TableHeadCell>تاریخ تحویل</TableHeadCell>
             <TableHeadCell>مقدار درخواستی</TableHeadCell>
             <TableHeadCell>نوع درخواست</TableHeadCell>
+            <TableHeadCell>نوع پرداخت</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
           </TableRow>
         </TableHead>
@@ -81,6 +82,15 @@ const OpenRequestForm: React.FC<FormProps> = (props) => {
                     ? value?.requestType === "URGENT"
                       ? "فوری"
                       : "نرمال"
+                    : "_"}
+                </TableCell>
+                <TableCell>
+                  {reqData?.paymentType
+                    ? reqData?.paymentType === "INSTALLMENTS"
+                      ? "اقساط"
+                      : reqData?.paymentType === "CASH_AND_INSTALLMENTS"
+                      ? "نقد و اقساط"
+                      : "نقد"
                     : "_"}
                 </TableCell>
                 <TableCell>{value?.statusTitle ?? "_"}</TableCell>

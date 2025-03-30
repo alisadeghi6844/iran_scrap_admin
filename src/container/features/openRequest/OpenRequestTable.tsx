@@ -142,10 +142,12 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
             <TableHeadCell>نام درخواست کننده</TableHeadCell>
+            <TableHeadCell>دسته بندی</TableHeadCell>
             <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
             <TableHeadCell>توضیحات</TableHeadCell>
-            <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
+            <TableHeadCell>مقدار درخواست</TableHeadCell>
+            <TableHeadCell>نوع پرداخت</TableHeadCell>
             <TableHeadCell className="min-w-[170px]">وضعیت</TableHeadCell>
             <TableHeadCell />
             <TableHeadCell />
@@ -153,6 +155,9 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         </TableHead>
         <TableBody>
           <TableRow>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
@@ -185,12 +190,26 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                       ? row?.user?.firstName + " " + row?.user?.lastName
                       : "_"}
                   </TableCell>
+                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>{row?.user?.mobile ?? "_"}</TableCell>
                   <TableCell>{row?.description ?? "_"}</TableCell>
-                  <TableCell>
-                    {row?.createdAt ? convertToJalali(row?.createdAt) : "_"}
-                  </TableCell>
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
+                  <TableCell>
+                  {row?.amount
+                    ? `${row?.amount} (${
+                        row?.amountType === "TON" ? "تن" : "کیلوگرم"
+                      })`
+                    : "_"}
+                </TableCell>
+                  <TableCell>
+                  {row?.paymentType
+                    ? row?.paymentType === "INSTALLMENTS"
+                      ? "اقساط"
+                      : row?.paymentType === "CASH_AND_INSTALLMENTS"
+                      ? "نقد و اقساط"
+                      : "نقد"
+                    : "_"}
+                </TableCell>
                   <TableCell>{row?.statusTitle ?? "_"}</TableCell>
                   <TableCell className="flex justify-center">
                     <Button

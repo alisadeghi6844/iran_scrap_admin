@@ -15,7 +15,10 @@ import TableBody from "../../../components/table/TableBody";
 import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
-import { convertToJalali, convertToJalali_2 } from "../../../utils/MomentConvertor";
+import {
+  convertToJalali,
+  convertToJalali_2,
+} from "../../../utils/MomentConvertor";
 import Typography from "../../../components/typography/Typography";
 import UsersTable from "../users/UsersTable";
 
@@ -46,6 +49,7 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
             <TableHeadCell>تاریخ تحویل</TableHeadCell>
             <TableHeadCell>مقدار درخواستی</TableHeadCell>
             <TableHeadCell>نوع درخواست</TableHeadCell>
+            <TableHeadCell>نوع پرداخت</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
           </TableRow>
         </TableHead>
@@ -82,6 +86,15 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
                       : "نرمال"
                     : "_"}
                 </TableCell>
+                <TableCell>
+                  {reqData?.paymentType
+                    ? reqData?.paymentType === "INSTALLMENTS"
+                      ? "اقساط"
+                      : reqData?.paymentType === "CASH_AND_INSTALLMENTS"
+                      ? "نقد و اقساط"
+                      : "نقد"
+                    : "_"}
+                </TableCell>
                 <TableCell>{reqData?.statusTitle ?? "_"}</TableCell>
               </TableRow>
             ) : (
@@ -101,7 +114,9 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
         </TableBody>
       </Table>
       <Typography className="mt-12 font-bold">لیست تامین کنندگان</Typography>
-      {mode === "update" ? <UsersTable id={id} setCloseModal={handleSubmit}/> : null}
+      {mode === "update" ? (
+        <UsersTable id={id} setCloseModal={handleSubmit} />
+      ) : null}
     </>
   );
 };
