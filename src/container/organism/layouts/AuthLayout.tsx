@@ -17,8 +17,8 @@ const AuthLayout = (props: any) => {
                 </div>
               </div>
               <Image
-                className="absolute -bottom-4 right-[10%] !w-[670px] h-[580px]"
-                src="/images/core/Character-working-laptop-while-sitting-chair.png"
+                className="absolute top-[10%] right-[40%] !w-[100px] h-[120px]"
+                src="/images/core/logo.png"
               />
             </>
           ) : mode === "forgetPassword" ? (
