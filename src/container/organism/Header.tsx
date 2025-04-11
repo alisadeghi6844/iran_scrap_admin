@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = (props) => {
       className={`fixed top-0 left-0 ${
         chatHeader
           ? "w-[75%] border-b-2 border-gray-200"
-          : "w-[85.6%] shadow-lg"
+          : "w-[84.3%] shadow-lg"
       } h-[80px] px-[40px] py-5 bg-white z-50`}
     >
       <div className="flex w-full h-full items-center justify-between">

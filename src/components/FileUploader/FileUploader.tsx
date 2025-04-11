@@ -40,6 +40,7 @@ const FileUploader: React.FC<FileUploaderTypes> = ({
 
   useEffect(() => {
     if (editImageFile && editImageFile.length > 0) {
+      console.log("editImageFile",editImageFile)
       const newFiles = editImageFile.map((item: any) => {
         if (typeof item.file === "string") {
           // اگر فایل base64 است، آن را به File تبدیل کنید

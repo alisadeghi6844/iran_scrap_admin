@@ -10,7 +10,8 @@ import blogCategorySlice from "./slice/blogCategory/BlogCategorySlice";
 import productPriceSlice from "./slice/productPrice/ProductPriceSlice";
 import generalSettingSlice from "./slice/generalSetting/GeneralSettingSlice";
 import faqSlice from "./slice/faq/FaqSlice";
-import roleManagementSlice from "./slice/roleManagement/RoleManagementSlice"; // اصلاح نام فایل
+import roleManagementSlice from "./slice/roleManagement/RoleManagementSlice"; 
+import ticketSlice from "./slice/ticket/TicketSlice"; 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -24,5 +25,6 @@ export const store = configureStore({
     productPrice: productPriceSlice,
     generalSetting: generalSettingSlice,
     faq: faqSlice,
+    ticket:ticketSlice
   },
 });

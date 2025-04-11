@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,7 +24,7 @@ const CategoryForm: React.FC<FormProps> = (props) => {
   const { mode = "create", onSubmitForm, id, ...rest } = props;
 
   const dispatch: any = useDispatch();
-
+  const hasLoadedImage = useRef(false); 
   const getValue = useSelector(selectGetCategoryByIdData);
   const getLoading = useSelector(selectGetCategoryByIdLoading);
 
@@ -50,7 +50,12 @@ const CategoryForm: React.FC<FormProps> = (props) => {
   useEffect(() => {
     loadData();
   }, [loadData]);
-
+  const fetchImageAsBlob = async (url: string) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const fileType = blob.type || "image/png";
+    return new File([blob], "thumbnail.png", { type: fileType });
+  };
   useEffect(() => {
     console.log("getValue",getValue)
     if (getValue?.id && mode === "update") {
@@ -60,18 +65,25 @@ const CategoryForm: React.FC<FormProps> = (props) => {
         ParentId: getValue?.parentId,
         Image: getValue?.image || [],
       });
-      setEditImageFile(
-        getValue?.image
-          ? getValue?.image.map((item: any) => ({
-              file: item.file,
-              contentType: item.contentType,
-              fileName: item.fileName,
-            }))
-          : []
-      );
+      if (getValue?.image) {
+        fetchImageAsBlob(getValue?.image).then((file) => {
+          setEditImageFile([
+            {
+              file: file,
+              contentType: "image/png",
+              fileName: "thumbnail.png",
+            },
+          ]);
+          hasLoadedImage.current = true;
+        });
+ 
+      } else {
+        setEditImageFile([]);
+      }
     } else {
       setInitialValues(initialData);
       setEditImageFile([]);
+      hasLoadedImage.current = false;
     }
   }, [getValue, mode]);
 

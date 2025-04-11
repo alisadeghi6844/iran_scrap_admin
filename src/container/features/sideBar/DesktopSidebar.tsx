@@ -11,6 +11,9 @@ import { FaRegUser } from "react-icons/fa";
 import { MdOutlineProductionQuantityLimits } from "react-icons/md";
 import { RiPagesLine } from "react-icons/ri";
 import { FaRegQuestionCircle } from "react-icons/fa";
+import { MdRule } from "react-icons/md";
+import { SiPagespeedinsights } from "react-icons/si";
+import { LuTicketPercent } from "react-icons/lu";
 
 import { MdProductionQuantityLimits } from "react-icons/md";
 
@@ -54,7 +57,7 @@ const DesktopSidebar = () => {
           notif: "",
           role: ["admin", "client", "reservation"],
         },
-  
+
         {
           path: "/product-request-status",
           title: "مدیریت وضعیت درخواست ها",
@@ -77,35 +80,78 @@ const DesktopSidebar = () => {
       notif: "",
       menus: [
         {
-          path: "/role-management",
-          title: "مدیریت نقش",
+          path: "/",
+          title: "مدیریت کاربران",
           icon: <FaRegUser className="text-2xl" />,
-          id: 24362,
+          id: 2436552,
           isNew: false,
-          subRoutes: [],
+          subRoutes: [
+            {
+              path: "/role-management",
+              title: "مدیریت نقش",
+              icon: <MdRule className="text-2xl" />,
+              id: 24362,
+              isNew: false,
+              subRoutes: [],
+              notif: "",
+              role: ["admin", "client", "reservation"],
+            },
+          ],
           notif: "",
           role: ["admin", "client", "reservation"],
         },
         {
-          path: "/pages-management",
+          path: "/",
           title: "مدیریت صفحات ",
-          icon: <RiPagesLine className="text-2xl" />,
-          id: 2432362,
+          icon: <SiPagespeedinsights className="text-2xl" />,
+          id: 24323422262,
           isNew: false,
-          subRoutes: [],
+          subRoutes: [
+            {
+              path: "/pages-management",
+              title: "مدیریت متن صفحات ",
+              icon: <RiPagesLine className="text-2xl" />,
+              id: 2432362,
+              isNew: false,
+              subRoutes: [],
+              notif: "",
+              role: ["admin", "client", "reservation"],
+            },
+            {
+              path: "/faq-management",
+              title: "مدیریت سوالات متداول",
+              icon: <FaRegQuestionCircle className="text-2xl" />,
+              id: 24323262,
+              isNew: false,
+              subRoutes: [],
+              notif: "",
+              role: ["admin", "client", "reservation"],
+            },
+            {
+              path: "/blog-management",
+              title: "مدیریت مقالات",
+              icon: <RiBloggerLine className="text-2xl" />,
+              id: 24012,
+              isNew: false,
+              subRoutes: [],
+              notif: "",
+              role: ["admin", "client", "reservation"],
+            },
+            {
+              path: "/blog-category-management",
+              title: "مدیریت دسته بندی مقالات",
+              icon: <BiCategoryAlt className="text-2xl" />,
+              id: 2582,
+              isNew: false,
+              subRoutes: [],
+              notif: "",
+              role: ["admin", "client", "reservation"],
+            },
+          ],
           notif: "",
           role: ["admin", "client", "reservation"],
         },
-        {
-          path: "/faq-management",
-          title: "مدیریت سوالات متداول",
-          icon: <FaRegQuestionCircle className="text-2xl" />,
-          id: 24323262,
-          isNew: false,
-          subRoutes: [],
-          notif: "",
-          role: ["admin", "client", "reservation"],
-        },
+
         {
           path: "/category-management",
           title: "مدیریت دسته بندی",
@@ -116,21 +162,12 @@ const DesktopSidebar = () => {
           notif: "",
           role: ["admin", "client", "reservation"],
         },
+
         {
-          path: "/blog-management",
-          title: "مدیریت مقالات",
-          icon: <RiBloggerLine className="text-2xl" />,
-          id: 24012,
-          isNew: true,
-          subRoutes: [],
-          notif: "",
-          role: ["admin", "client", "reservation"],
-        },
-        {
-          path: "/blog-category-management",
-          title: "مدیریت دسته بندی مقالات",
-          icon: <BiCategoryAlt className="text-2xl" />,
-          id: 2582,
+          path: "/ticket-management",
+          title: "مدیریت تیکت ها",
+          icon: <LuTicketPercent className="text-2xl" />,
+          id: 240992,
           isNew: false,
           subRoutes: [],
           notif: "",
@@ -161,7 +198,7 @@ const DesktopSidebar = () => {
     },
   ];
   return (
-    <div className="fixed right-0 z-40 bg-white border-l-2 border-dashed border-gray-300 top-0 min-h-screen w-full max-w-[14.4%]">
+    <div className="fixed right-0 z-40 bg-white border-l-2 border-dashed border-gray-300 top-0 min-h-screen w-full max-w-[15.5%]">
       <Link to="/" className="pb-8 pt-6 px-2 flex items-center gap-x-2">
         {/* <Image
           src="/images/core/logo1.svg"
