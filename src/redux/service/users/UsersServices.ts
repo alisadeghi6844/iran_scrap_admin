@@ -12,6 +12,7 @@ export const GetUsersService = async (query: any) => {
     queryText = AxiosQueryCustom(query);
   }
 
+  console.log("queryText", queryText);
   return await HttpServises.get(
     `${BASE_URL}${GET_USERS_POINT}?${queryText ? queryText : null}`
   );
@@ -27,4 +28,3 @@ export const GetUsersProvidersService = async (query: any) => {
     `${BASE_URL}${GET_USERS_PROVIDERS_POINT}?${queryText ? queryText : null}`
   );
 };
-

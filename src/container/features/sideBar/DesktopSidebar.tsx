@@ -14,6 +14,7 @@ import { FaRegQuestionCircle } from "react-icons/fa";
 import { MdRule } from "react-icons/md";
 import { SiPagespeedinsights } from "react-icons/si";
 import { LuTicketPercent } from "react-icons/lu";
+import { FiUsers } from "react-icons/fi";
 
 import { MdProductionQuantityLimits } from "react-icons/md";
 
@@ -91,6 +92,26 @@ const DesktopSidebar = () => {
               title: "مدیریت نقش",
               icon: <MdRule className="text-2xl" />,
               id: 24362,
+              isNew: false,
+              subRoutes: [],
+              notif: "",
+              role: ["admin", "client", "reservation"],
+            },
+            {
+              path: "/users-management",
+              title: "مدیریت کاربران",
+              icon: <FiUsers className="text-2xl" />,
+              id: 24389662,
+              isNew: false,
+              subRoutes: [],
+              notif: "",
+              role: ["admin", "client", "reservation"],
+            },
+            {
+              path: "/buyer-management",
+              title: "مدیریت خریداران",
+              icon: <MdProductionQuantityLimits className="text-2xl" />,
+              id: 24384529662,
               isNew: false,
               subRoutes: [],
               notif: "",

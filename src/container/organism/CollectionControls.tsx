@@ -101,7 +101,7 @@ const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
 
   useEffect(() => {
     setMeta({
-      page: data?.pageNumber ?? Number(data?.page) + 1,
+      page: data?.pageNumber ?? Number(data?.page),
       pageSize: data?.size,
       totalCount: data?.totalCount ?? data?.countAll,
       totalCountDisplay: data?.totalCountDisplay,
@@ -118,13 +118,13 @@ const CollectionControls: React.FC<CollectionControlsProps> = (props) => {
     if (data?.page !== undefined) {
       setCurrentPage(Number(data.page));
     }
-    
-    console.log("data", data);
+  
   }, [data]);
 
   const handlePageChange = (page: number) => {
     // اگر صفحه انتخاب شده با صفحه فعلی متفاوت باشد، فقط در این صورت onMetaChange را فراخوانی کن
-    if (page !== currentPage && onMetaChange) {
+    if (onMetaChange) {
+      console.log("page",page)
       onMetaChange({
         ...meta,
         filter: filter,

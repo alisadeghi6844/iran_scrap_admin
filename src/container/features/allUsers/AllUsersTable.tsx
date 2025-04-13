@@ -11,22 +11,24 @@ import TableFilterCell from "../../../components/table/TableFilterCell";
 import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
+import { MdAccessibility } from "react-icons/md";
+
 import {
-  selectGetUsersProvidersData,
-  selectGetUsersProvidersLoading,
+  selectGetUsersData,
+  selectGetUsersLoading,
 } from "../../../redux/slice/users/UsersSlice";
-import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
+import { GetUsersAction } from "../../../redux/actions/users/UsersActions";
 import SearchInputField from "../../../components/molcols/formik-fields/SearchInputField";
-import Checkbox from "../../../components/checkbox";
 import Button from "../../../components/button";
-import { UpdateRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { debounce } from "lodash";
 
-interface UsersTableTypes {
+interface AllUsersTypes {
   onRowClick?: any;
   id?: any;
   setCloseModal?: any;
+  setUserIds?: any;
+  setDefaultRolesId?: any;
 }
 
 interface SortState {
@@ -34,8 +36,9 @@ interface SortState {
   direction: "ASC" | "DESC" | null;
 }
 
-const UsersTable: React.FC<UsersTableTypes> = (props) => {
-  const { onRowClick, id, setCloseModal } = props;
+const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
+  const { onRowClick, id, setUserIds, setCloseModal, setDefaultRolesId } =
+    props;
 
   const dispatch: any = useDispatch();
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
@@ -51,17 +54,17 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
     phoneNumber: null,
   };
 
-  const loading = useSelector(selectGetUsersProvidersLoading);
-  const usersData = useSelector(selectGetUsersProvidersData);
+  const loading = useSelector(selectGetUsersLoading);
+  const usersData = useSelector(selectGetUsersData);
 
   // ایجاد تابع fetchData برای ترکیب منطق فیلتر و مرتب‌سازی
   const fetchData = useCallback(
     (filter = {}, sort = sortState) => {
       dispatch(
-        GetUsersProvidersAction({
+        GetUsersAction({
           credentials: {
             ...filter,
-            page: filter?.page,
+            page: filter?.page ?? 0,
             size: 20,
             ...(sort.field && sort.direction
               ? {
@@ -95,6 +98,7 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
       lastName: filter.lastName,
       mobile: filter.phoneNumber,
     };
+    console.log("newFilter", newFilter);
     setCurrentFilter(newFilter);
     debouncedFetchData(newFilter, sortState);
   };
@@ -108,31 +112,6 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
     if (phoneNumber) queryParams.phoneNumber = phoneNumber;
 
     return queryParams;
-  };
-
-  const handleCheckboxChange = (userId: string) => {
-    setSelectedUserIds(
-      (prevSelected) =>
-        prevSelected.includes(userId)
-          ? prevSelected.filter((id) => id !== userId) // اگر کاربر قبلاً انتخاب شده بود، آن را حذف کن
-          : [...prevSelected, userId] // در غیر این صورت، آن را اضافه کن
-    );
-  };
-
-  const onSuccess = () => {
-    setCloseModal(false);
-  };
-
-  const handleRegisterBuyers = () => {
-    dispatch(
-      UpdateRequestProductAdminAction({
-        credentials: id,
-        item: {
-          providerIds: selectedUserIds,
-        },
-        onSuccess,
-      })
-    );
   };
 
   const handleSort = (field: string) => {
@@ -159,17 +138,8 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
       return <FaSortDown className="inline ml-1" />;
     return <FaSort className="inline ml-1" />;
   };
-  console.log("usersData", usersData);
   return (
     <>
-      <div className="flex justify-end -mb-3">
-        <Button
-          onClick={handleRegisterBuyers}
-          disable={!selectedUserIds?.length}
-        >
-          اختصاص درخواست
-        </Button>
-      </div>
       <CollectionControls
         hasBox={false}
         filterInitialValues={filterDefaultInitialValues}
@@ -185,7 +155,6 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
         <Table className="w-full" isLoading={false} shadow={false}>
           <TableHead className="w-full" isLoading={false} shadow={false}>
             <TableRow>
-              <TableHeadCell>انتخاب</TableHeadCell>
               <TableHeadCell
                 onClick={() => handleSort("firstName")}
                 className="cursor-pointer"
@@ -210,11 +179,11 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
               >
                 نوع کاربر {getSortIcon("userSort")}
               </TableHeadCell>
+              <TableHeadCell />
             </TableRow>
           </TableHead>
           <TableBody>
             <TableRow>
-              <TableFilterCell />
               <TableFilterCell>
                 <SearchInputField name="firstName" />
               </TableFilterCell>
@@ -225,24 +194,12 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
                 <SearchInputField name="phoneNumber" />
               </TableFilterCell>
               <TableFilterCell></TableFilterCell>
+              <TableFilterCell></TableFilterCell>
             </TableRow>
             {!loading ? (
               usersData?.data?.data?.length > 0 ? (
                 usersData?.data?.data?.map((row: any) => (
                   <TableRow key={row?.id}>
-                    <TableCell
-                      style={{
-                        backgroundColor: selectedUserIds.includes(row?.id)
-                          ? "#f0fdf4"
-                          : "transparent",
-                        transition: "background-color 0.2s",
-                      }}
-                    >
-                      <Checkbox
-                        checked={selectedUserIds.includes(row?.id)}
-                        onChange={() => handleCheckboxChange(row?.id)}
-                      />
-                    </TableCell>
                     <TableCell
                       style={{
                         backgroundColor: selectedUserIds.includes(row?.id)
@@ -287,6 +244,26 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
                         ? "حقوقی"
                         : "نامشخص"}
                     </TableCell>
+                    <TableCell
+                      onClick={(e: any) => {
+                        e.stopPropagation();
+                      }}
+                      className="justify-center gap-x-4"
+                    >
+                      <Button
+                        startIcon={<MdAccessibility className="text-xl" />}
+                        type="button"
+                        variant="outline-success"
+                        size="sm"
+                        onClick={() => {
+                          setUserIds([row?.id]);
+                          setDefaultRolesId(row?.roles);
+                          onRowClick && onRowClick("update", row);
+                        }}
+                      >
+                        دسترسی های کاربر
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -310,4 +287,4 @@ const UsersTable: React.FC<UsersTableTypes> = (props) => {
   );
 };
 
-export default UsersTable;
+export default AllUsersTable;

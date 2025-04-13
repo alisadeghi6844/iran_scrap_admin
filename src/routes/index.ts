@@ -56,7 +56,18 @@ const routes = [
     component: lazy(() => import("../page/roleManagement")),
     layout: "admin",
   },
-
+  {
+    path: "/users-management",
+    breadCrumb: "مدیریت کاربران",
+    component: lazy(() => import("../page/userManagement")),
+    layout: "admin",
+  },
+  {
+    path: "/buyer-management",
+    breadCrumb: "مدیریت خریداران",
+    component: lazy(() => import("../page/buyerManagement")),
+    layout: "admin",
+  },
   {
     path: "/product-price-management",
     breadCrumb: "مدیریت قیمت گذاری محصولات",
