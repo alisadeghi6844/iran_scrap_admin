@@ -119,22 +119,6 @@ const TicketTable: React.FC<TicketTableTypes> = (props) => {
     );
   };
 
-  const onSuccess = () => {
-    setCloseModal(false);
-  };
-
-  const handleRegisterBuyers = () => {
-    dispatch(
-      UpdateRequestProductAdminAction({
-        credentials: id,
-        item: {
-          providerIds: selectedUserIds,
-        },
-        onSuccess,
-      })
-    );
-  };
-
   const handleSort = (field: string) => {
     const newSortState = {
       field,
