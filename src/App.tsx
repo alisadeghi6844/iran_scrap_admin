@@ -3,9 +3,9 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
-  Navigate,
+  useNavigate,
 } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import PermissionRoute from "./routes/PermissionRoute";
 import routes, { privateRoutes } from "./routes";
@@ -21,6 +21,7 @@ const App = () => {
   const [profileLoading, setProfileLoading] = useState(true); // وضعیت لودینگ پروفایل
   const [isAuth, setIsAuth] = useState(false); // وضعیت احراز هویت
 
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -32,9 +33,10 @@ const App = () => {
         setProfileLoading(false); // در هر صورت لودینگ را متوقف کن
       }
     };
-
     fetchUserProfile();
   }, [dispatch]);
+
+
 
   const renderRoutes = (
     basePath: any,

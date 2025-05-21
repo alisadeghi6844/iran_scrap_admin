@@ -180,7 +180,7 @@ export const ChangeClientPasswordAction = createAsyncThunk(
 );
 
 export const GetUserProfileAction = createAsyncThunk(
-  GET_USER_PROFILE,
+  `${AUTH}/${GET_USER_PROFILE}`,
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await GetUserProfileService(credentials);

@@ -265,10 +265,10 @@ export const selectChangePasswordError = (state: any) =>
   state.auth.changePasswordError;
 
 export const selectGetUserProfileError = (state: any) =>
-  state.users.getUserProfileError;
+  state.auth.getUserProfileError;
 export const selectGetUserProfileLoading = (state: any) =>
-  state.users.getUserProfileLoading;
+  state.auth.getUserProfileLoading;
 export const selectGetUserProfileData = (state: any) =>
-  state.users.getUserProfileData;
+  state.auth.getUserProfileData;
 
 export default authSlice.reducer;

@@ -32,10 +32,10 @@ class HttpService {
       },
 
       async (error) => {
-        // if (error?.response?.status == 401) {
-        //   SetToken("access_token", null, 0);
-        //   window.location = "/login";
-        // }
+        if (error?.response?.status == 401) {
+          SetToken("access_token", null, 0);
+          window.location = "/login";
+        }
 
         if (error?.response?.status == 429) {
           toast.error(
