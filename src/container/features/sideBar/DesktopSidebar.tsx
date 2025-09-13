@@ -206,6 +206,16 @@ const DesktopSidebar = () => {
       notif: "",
       menus: [
         {
+          path: "/product-management",
+          title: "مدیریت محصولات",
+          icon: <MdOutlineProductionQuantityLimits className="text-2xl" />,
+          id: 250181,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+        {
           path: "/product-price-management",
           title: "مدیریت قیمت گذاری محصولات",
           icon: <MdOutlineProductionQuantityLimits className="text-2xl" />,

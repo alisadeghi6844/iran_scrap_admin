@@ -16,9 +16,10 @@ const MainTheme: React.FC<AdminThemeTypes> = (props) => {
   }, [title]);
 
   useEffect(() => {
-    if (getUserData && !getUserData.isAdmin) {
-      SetToken("access_token", null, 0);
-    }
+    console.log("getUserData", getUserData);
+      if (getUserData?.id && !getUserData.isAdmin) {
+        SetToken("access_token", null, 0);
+      }
   }, [getUserData, navigate]);
 
   return (

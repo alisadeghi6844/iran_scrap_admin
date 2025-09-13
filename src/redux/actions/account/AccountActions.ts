@@ -36,10 +36,8 @@ export const LoginAction = createAsyncThunk(
     try {
       const response = await LoginService(credentials);
       if (response?.status === 201) {
-        console.log("response",response);
         if (response?.data?.access_token) {
-          SetToken("access_token", response.data.access_token, 2000 * 60 * 1000);
-
+          SetToken("access_token", response.data.access_token, 2000 * 600 * 1000);
         }
         return response?.data;
       } else {

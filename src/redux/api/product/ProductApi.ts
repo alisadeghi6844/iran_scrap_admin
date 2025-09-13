@@ -1,0 +1,7 @@
+export const GET_PRODUCT_POINT = "product";
+export const GET_PRODUCT_BY_ID_POINT = "product";
+export const CREATE_PRODUCT_POINT = "product";
+export const UPDATE_PRODUCT_POINT = "product";
+export const DELETE_PRODUCT_POINT = "product";
+export const UPDATE_PRODUCT_STATUS_POINT = "product/status";
+export const CHANGE_PRODUCT_STATUS_POINT = "product-admin";
