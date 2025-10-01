@@ -3,6 +3,7 @@ import {
   AUTH,
   CHANGE_CLIENT_PASSWORD,
   CHANGE_PASSWORD,
+  CHECK_TOTP_AUTH,
   GET_ALL_USERS,
   GET_CURRENT_USER_INFO,
   GET_USER_PROFILE,
@@ -14,6 +15,7 @@ import {
 import {
   ChangeClientPasswordService,
   ChangePasswordService,
+  CheckTotpService,
   getAllUsersService,
   GetCurrentUserInfoService,
   GetUserProfileService,
@@ -169,6 +171,27 @@ export const ChangeClientPasswordAction = createAsyncThunk(
         toast.success("رمز عبور با موفقیت ویرایش شد")
       }
       return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const CheckTotpAction = createAsyncThunk(
+  CHECK_TOTP_AUTH,
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await CheckTotpService(credentials);
+      if (response?.status === 201) {
+        if (response?.data?.access_token) {
+          SetToken("access_token", response.data.access_token, 2000 * 600 * 1000);
+        }
+        return response?.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }

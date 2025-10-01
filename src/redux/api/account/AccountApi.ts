@@ -1,5 +1,6 @@
 export const POST_REFRESH_TOKEN_POINT = "account/auth/refreshToken";
 export const LOGIN_POINT = "auth/login";
+export const CHECK_TOTP_POINT = "auth/checkTOTP";
 export const GET_ALL_USERS_POINT = "account/getAllUsers";
 export const GET_CURRENT_USER_INFO_POINT = "account/currentUserInfo";
 export const LOG_OUT_POINT = "account/auth/logout";

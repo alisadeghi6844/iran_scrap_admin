@@ -6,6 +6,7 @@ import { AUTH } from "../../types/account/AccountTypes";
 import {
   ChangeClientPasswordAction,
   ChangePasswordAction,
+  CheckTotpAction,
   getAllUsersAction,
   getCurrentUserInfoAction,
   GetUserProfileAction,
@@ -46,6 +47,10 @@ const initialState = {
   changeClientPasswordError: null,
   changeClientPasswordLoading: false,
   changeClientPasswordData: [],
+
+  checkTotpError: null,
+  checkTotpLoading: false,
+  checkTotpData: null,
 
   changePasswordLoading: false,
   changePasswordError: null,
@@ -212,7 +217,24 @@ const authSlice = createSlice({
           state.changeClientPasswordLoading = false;
           state.changeClientPasswordError = action.payload;
         }
-      );
+      )
+
+      // check totp
+      .addCase(CheckTotpAction.pending, (state: any) => {
+        state.checkTotpLoading = true;
+        state.isAuthenticated = false;
+        state.checkTotpError = null;
+      })
+      .addCase(CheckTotpAction.fulfilled, (state: any, action: any) => {
+        state.checkTotpLoading = false;
+        state.isAuthenticated = true;
+        state.checkTotpError = null;
+      })
+      .addCase(CheckTotpAction.rejected, (state: any, action: any) => {
+        state.checkTotpLoading = false;
+        state.checkTotpError = action.payload;
+        state.isAuthenticated = false;
+      });
   },
 });
 
@@ -270,5 +292,10 @@ export const selectGetUserProfileLoading = (state: any) =>
   state.auth.getUserProfileLoading;
 export const selectGetUserProfileData = (state: any) =>
   state.auth.getUserProfileData;
+
+export const selectCheckTotpError = (state: any) => state.auth.checkTotpError;
+export const selectCheckTotpLoading = (state: any) =>
+  state.auth.checkTotpLoading;
+export const selectCheckTotpData = (state: any) => state.auth.checkTotpData;
 
 export default authSlice.reducer;

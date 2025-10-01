@@ -1,0 +1,6 @@
+export const SURVEY = "SURVEY";
+export const CREATE_SURVEY = "CREATE_SURVEY";
+export const GET_ALL_SURVEYS = "GET_ALL_SURVEYS";
+export const GET_SURVEY_BY_ID = "GET_SURVEY_BY_ID";
+export const UPDATE_SURVEY = "UPDATE_SURVEY";
+export const DELETE_SURVEY = "DELETE_SURVEY";

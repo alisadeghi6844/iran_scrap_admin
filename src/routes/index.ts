@@ -103,6 +103,13 @@ const routes = [
     layout: "admin",
     role: ["admin", "client", "reservation"],
   },
+  {
+    path: "/survey-management",
+    breadCrumb: "مدیریت نظرسنجی ها",
+    component: lazy(() => import("../page/surveyManagement")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
 ];
 
 export const privateRoutes = [

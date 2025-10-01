@@ -5,6 +5,7 @@ import { AxiosQueryCustom } from "../../../utils/AxiosQuery";
 import {
   CHANGE_CLIENT_PASSWORD_POINT,
   CHANGE_PASSWORD_POINT,
+  CHECK_TOTP_POINT,
   GET_ALL_USERS_POINT,
   GET_CURRENT_USER_INFO_POINT,
   LOG_OUT_POINT,
@@ -51,6 +52,10 @@ export const VerifyOtpService = async (items: any) => {
 
 export const ChangeClientPasswordService = async (items: any) => {
   return await HttpServises.post(`${BASE_URL}${CHANGE_CLIENT_PASSWORD_POINT}`, items);
+};
+
+export const CheckTotpService = async (items: any) => {
+  return await HttpServises.post(`${BASE_URL}${CHECK_TOTP_POINT}`, items);
 };
 
 export const GetUserProfileService = async (query: any) => {

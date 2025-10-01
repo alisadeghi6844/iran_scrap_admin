@@ -15,6 +15,7 @@ import { MdRule } from "react-icons/md";
 import { SiPagespeedinsights } from "react-icons/si";
 import { LuTicketPercent } from "react-icons/lu";
 import { FiUsers } from "react-icons/fi";
+import { MdPoll } from "react-icons/md";
 
 import { MdProductionQuantityLimits } from "react-icons/md";
 
@@ -189,6 +190,17 @@ const DesktopSidebar = () => {
           title: "مدیریت تیکت ها",
           icon: <LuTicketPercent className="text-2xl" />,
           id: 240992,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+
+        {
+          path: "/survey-management",
+          title: "مدیریت نظرسنجی ها",
+          icon: <MdPoll className="text-2xl" />,
+          id: 240993,
           isNew: false,
           subRoutes: [],
           notif: "",

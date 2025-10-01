@@ -1,5 +1,6 @@
 export const AUTH = "AUTH";
 export const LOGIN_AUTH = "LOGIN_AUTH";
+export const CHECK_TOTP_AUTH = "CHECK_TOTP_AUTH";
 export const LOG_OUT_AUTH = "LOG_OUT_AUTH";
 export const GET_ALL_USERS = "GET_ALL_USERS";
 export const GET_CURRENT_USER_INFO = "GET_CURRENT_USER_INFO";
