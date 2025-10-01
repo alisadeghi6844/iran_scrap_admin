@@ -12,7 +12,8 @@ import generalSettingSlice from "./slice/generalSetting/GeneralSettingSlice";
 import faqSlice from "./slice/faq/FaqSlice";
 import roleManagementSlice from "./slice/roleManagement/RoleManagementSlice"; 
 import ticketSlice from "./slice/ticket/TicketSlice";
-import productSlice from "./slice/product/ProductSlice"; 
+import productSlice from "./slice/product/ProductSlice";
+import orderSlice from "./slice/order/orderSlice"; 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -27,7 +28,8 @@ export const store = configureStore({
     generalSetting: generalSettingSlice,
     faq: faqSlice,
     ticket: ticketSlice,
-    product: productSlice
+    product: productSlice,
+    order: orderSlice
   },
 });
 
