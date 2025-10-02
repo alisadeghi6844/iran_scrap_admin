@@ -1,23 +1,46 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ORDER, OrderState } from "../../types/order/OrderTypes";
+import { ORDER } from "../../types/order/OrderTypes";
 import {
-  GetPendingOrdersAction,
+  GetOrderAdminAction,
   ApproveOrderAction,
   RejectOrderAction,
+  VerifyPaymentAction,
 } from "../../actions/order/OrderActions";
 
-const initialState: OrderState = {
-  getPendingOrdersError: null,
-  getPendingOrdersLoading: false,
-  getPendingOrdersData: [],
+interface orderState {
+  getOrderAdminError: string | null;
+  getOrderAdminLoading: boolean;
+  getOrderAdminData: any;
+
+  approveOrderError: string | null;
+  approveOrderLoading: boolean;
+  approveOrderData: any;
+
+  rejectOrderError: string | null;
+  rejectOrderLoading: boolean;
+  rejectOrderData: any;
+
+  verifyPaymentError: string | null;
+  verifyPaymentLoading: boolean;
+  verifyPaymentData: any;
+}
+
+const initialState: orderState = {
+  getOrderAdminError: null,
+  getOrderAdminLoading: false,
+  getOrderAdminData: [],
 
   approveOrderError: null,
   approveOrderLoading: false,
-  approveOrderData: null,
+  approveOrderData: [],
 
   rejectOrderError: null,
   rejectOrderLoading: false,
-  rejectOrderData: null,
+  rejectOrderData: [],
+
+  verifyPaymentError: null,
+  verifyPaymentLoading: false,
+  verifyPaymentData: [],
 };
 
 const orderSlice = createSlice({
@@ -26,32 +49,32 @@ const orderSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Get pending orders
-      .addCase(GetPendingOrdersAction.pending, (state) => {
-        state.getPendingOrdersLoading = true;
-        state.getPendingOrdersData = [];
-        state.getPendingOrdersError = null;
+      // Get order admin
+      .addCase(GetOrderAdminAction.pending, (state) => {
+        state.getOrderAdminLoading = true;
+        state.getOrderAdminData = [];
+        state.getOrderAdminError = null;
       })
       .addCase(
-        GetPendingOrdersAction.fulfilled,
+        GetOrderAdminAction.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.getPendingOrdersLoading = false;
-          state.getPendingOrdersData = action.payload;
-          state.getPendingOrdersError = null;
+          state.getOrderAdminLoading = false;
+          state.getOrderAdminData = action.payload;
+          state.getOrderAdminError = null;
         }
       )
       .addCase(
-        GetPendingOrdersAction.rejected,
+        GetOrderAdminAction.rejected,
         (state, action: PayloadAction<string>) => {
-          state.getPendingOrdersLoading = false;
-          state.getPendingOrdersError = action.payload;
-          state.getPendingOrdersData = [];
+          state.getOrderAdminLoading = false;
+          state.getOrderAdminError = action.payload;
+          state.getOrderAdminData = [];
         }
       )
       // Approve order
       .addCase(ApproveOrderAction.pending, (state) => {
         state.approveOrderLoading = true;
-        state.approveOrderData = null;
+        state.approveOrderData = [];
         state.approveOrderError = null;
       })
       .addCase(ApproveOrderAction.fulfilled, (state, action) => {
@@ -62,12 +85,12 @@ const orderSlice = createSlice({
       .addCase(ApproveOrderAction.rejected, (state, action) => {
         state.approveOrderLoading = false;
         state.approveOrderError = action.payload;
-        state.approveOrderData = null;
+        state.approveOrderData = [];
       })
       // Reject order
       .addCase(RejectOrderAction.pending, (state) => {
         state.rejectOrderLoading = true;
-        state.rejectOrderData = null;
+        state.rejectOrderData = [];
         state.rejectOrderError = null;
       })
       .addCase(RejectOrderAction.fulfilled, (state, action) => {
@@ -78,18 +101,33 @@ const orderSlice = createSlice({
       .addCase(RejectOrderAction.rejected, (state, action) => {
         state.rejectOrderLoading = false;
         state.rejectOrderError = action.payload;
-        state.rejectOrderData = null;
+        state.rejectOrderData = [];
+      })
+      // Verify payment
+      .addCase(VerifyPaymentAction.pending, (state) => {
+        state.verifyPaymentLoading = true;
+        state.verifyPaymentData = [];
+        state.verifyPaymentError = null;
+      })
+      .addCase(VerifyPaymentAction.fulfilled, (state, action) => {
+        state.verifyPaymentLoading = false;
+        state.verifyPaymentData = action.payload;
+        state.verifyPaymentError = null;
+      })
+      .addCase(VerifyPaymentAction.rejected, (state, action) => {
+        state.verifyPaymentLoading = false;
+        state.verifyPaymentError = action.payload;
+        state.verifyPaymentData = [];
       });
   },
 });
 
-// Selectors
-export const selectGetPendingOrdersError = (state: any) =>
-  state.order.getPendingOrdersError;
-export const selectGetPendingOrdersLoading = (state: any) =>
-  state.order.getPendingOrdersLoading;
-export const selectGetPendingOrdersData = (state: any) =>
-  state.order.getPendingOrdersData;
+export const selectGetOrderAdminError = (state: any) =>
+  state.order.getOrderAdminError;
+export const selectGetOrderAdminLoading = (state: any) =>
+  state.order.getOrderAdminLoading;
+export const selectGetOrderAdminData = (state: any) =>
+  state.order.getOrderAdminData;
 
 export const selectApproveOrderError = (state: any) =>
   state.order.approveOrderError;
@@ -104,5 +142,12 @@ export const selectRejectOrderLoading = (state: any) =>
   state.order.rejectOrderLoading;
 export const selectRejectOrderData = (state: any) =>
   state.order.rejectOrderData;
+
+export const selectVerifyPaymentError = (state: any) =>
+  state.order.verifyPaymentError;
+export const selectVerifyPaymentLoading = (state: any) =>
+  state.order.verifyPaymentLoading;
+export const selectVerifyPaymentData = (state: any) =>
+  state.order.verifyPaymentData;
 
 export default orderSlice.reducer;

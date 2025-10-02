@@ -104,6 +104,13 @@ const routes = [
     role: ["admin", "client", "reservation"],
   },
   {
+    path: "/pending-orders-financial",
+    breadCrumb: "سفارشات در انتظار تایید مالی",
+    component: lazy(() => import("../page/pendingOrdersFinancial")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
+  {
     path: "/survey-management",
     breadCrumb: "مدیریت نظرسنجی ها",
     component: lazy(() => import("../page/surveyManagement")),

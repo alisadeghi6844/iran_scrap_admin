@@ -5,22 +5,28 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { Formik } from "formik";
 import {
-  selectLoginLoading,
-  selectLoginError,
+  selectVerifyOtpData,
+  selectVerifyOtpLoading,
 } from "../../../redux/slice/account/AccountSlice";
 import {
   LoginAction,
+  VerifyOtpAction,
 } from "../../../redux/actions/account/AccountActions";
 import AuthLayout from "../../../container/organism/layouts/AuthLayout";
 import Input from "../../../components/input";
 import Button from "../../../components/button";
+import OtpCode from "../../../container/features/account/OtpCode";
 
 const Login = () => {
   const dispatch = useDispatch();
 
-  const loginLoading = useSelector(selectLoginLoading);
-  const loginError = useSelector(selectLoginError);
+  const loginLoading = useSelector(selectVerifyOtpLoading);
+  const loginData = useSelector(selectVerifyOtpData);
 
+  const [isSendOpt, setIsSendOtp] = useState(false);
+  const [inputValues, setInputValues] = useState({
+    PhoneNumber: "",
+  });
   const [inputLookMultiplier, setInputLookMultiplier] = useState(0);
   const [inputWidth, setInputWidth] = useState(0);
 
@@ -32,7 +38,9 @@ const Login = () => {
 
   const onInputChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      // Handle input change if needed
+      const { name, value } = e.target;
+
+      setInputValues((prev) => ({ ...prev, [name]: value }));
     },
     [inputLookMultiplier]
   );
@@ -53,12 +61,34 @@ const Login = () => {
       const items = {
         mobile: data.PhoneNumber,
       };
-      dispatch(LoginAction(items));
+      dispatch(VerifyOtpAction(items));
+      // dispatch(LoginAction(items));
     } else {
     }
   };
 
+  useEffect(() => {
+    if (loginData?.status == 201) {
+      setIsSendOtp(true);
+    }
+  }, [loginData]);
 
+  const handleResendOtp = () => {
+    dispatch(
+      VerifyOtpAction({
+        mobile: inputValues?.PhoneNumber,
+      })
+    );
+  };
+
+  const handleLogin = (e: any) => {
+    dispatch(
+      LoginAction({
+        mobile: inputValues?.PhoneNumber,
+        totp: e,
+      })
+    );
+  };
 
   return (
     <AuthLayout>
@@ -69,52 +99,61 @@ const Login = () => {
           </div>
         </div>
 
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({
-            values,
-            errors,
-            handleChange,
-            handleSubmit,
-            touched,
-            setFieldTouched,
-          }) => (
-            <form onSubmit={handleSubmit}>
-              <div className="flex flex-col mt-12 gap-y-10">
-                <div>
-                  <Input
-                    onInput={() => setFieldTouched("PhoneNumber")}
-                    errorMessage={
-                      touched?.PhoneNumber && errors?.PhoneNumber
-                    }
-                    label="شماره تلفن"
-                    name="PhoneNumber"
-                    type="text"
-                    value={values?.PhoneNumber}
-                    onChange={(e: any) => {
-                      handleChange(e);
-                      onInputChange(e);
-                    }}
-                    ref={(el) => el && setInputWidth(el.offsetWidth)}
-                  />
-                </div>
-              </div>
-              <div className="mt-20">
-                <Button
-                  type="submit"
-                  loading={loginLoading ?? false}
-                  size="full"
-                  className="text-xl"
-                >
-                  ورود
-                </Button>
-              </div>
-            </form>
-          )}
-        </Formik>
+        {!isSendOpt ? (
+          <>
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
+              {({
+                values,
+                errors,
+                handleChange,
+                handleSubmit,
+                touched,
+                setFieldTouched,
+              }) => (
+                <form onSubmit={handleSubmit}>
+                  <div className="flex flex-col mt-12 gap-y-10">
+                    <div>
+                      <Input
+                        onInput={() => setFieldTouched("PhoneNumber")}
+                        errorMessage={
+                          touched?.PhoneNumber && errors?.PhoneNumber
+                        }
+                        label="شماره تلفن"
+                        name="PhoneNumber"
+                        type="text"
+                        value={values?.PhoneNumber}
+                        onChange={(e: any) => {
+                          handleChange(e);
+                          onInputChange(e);
+                        }}
+                        ref={(el) => el && setInputWidth(el.offsetWidth)}
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-20">
+                    <Button
+                      type="submit"
+                      loading={loginLoading ?? false}
+                      size="full"
+                      className="text-xl"
+                    >
+                      ورود
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </Formik>
+          </>
+        ) : (
+          <OtpCode
+            handleOtpClick={handleResendOtp}
+            handleSendOtp={(e: any) => handleLogin(e)}
+          />
+        )}
       </div>
     </AuthLayout>
   );

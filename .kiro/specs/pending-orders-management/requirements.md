@@ -2,78 +2,77 @@
 
 ## Introduction
 
-This feature adds a pending orders management system to the admin panel, allowing administrators to view, filter, approve, or reject pending orders from providers. The system includes a dedicated menu item, Redux state management, API integration, and a comprehensive CRUD interface consistent with the existing codebase architecture.
+این فیچر برای مدیریت سفارشات در انتظار تایید مالی طراحی شده است. کاربران مالی می‌توانند سفارشات را مشاهده کرده، جزئیات کامل آن‌ها را ببینند و آن‌ها را تایید یا رد کنند. سیستم باید امکان مشاهده اطلاعات مهم در جدول اصلی و جزئیات کامل در مدال جداگانه را فراهم کند.
 
 ## Requirements
 
 ### Requirement 1
 
-**User Story:** As an admin, I want to access a "سفارشات در انتظار" (Pending Orders) menu item, so that I can navigate to the pending orders management page.
+**User Story:** به عنوان یک کاربر مالی، می‌خواهم لیست سفارشات در انتظار تایید را در یک جدول مشاهده کنم تا بتوانم به سرعت اطلاعات مهم هر سفارش را ببینم.
 
 #### Acceptance Criteria
 
-1. WHEN the admin views the navigation menu THEN the system SHALL display a "سفارشات در انتظار" menu item
-2. WHEN the admin clicks on the "سفارشات در انتظار" menu item THEN the system SHALL navigate to the pending orders page
-3. WHEN the pending orders page loads THEN the system SHALL display the page title as "سفارشات در انتظار"
+1. WHEN کاربر وارد صفحه سفارشات در انتظار تایید می‌شود THEN سیستم SHALL جدولی با اطلاعات مهم سفارشات نمایش دهد
+2. WHEN جدول بارگذاری می‌شود THEN سیستم SHALL اطلاعات شامل کد سفارش، نام محصول، مقدار، قیمت نهایی، نوع پرداخت، و وضعیت را نمایش دهد
+3. WHEN داده‌ها در حال بارگذاری هستند THEN سیستم SHALL یک loading indicator نمایش دهد
+4. IF خطایی در بارگذاری داده‌ها رخ دهد THEN سیستم SHALL پیام خطای مناسب نمایش دهد
 
 ### Requirement 2
 
-**User Story:** As a developer, I want a Redux order management system, so that the application can handle order state consistently with the existing Redux architecture.
+**User Story:** به عنوان یک کاربر مالی، می‌خواهم بتوانم هر سفارش را تایید کنم تا فرآیند پردازش سفارش ادامه یابد.
 
 #### Acceptance Criteria
 
-1. WHEN the application initializes THEN the system SHALL create an order folder in the Redux structure
-2. WHEN API calls are made THEN the system SHALL use Redux actions and reducers following the existing pattern
-3. WHEN order data is fetched THEN the system SHALL store it in the Redux state with proper typing
-4. WHEN the `/api/order/provider` endpoint is called THEN the system SHALL handle the response using Redux middleware
+1. WHEN کاربر روی دکمه تایید کلیک می‌کند THEN سیستم SHALL مدال تایید را نمایش دهد
+2. WHEN کاربر تایید نهایی را انجام می‌دهد THEN سیستم SHALL درخواست تایید را به سرور ارسال کند
+3. WHEN تایید با موفقیت انجام شود THEN سیستم SHALL پیام موفقیت نمایش دهد و جدول را به‌روزرسانی کند
+4. IF خطایی در فرآیند تایید رخ دهد THEN سیستم SHALL پیام خطای مناسب نمایش دهد
 
 ### Requirement 3
 
-**User Story:** As an admin, I want to view a list of pending orders with filtering capabilities, so that I can efficiently manage and review orders.
+**User Story:** به عنوان یک کاربر مالی، می‌خواهم بتوانم سفارش را با ذکر دلیل رد کنم تا فرستنده از دلیل رد آگاه شود.
 
 #### Acceptance Criteria
 
-1. WHEN the pending orders page loads THEN the system SHALL fetch orders from `/api/order/provider` endpoint
-2. WHEN orders are loaded THEN the system SHALL display them in a table/card format consistent with existing UI patterns
-3. WHEN the admin wants to filter orders THEN the system SHALL provide filtering options similar to other list pages
-4. WHEN filters are applied THEN the system SHALL update the displayed orders accordingly
-5. WHEN no orders match the filter THEN the system SHALL display an appropriate empty state message
+1. WHEN کاربر روی دکمه رد کلیک می‌کند THEN سیستم SHALL مدال رد با فیلد دلیل را نمایش دهد
+2. WHEN مدال رد باز می‌شود THEN سیستم SHALL فرم با textarea برای وارد کردن دلیل رد نمایش دهد
+3. WHEN کاربر دلیل رد را وارد نکرده باشد THEN سیستم SHALL اجازه ثبت رد را ندهد و پیام خطای validation نمایش دهد
+4. WHEN کاربر دلیل رد را وارد کرده و تایید کند THEN سیستم SHALL درخواست رد را با دلیل به سرور ارسال کند
+5. WHEN رد با موفقیت انجام شود THEN سیستم SHALL پیام موفقیت نمایش دهد، مدال را ببندد و جدول را به‌روزرسانی کند
+6. WHEN کاربر مدال رد را لغو کند THEN سیستم SHALL مدال را ببندد بدون ارسال درخواست
+7. IF خطایی در فرآیند رد رخ دهد THEN سیستم SHALL پیام خطای مناسب نمایش دهد
 
 ### Requirement 4
 
-**User Story:** As an admin, I want to approve pending orders, so that I can process valid orders for fulfillment.
+**User Story:** به عنوان یک کاربر مالی، می‌خواهم بتوانم جزئیات کامل هر سفارش را مشاهده کنم تا تصمیم بهتری برای تایید یا رد بگیرم.
 
 #### Acceptance Criteria
 
-1. WHEN viewing a pending order THEN the system SHALL display an approve button/action
-2. WHEN the admin clicks approve THEN the system SHALL send an approval request to the backend
-3. WHEN the approval is successful THEN the system SHALL update the order status in the UI
-4. WHEN the approval fails THEN the system SHALL display an error message
-5. WHEN an order is approved THEN the system SHALL remove it from the pending orders list or update its status
+1. WHEN کاربر روی دکمه "مشاهده بیشتر" کلیک می‌کند THEN سیستم SHALL مدال جزئیات سفارش را نمایش دهد
+2. WHEN مدال جزئیات باز می‌شود THEN سیستم SHALL تمام اطلاعات سفارش شامل اطلاعات خریدار، محصول، پرداخت، حمل‌ونقل، و چک‌ها را نمایش دهد
+3. WHEN آرایه چک‌ها موجود باشد THEN سیستم SHALL چک‌ها را با UI مناسب شامل تاریخ، بانک، شماره چک، و شماره صیاد نمایش دهد
+4. WHEN کاربر مدال را می‌بندد THEN سیستم SHALL به حالت قبلی بازگردد
+5. IF اطلاعات جزئیات در دسترس نباشد THEN سیستم SHALL پیام مناسب نمایش دهد
+6. WHEN چک‌ها موجود نباشد THEN سیستم SHALL پیام "چکی موجود نیست" نمایش دهد
 
 ### Requirement 5
 
-**User Story:** As an admin, I want to reject pending orders with explanatory comments, so that I can provide feedback on why orders were not approved.
+**User Story:** به عنوان یک کاربر مالی، می‌خواهم در جدول سفارشات دکمه "مشاهده بیشتر" داشته باشم تا بتوانم به راحتی به جزئیات کامل سفارش دسترسی پیدا کنم.
 
 #### Acceptance Criteria
 
-1. WHEN viewing a pending order THEN the system SHALL display a reject button/action
-2. WHEN the admin clicks reject THEN the system SHALL open a modal/form requiring explanatory comments
-3. WHEN the admin submits rejection with comments THEN the system SHALL send the rejection with comments to the backend
-4. WHEN the rejection is successful THEN the system SHALL update the order status in the UI
-5. WHEN the rejection fails THEN the system SHALL display an error message
-6. WHEN rejection comments are empty THEN the system SHALL prevent submission and show validation error
-7. WHEN an order is rejected THEN the system SHALL remove it from the pending orders list or update its status
+1. WHEN جدول سفارشات نمایش داده می‌شود THEN سیستم SHALL در ستون عملیات دکمه "مشاهده بیشتر" را برای هر سفارش نمایش دهد
+2. WHEN کاربر روی دکمه "مشاهده بیشتر" کلیک می‌کند THEN سیستم SHALL مدال جزئیات سفارش را باز کند
+3. WHEN مدال جزئیات باز می‌شود THEN سیستم SHALL اطلاعات کامل سفارش را در قالب منظم نمایش دهد
+4. WHEN دکمه "مشاهده بیشتر" در حال بارگذاری باشد THEN سیستم SHALL loading indicator نمایش دهد
 
 ### Requirement 6
 
-**User Story:** As a developer, I want the pending orders interface to follow existing code patterns, so that the codebase remains consistent and maintainable.
+**User Story:** به عنوان یک کاربر مالی، می‌خواهم بتوانم سفارشات را بر اساس معیارهای مختلف فیلتر کنم تا سفارش مورد نظر را سریع‌تر پیدا کنم.
 
 #### Acceptance Criteria
 
-1. WHEN implementing components THEN the system SHALL follow the existing component structure and naming conventions
-2. WHEN implementing API calls THEN the system SHALL use the existing API service patterns
-3. WHEN implementing styling THEN the system SHALL use the existing CSS/styling approach
-4. WHEN implementing state management THEN the system SHALL follow the existing Redux patterns
-5. WHEN implementing routing THEN the system SHALL follow the existing routing structure
-6. WHEN implementing error handling THEN the system SHALL use the existing error handling patterns
+1. WHEN کاربر متن جستجو وارد می‌کند THEN سیستم SHALL سفارشات را بر اساس کد سفارش، نام محصول، یا نام خریدار فیلتر کند
+2. WHEN کاربر فیلتر وضعیت را تغییر می‌دهد THEN سیستم SHALL فقط سفارشات با وضعیت انتخابی را نمایش دهد
+3. WHEN کاربر فیلتر نوع پرداخت را تغییر می‌دهد THEN سیستم SHALL فقط سفارشات با نوع پرداخت انتخابی را نمایش دهد
+4. WHEN کاربر فیلترها را پاک می‌کند THEN سیستم SHALL تمام سفارشات را نمایش دهد

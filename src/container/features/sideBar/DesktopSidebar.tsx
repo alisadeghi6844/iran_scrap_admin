@@ -70,6 +70,16 @@ const DesktopSidebar = () => {
           notif: "",
           role: ["admin", "client", "reservation"],
         },
+        {
+          path: "/pending-orders-financial",
+          title: "سفارشات در انتظار تایید مالی",
+          icon: <LuPackageOpen className="text-2xl" />,
+          id: 240,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
       ],
     },
 

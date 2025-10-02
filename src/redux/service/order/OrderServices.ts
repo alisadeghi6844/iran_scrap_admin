@@ -2,32 +2,36 @@ import { BASE_URL } from "../../../api/config";
 import HttpServises from "../../../api/HttpServises";
 import { AxiosQueryCustom } from "../../../utils/AxiosQuery";
 import {
-  GET_PENDING_ORDERS_POINT,
+  GET_ORDER_ADMIN_POINT,
   APPROVE_ORDER_POINT,
   REJECT_ORDER_POINT,
+  VERIFY_PAYMENT_POINT,
 } from "../../api/order/OrderApi";
-import { GetPendingOrdersRequest, ApproveOrderRequest, RejectOrderRequest } from "../../types/order/OrderTypes";
 
-export const getPendingOrdersService = async (query: GetPendingOrdersRequest) => {
-  let queryText;
-  if (!!query) {
-    queryText = AxiosQueryCustom(query);
+export const getOrderAdminService = async (query: any) => {
+  let queryParams;
+  if (query) {
+    queryParams = AxiosQueryCustom(query);
   }
   return await HttpServises.get(
-    `${BASE_URL}${GET_PENDING_ORDERS_POINT}?${queryText ? queryText : ""}`
+    `${BASE_URL}${GET_ORDER_ADMIN_POINT}?${queryParams || ""}`
   );
 };
 
 export const approveOrderService = async (orderId: string) => {
-  return await HttpServises.patch(
-    `${BASE_URL}${APPROVE_ORDER_POINT}/${orderId}`,
-    { status: "approved" }
-  );
+  return await HttpServises.put(`${BASE_URL}${APPROVE_ORDER_POINT}/${orderId}`);
 };
 
-export const rejectOrderService = async (orderId: string, comments: string) => {
-  return await HttpServises.patch(
-    `${BASE_URL}${REJECT_ORDER_POINT}/${orderId}`,
-    { status: "rejected", comments }
-  );
+export const rejectOrderService = async (orderId: string, reason?: string) => {
+  return await HttpServises.put(`${BASE_URL}${REJECT_ORDER_POINT}/${orderId}`, {
+    reason,
+  });
+};
+
+export const verifyPaymentService = async (orderId: string, verified: boolean, comment: string) => {
+  return await HttpServises.post(`${BASE_URL}${VERIFY_PAYMENT_POINT}`, {
+    orderId,
+    verified,
+    comment,
+  });
 };
