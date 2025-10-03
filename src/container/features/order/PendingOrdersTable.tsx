@@ -21,6 +21,7 @@ import {
 } from "../../../redux/slice/order/orderSlice";
 import { GetOrderAdminAction } from "../../../redux/actions/order/OrderActions";
 import StatusSelect from "./StatusSelect";
+import { OrderStatus, getOrderStatusText, getOrderStatusColor } from "../../../types/OrderStatus";
 
 interface OrderItem {
   id: string;
@@ -121,55 +122,7 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
     return date.toLocaleDateString("fa-IR");
   };
 
-  const getStatusText = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "pending":
-        return "در انتظار تایید";
-      case "accepted":
-        return "تایید شده";
-      case "rejected":
-        return "رد شده";
-      case "payed":
-        return "پرداخت شده";
-      case "paymentverified":
-        return "پرداخت تایید شده";
-      case "paymentdeclined":
-        return "پرداخت رد شده";
-      case "preparing":
-        return "در حال آماده‌سازی";
-      case "shipping":
-        return "در حال ارسال";
-      case "delivered":
-        return "تحویل داده شده";
-      default:
-        return status || "نامشخص";
-    }
-  };
 
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "pending":
-        return "text-yellow-600";
-      case "accepted":
-        return "text-blue-600";
-      case "rejected":
-        return "text-red-600";
-      case "payed":
-        return "text-green-600";
-      case "paymentverified":
-        return "text-green-700";
-      case "paymentdeclined":
-        return "text-red-700";
-      case "preparing":
-        return "text-orange-600";
-      case "shipping":
-        return "text-purple-600";
-      case "delivered":
-        return "text-green-800";
-      default:
-        return "text-gray-600";
-    }
-  };
 
   const getPaymentTypeText = (paymentType: string) => {
     switch (paymentType?.toUpperCase()) {
@@ -262,8 +215,8 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
                   <TableCell>{row?.city ?? "_"}</TableCell>
                   <TableCell>{formatDate(row?.createdAt)}</TableCell>
                   <TableCell>
-                    <span className={getStatusColor(row?.status)}>
-                      {getStatusText(row?.status)}
+                    <span className={getOrderStatusColor(row?.status)}>
+                      {getOrderStatusText(row?.status)}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -278,8 +231,8 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
                       >
                         مشاهده بیشتر
                       </Button>
-                      {(row?.status?.toLowerCase() === "pending" ||
-                        row?.status?.toLowerCase() === "accepted") && (
+                      {(row?.status?.toLowerCase() === OrderStatus.Payed.toLowerCase() ||
+                        row?.status?.toLowerCase() === OrderStatus.PaymentDeclined.toLowerCase()) && (
                         <>
                           <Button
                             type="button"

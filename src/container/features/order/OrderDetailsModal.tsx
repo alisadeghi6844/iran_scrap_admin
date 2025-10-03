@@ -1,6 +1,7 @@
 import React from "react";
 import Modal from "../../../components/modal";
 import Typography from "../../../components/typography/Typography";
+import { getOrderStatusText, getOrderStatusColor } from "../../../types/OrderStatus";
 
 interface OrderItem {
   id: string;
@@ -59,30 +60,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     return date.toLocaleDateString("fa-IR");
   };
 
-  const getStatusText = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "pending":
-        return "در انتظار تایید";
-      case "accepted":
-        return "تایید شده";
-      case "rejected":
-        return "رد شده";
-      case "payed":
-        return "پرداخت شده";
-      case "paymentverified":
-        return "پرداخت تایید شده";
-      case "paymentdeclined":
-        return "پرداخت رد شده";
-      case "preparing":
-        return "در حال آماده‌سازی";
-      case "shipping":
-        return "در حال ارسال";
-      case "delivered":
-        return "تحویل داده شده";
-      default:
-        return status || "نامشخص";
-    }
-  };
+
 
   const getPaymentTypeText = (paymentType: string) => {
     switch (paymentType?.toUpperCase()) {
@@ -114,30 +92,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "pending":
-        return "text-yellow-600";
-      case "accepted":
-        return "text-blue-600";
-      case "rejected":
-        return "text-red-600";
-      case "payed":
-        return "text-green-600";
-      case "paymentverified":
-        return "text-green-700";
-      case "paymentdeclined":
-        return "text-red-700";
-      case "preparing":
-        return "text-orange-600";
-      case "shipping":
-        return "text-purple-600";
-      case "delivered":
-        return "text-green-800";
-      default:
-        return "text-gray-600";
-    }
-  };
+
 
   console.log("OrderDetailsModal: About to render Modal with open:", isOpen);
   
@@ -157,8 +112,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </div>
             <div>
               <Typography className="text-sm text-gray-600">وضعیت</Typography>
-              <Typography className={`font-bold ${getStatusColor(order.status)}`}>
-                {getStatusText(order.status)}
+              <Typography className={`font-bold ${getOrderStatusColor(order.status)}`}>
+                {getOrderStatusText(order.status)}
               </Typography>
             </div>
           </div>

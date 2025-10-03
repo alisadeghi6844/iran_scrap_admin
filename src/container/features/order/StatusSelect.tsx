@@ -1,6 +1,7 @@
 import React from "react";
 import { useField } from "formik";
 import SingleSelect from "../../../components/select/SingleSelect";
+import { orderStatusOptions } from "../../../types/OrderStatus";
 
 interface StatusSelectProps {
   name: string;
@@ -14,44 +15,7 @@ const StatusSelect: React.FC<StatusSelectProps> = (props) => {
 
   const [field, { error }, { setValue }] = useField(props);
 
-  const options = [
-    {
-      label: "در انتظار تایید",
-      value: "Pending",
-    },
-    {
-      label: "تایید شده",
-      value: "Accepted",
-    },
-    {
-      label: "رد شده",
-      value: "Rejected",
-    },
-    {
-      label: "پرداخت شده",
-      value: "Payed",
-    },
-    {
-      label: "پرداخت تایید شده",
-      value: "Paymentverified",
-    },
-    {
-      label: "پرداخت رد شده",
-      value: "Paymentdeclined",
-    },
-    {
-      label: "در حال آماده‌سازی",
-      value: "Preparing",
-    },
-    {
-      label: "در حال ارسال",
-      value: "Shipping",
-    },
-    {
-      label: "تحویل داده شده",
-      value: "Delivered",
-    },
-  ];
+  const options = orderStatusOptions;
 
   return (
     <SingleSelect

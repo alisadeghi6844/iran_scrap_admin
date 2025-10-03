@@ -1,8 +1,11 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../redux/store";
 import { VerifyPaymentAction } from "../../redux/actions/order/OrderActions";
-import { selectVerifyPaymentLoading } from "../../redux/slice/order/orderSlice";
+import { 
+  selectVerifyPaymentLoading, 
+  selectVerifyPaymentData 
+} from "../../redux/slice/order/orderSlice";
 import CRUD from "../../container/organism/CRUD";
 
 interface OrderItem {
@@ -71,6 +74,7 @@ const PendingOrdersFinancial = () => {
   const [refreshTable, setRefreshTable] = useState<number>(0);
 
   const verifyPaymentLoading = useSelector(selectVerifyPaymentLoading);
+  const verifyPaymentData = useSelector(selectVerifyPaymentData);
 
   const handleApproveOrder = (orderId: string) => {
     dispatch(
@@ -78,11 +82,6 @@ const PendingOrdersFinancial = () => {
         orderId,
         verified: true,
         comment: null,
-        onSubmitForm: () => {
-          setMode("content");
-          setSelectedRow(null);
-          setRefreshTable(prev => prev + 1);
-        },
       })
     );
   };
@@ -93,11 +92,6 @@ const PendingOrdersFinancial = () => {
         orderId,
         verified: false,
         comment: reason,
-        onSubmitForm: () => {
-          setMode("content");
-          setSelectedRow(null);
-          setRefreshTable(prev => prev + 1);
-        },
       })
     );
   };
@@ -106,6 +100,15 @@ const PendingOrdersFinancial = () => {
     setMode("content");
     setSelectedRow(null);
   };
+
+  // Handle successful verify payment response
+  useEffect(() => {
+    if (verifyPaymentData?.status === 200) {
+      setMode("content");
+      setSelectedRow(null);
+      setRefreshTable(prev => prev + 1);
+    }
+  }, [verifyPaymentData]);
 
   return (
     <div
