@@ -26,6 +26,12 @@ export interface ButtonTypes
     | "outline-gray"
     | "secondary"
     | "outline-secondary"
+    | "info"
+    | "outline-info"
+    | "dark"
+    | "outline-dark"
+    | "neutral"
+    | "outline-neutral"
     | null; // انواع مختلف دکمه
   disable?: boolean; // می‌توانید این را اختیاری کنید
 }

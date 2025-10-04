@@ -50,7 +50,7 @@ const OrderApprovalModal: React.FC<OrderApprovalModalProps> = ({
         <div className="flex justify-end gap-3 pt-4">
           <Button
             type="button"
-            variant="outline-gray"
+            variant="outline-secondary"
             onClick={handleClose}
             disabled={loading}
           >

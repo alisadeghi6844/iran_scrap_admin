@@ -6,6 +6,11 @@ import {
   GET_SURVEY_BY_ID,
   UPDATE_SURVEY,
   DELETE_SURVEY,
+  CREATE_QUESTION,
+  UPDATE_QUESTION,
+  DELETE_QUESTION,
+  GET_USER_SURVEY_BY_ID,
+  GET_USER_SURVEYS,
 } from "../../types/survey/SurveyTypes";
 import {
   CreateSurveyService,
@@ -13,6 +18,11 @@ import {
   GetSurveyByIdService,
   UpdateSurveyService,
   DeleteSurveyService,
+  CreateQuestionService,
+  UpdateQuestionService,
+  DeleteQuestionService,
+  GetUserSurveyByIdService,
+  GetUserSurveysService,
 } from "../../service/survey/SurveyServices";
 
 export const CreateSurveyAction = createAsyncThunk(
@@ -104,6 +114,104 @@ export const DeleteSurveyAction = createAsyncThunk(
       }
     } catch (error: any) {
       toast.error("خطا در حذف نظرسنجی");
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+// Question Actions
+export const CreateQuestionAction = createAsyncThunk(
+  CREATE_QUESTION,
+  async ({ surveyId, data }: { surveyId: string; data: any }, { rejectWithValue }) => {
+    try {
+      const response = await CreateQuestionService(surveyId, data);
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success("سوال با موفقیت اضافه شد");
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      toast.error("خطا در اضافه کردن سوال");
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const UpdateQuestionAction = createAsyncThunk(
+  UPDATE_QUESTION,
+  async ({ questionId, data }: { questionId: string; data: any }, { rejectWithValue }) => {
+    try {
+      const response = await UpdateQuestionService(questionId, data);
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success("سوال با موفقیت ویرایش شد");
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      toast.error("خطا در ویرایش سوال");
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const DeleteQuestionAction = createAsyncThunk(
+  DELETE_QUESTION,
+  async ({ surveyId, questionId }: { surveyId: string; questionId: string }, { rejectWithValue }) => {
+    try {
+      const response = await DeleteQuestionService(surveyId, questionId);
+      if (response?.status === 200 || response?.status === 204) {
+        toast.success("سوال با موفقیت حذف شد");
+        return { questionId };
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      toast.error("خطا در حذف سوال");
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+// User Survey Actions
+export const GetUserSurveyByIdAction = createAsyncThunk(
+  GET_USER_SURVEY_BY_ID,
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await GetUserSurveyByIdService(id);
+      if (response?.status === 200) {
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const GetUserSurveysAction = createAsyncThunk(
+  GET_USER_SURVEYS,
+  async (surveyId: string, { rejectWithValue }) => {
+    try {
+      const response = await GetUserSurveysService(surveyId);
+      if (response?.status === 200) {
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
       return rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }
       );

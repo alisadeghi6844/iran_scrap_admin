@@ -3,7 +3,7 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
-  useNavigate,
+  Navigate,
 } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 

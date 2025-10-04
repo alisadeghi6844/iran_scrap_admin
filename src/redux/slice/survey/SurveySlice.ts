@@ -6,6 +6,11 @@ import {
   GetSurveyByIdAction,
   UpdateSurveyAction,
   DeleteSurveyAction,
+  CreateQuestionAction,
+  UpdateQuestionAction,
+  DeleteQuestionAction,
+  GetUserSurveyByIdAction,
+  GetUserSurveysAction,
 } from "../../actions/survey/SurveyActions";
 
 const initialState = {
@@ -33,6 +38,28 @@ const initialState = {
   deleteSurveyLoading: false,
   deleteSurveyError: null,
   deleteSurveyData: null,
+
+  // Question Management
+  createQuestionLoading: false,
+  createQuestionError: null,
+  createQuestionData: null,
+
+  updateQuestionLoading: false,
+  updateQuestionError: null,
+  updateQuestionData: null,
+
+  deleteQuestionLoading: false,
+  deleteQuestionError: null,
+  deleteQuestionData: null,
+
+  // User Surveys
+  getUserSurveyByIdLoading: false,
+  getUserSurveyByIdError: null,
+  getUserSurveyByIdData: null,
+
+  getUserSurveysLoading: false,
+  getUserSurveysError: null,
+  getUserSurveysData: [],
 };
 
 const surveySlice = createSlice({
@@ -45,12 +72,21 @@ const surveySlice = createSlice({
       state.getSurveyByIdError = null;
       state.updateSurveyError = null;
       state.deleteSurveyError = null;
+      state.createQuestionError = null;
+      state.updateQuestionError = null;
+      state.deleteQuestionError = null;
+      state.getUserSurveyByIdError = null;
+      state.getUserSurveysError = null;
     },
     clearSurveyData: (state) => {
       state.createSurveyData = null;
       state.getSurveyByIdData = null;
       state.updateSurveyData = null;
       state.deleteSurveyData = null;
+      state.createQuestionData = null;
+      state.updateQuestionData = null;
+      state.deleteQuestionData = null;
+      state.getUserSurveyByIdData = null;
     },
   },
   extraReducers: (builder) => {
@@ -77,7 +113,10 @@ const surveySlice = createSlice({
       })
       .addCase(GetAllSurveysAction.fulfilled, (state, action) => {
         state.getAllSurveysLoading = false;
-        state.getAllSurveysData = action.payload;
+        // Handle both array and object response
+        state.getAllSurveysData = Array.isArray(action.payload) 
+          ? action.payload 
+          : (action.payload?.data || action.payload?.surveys || []);
         state.getAllSurveysError = null;
       })
       .addCase(GetAllSurveysAction.rejected, (state, action) => {
@@ -124,14 +163,94 @@ const surveySlice = createSlice({
         state.deleteSurveyLoading = false;
         state.deleteSurveyData = action.payload;
         state.deleteSurveyError = null;
-        // Remove deleted survey from list
-        state.getAllSurveysData = state.getAllSurveysData.filter(
-          (survey: any) => survey.id !== action.payload.id
-        );
+        // Remove deleted survey from list - ensure it's an array
+        if (Array.isArray(state.getAllSurveysData)) {
+          state.getAllSurveysData = state.getAllSurveysData.filter(
+            (survey: any) => survey.id !== action.payload.id
+          );
+        }
       })
       .addCase(DeleteSurveyAction.rejected, (state, action) => {
         state.deleteSurveyLoading = false;
         state.deleteSurveyError = action.payload;
+      })
+
+      // Create Question
+      .addCase(CreateQuestionAction.pending, (state) => {
+        state.createQuestionLoading = true;
+        state.createQuestionError = null;
+      })
+      .addCase(CreateQuestionAction.fulfilled, (state, action) => {
+        state.createQuestionLoading = false;
+        state.createQuestionData = action.payload;
+        state.createQuestionError = null;
+      })
+      .addCase(CreateQuestionAction.rejected, (state, action) => {
+        state.createQuestionLoading = false;
+        state.createQuestionError = action.payload;
+      })
+
+      // Update Question
+      .addCase(UpdateQuestionAction.pending, (state) => {
+        state.updateQuestionLoading = true;
+        state.updateQuestionError = null;
+      })
+      .addCase(UpdateQuestionAction.fulfilled, (state, action) => {
+        state.updateQuestionLoading = false;
+        state.updateQuestionData = action.payload;
+        state.updateQuestionError = null;
+      })
+      .addCase(UpdateQuestionAction.rejected, (state, action) => {
+        state.updateQuestionLoading = false;
+        state.updateQuestionError = action.payload;
+      })
+
+      // Delete Question
+      .addCase(DeleteQuestionAction.pending, (state) => {
+        state.deleteQuestionLoading = true;
+        state.deleteQuestionError = null;
+      })
+      .addCase(DeleteQuestionAction.fulfilled, (state, action) => {
+        state.deleteQuestionLoading = false;
+        state.deleteQuestionData = action.payload;
+        state.deleteQuestionError = null;
+      })
+      .addCase(DeleteQuestionAction.rejected, (state, action) => {
+        state.deleteQuestionLoading = false;
+        state.deleteQuestionError = action.payload;
+      })
+
+      // Get User Survey By ID
+      .addCase(GetUserSurveyByIdAction.pending, (state) => {
+        state.getUserSurveyByIdLoading = true;
+        state.getUserSurveyByIdError = null;
+      })
+      .addCase(GetUserSurveyByIdAction.fulfilled, (state, action) => {
+        state.getUserSurveyByIdLoading = false;
+        state.getUserSurveyByIdData = action.payload;
+        state.getUserSurveyByIdError = null;
+      })
+      .addCase(GetUserSurveyByIdAction.rejected, (state, action) => {
+        state.getUserSurveyByIdLoading = false;
+        state.getUserSurveyByIdError = action.payload;
+      })
+
+      // Get User Surveys
+      .addCase(GetUserSurveysAction.pending, (state) => {
+        state.getUserSurveysLoading = true;
+        state.getUserSurveysError = null;
+      })
+      .addCase(GetUserSurveysAction.fulfilled, (state, action) => {
+        state.getUserSurveysLoading = false;
+        // Handle both array and object response
+        state.getUserSurveysData = Array.isArray(action.payload) 
+          ? action.payload 
+          : (action.payload?.data || action.payload?.surveys || []);
+        state.getUserSurveysError = null;
+      })
+      .addCase(GetUserSurveysAction.rejected, (state, action) => {
+        state.getUserSurveysLoading = false;
+        state.getUserSurveysError = action.payload;
       });
   },
 });
@@ -158,5 +277,27 @@ export const selectUpdateSurveyData = (state: any) => state.survey.updateSurveyD
 export const selectDeleteSurveyLoading = (state: any) => state.survey.deleteSurveyLoading;
 export const selectDeleteSurveyError = (state: any) => state.survey.deleteSurveyError;
 export const selectDeleteSurveyData = (state: any) => state.survey.deleteSurveyData;
+
+// Question selectors
+export const selectCreateQuestionLoading = (state: any) => state.survey.createQuestionLoading;
+export const selectCreateQuestionError = (state: any) => state.survey.createQuestionError;
+export const selectCreateQuestionData = (state: any) => state.survey.createQuestionData;
+
+export const selectUpdateQuestionLoading = (state: any) => state.survey.updateQuestionLoading;
+export const selectUpdateQuestionError = (state: any) => state.survey.updateQuestionError;
+export const selectUpdateQuestionData = (state: any) => state.survey.updateQuestionData;
+
+export const selectDeleteQuestionLoading = (state: any) => state.survey.deleteQuestionLoading;
+export const selectDeleteQuestionError = (state: any) => state.survey.deleteQuestionError;
+export const selectDeleteQuestionData = (state: any) => state.survey.deleteQuestionData;
+
+// User survey selectors
+export const selectGetUserSurveyByIdLoading = (state: any) => state.survey.getUserSurveyByIdLoading;
+export const selectGetUserSurveyByIdError = (state: any) => state.survey.getUserSurveyByIdError;
+export const selectGetUserSurveyByIdData = (state: any) => state.survey.getUserSurveyByIdData;
+
+export const selectGetUserSurveysLoading = (state: any) => state.survey.getUserSurveysLoading;
+export const selectGetUserSurveysError = (state: any) => state.survey.getUserSurveysError;
+export const selectGetUserSurveysData = (state: any) => state.survey.getUserSurveysData;
 
 export default surveySlice.reducer;

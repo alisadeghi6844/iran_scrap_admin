@@ -60,13 +60,31 @@ const Button:React.FC<ButtonTypes> = (props) => {
             !disable && "hover:bg-gray-400"
           }`,
           "outline-gray": `focus:outline-none border-2 border-gray-400  text-gray-400  bg-transparent ${
-            disable && "hover:bg-gray-400"
+            !disable && "hover:bg-gray-400 hover:text-white"
           }`,
           secondary: `focus:outline-none text-gray-700 border-2  bg-secondary-500  ${
             !disable && "hover:bg-secondary-500"
           }`,
-          "outline-secondary": `focus:outline-none border-2 border-secondary-500  text-secondary-500  bg-transparent ${
-            !disable && "hover:bg-secondary-500  hover:text-white"
+          "outline-secondary": `focus:outline-none border-2 border-gray-400  text-gray-700  bg-transparent transition-colors ${
+            !disable && "hover:bg-gray-100 hover:border-gray-500 hover:text-gray-800"
+          }`,
+          info: `focus:outline-none text-white bg-blue-500 ${
+            !disable && "hover:bg-blue-600"
+          }`,
+          "outline-info": `focus:outline-none border-2 border-blue-500 text-blue-500 bg-transparent ${
+            !disable && "hover:bg-blue-500 hover:text-white"
+          }`,
+          dark: `focus:outline-none text-white bg-gray-800 ${
+            !disable && "hover:bg-gray-900"
+          }`,
+          "outline-dark": `focus:outline-none border-2 border-gray-800 text-gray-800 bg-transparent ${
+            !disable && "hover:bg-gray-800 hover:text-white"
+          }`,
+          neutral: `focus:outline-none text-gray-700 bg-gray-200 border border-gray-300 ${
+            !disable && "hover:bg-gray-300 hover:border-gray-400"
+          }`,
+          "outline-neutral": `focus:outline-none border-2 border-gray-300 text-gray-600 bg-white ${
+            !disable && "hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700"
           }`,
         }[variant]
       } ${disable||loading ? "opacity-50 cursor-not-allowed" : ""}

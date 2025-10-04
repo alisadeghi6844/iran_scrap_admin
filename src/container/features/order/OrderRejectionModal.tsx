@@ -90,7 +90,7 @@ const OrderRejectionModal: React.FC<OrderRejectionModalProps> = ({
         {/* Action Buttons */}
         <div className="flex gap-3 justify-end pt-4">
           <Button
-            variant="outline-gray"
+            variant="outline-secondary"
             onClick={handleClose}
             disabled={loading}
           >
