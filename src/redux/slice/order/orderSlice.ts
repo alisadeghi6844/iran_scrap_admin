@@ -5,6 +5,7 @@ import {
   ApproveOrderAction,
   RejectOrderAction,
   VerifyPaymentAction,
+  MakeDeliveredAction,
 } from "../../actions/order/OrderActions";
 
 interface orderState {
@@ -23,6 +24,10 @@ interface orderState {
   verifyPaymentError: string | null;
   verifyPaymentLoading: boolean;
   verifyPaymentData: any;
+
+  makeDeliveredError: string | null;
+  makeDeliveredLoading: boolean;
+  makeDeliveredData: any;
 }
 
 const initialState: orderState = {
@@ -41,6 +46,10 @@ const initialState: orderState = {
   verifyPaymentError: null,
   verifyPaymentLoading: false,
   verifyPaymentData: [],
+
+  makeDeliveredError: null,
+  makeDeliveredLoading: false,
+  makeDeliveredData: [],
 };
 
 const orderSlice = createSlice({
@@ -118,6 +127,22 @@ const orderSlice = createSlice({
         state.verifyPaymentLoading = false;
         state.verifyPaymentError = action.payload;
         state.verifyPaymentData = [];
+      })
+      // Make delivered
+      .addCase(MakeDeliveredAction.pending, (state) => {
+        state.makeDeliveredLoading = true;
+        state.makeDeliveredData = [];
+        state.makeDeliveredError = null;
+      })
+      .addCase(MakeDeliveredAction.fulfilled, (state, action) => {
+        state.makeDeliveredLoading = false;
+        state.makeDeliveredData = action.payload;
+        state.makeDeliveredError = null;
+      })
+      .addCase(MakeDeliveredAction.rejected, (state, action) => {
+        state.makeDeliveredLoading = false;
+        state.makeDeliveredError = action.payload;
+        state.makeDeliveredData = [];
       });
   },
 });
@@ -149,5 +174,12 @@ export const selectVerifyPaymentLoading = (state: any) =>
   state.order.verifyPaymentLoading;
 export const selectVerifyPaymentData = (state: any) =>
   state.order.verifyPaymentData;
+
+export const selectMakeDeliveredError = (state: any) =>
+  state.order.makeDeliveredError;
+export const selectMakeDeliveredLoading = (state: any) =>
+  state.order.makeDeliveredLoading;
+export const selectMakeDeliveredData = (state: any) =>
+  state.order.makeDeliveredData;
 
 export default orderSlice.reducer;

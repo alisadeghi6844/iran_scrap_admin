@@ -5,12 +5,14 @@ import {
   APPROVE_ORDER,
   REJECT_ORDER,
   VERIFY_PAYMENT,
+  MAKE_DELIVERED,
 } from "../../types/order/OrderTypes";
 import {
   getOrderAdminService,
   approveOrderService,
   rejectOrderService,
   verifyPaymentService,
+  makeDeliveredService,
 } from "../../service/order/OrderServices";
 import { toast } from "react-toastify";
 
@@ -78,6 +80,24 @@ export const VerifyPaymentAction = createAsyncThunk(
       const response = await verifyPaymentService(orderId, verified, comment);
       if (response?.status === 200) {
         toast.success(verified ? "پرداخت با موفقیت تایید شد" : "پرداخت با موفقیت رد شد");
+        onSubmitForm && onSubmitForm();
+      }
+      return response;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const MakeDeliveredAction = createAsyncThunk(
+  `${ORDER}/${MAKE_DELIVERED}`,
+  async ({ orderId, unloadingDate, onSubmitForm }: any, thunkAPI) => {
+    try {
+      const response = await makeDeliveredService(orderId, unloadingDate);
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success("سفارش با موفقیت تحویل داده شد");
         onSubmitForm && onSubmitForm();
       }
       return response;

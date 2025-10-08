@@ -3,3 +3,4 @@ export const GET_ORDER_ADMIN = "GET_ORDER_ADMIN";
 export const APPROVE_ORDER = "APPROVE_ORDER";
 export const REJECT_ORDER = "REJECT_ORDER";
 export const VERIFY_PAYMENT = "VERIFY_PAYMENT";
+export const MAKE_DELIVERED = "MAKE_DELIVERED";

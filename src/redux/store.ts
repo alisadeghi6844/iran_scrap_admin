@@ -14,6 +14,7 @@ import roleManagementSlice from "./slice/roleManagement/RoleManagementSlice";
 import ticketSlice from "./slice/ticket/TicketSlice";
 import productSlice from "./slice/product/ProductSlice";
 import orderSlice from "./slice/order/orderSlice";
+import requestOrderSlice from "./slice/requestOrder/requestOrderSlice";
 import surveySlice from "./slice/survey/SurveySlice"; 
 export const store = configureStore({
   reducer: {
@@ -31,6 +32,7 @@ export const store = configureStore({
     ticket: ticketSlice,
     product: productSlice,
     order: orderSlice,
+    requestOrder: requestOrderSlice,
     survey: surveySlice
   },
 });

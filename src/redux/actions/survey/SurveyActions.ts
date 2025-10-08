@@ -124,7 +124,10 @@ export const DeleteSurveyAction = createAsyncThunk(
 // Question Actions
 export const CreateQuestionAction = createAsyncThunk(
   CREATE_QUESTION,
-  async ({ surveyId, data }: { surveyId: string; data: any }, { rejectWithValue }) => {
+  async (
+    { surveyId, data }: { surveyId: string; data: any },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await CreateQuestionService(surveyId, data);
       if (response?.status === 200 || response?.status === 201) {
@@ -144,7 +147,10 @@ export const CreateQuestionAction = createAsyncThunk(
 
 export const UpdateQuestionAction = createAsyncThunk(
   UPDATE_QUESTION,
-  async ({ questionId, data }: { questionId: string; data: any }, { rejectWithValue }) => {
+  async (
+    { questionId, data }: { questionId: string; data: any },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await UpdateQuestionService(questionId, data);
       if (response?.status === 200 || response?.status === 201) {
@@ -164,7 +170,10 @@ export const UpdateQuestionAction = createAsyncThunk(
 
 export const DeleteQuestionAction = createAsyncThunk(
   DELETE_QUESTION,
-  async ({ surveyId, questionId }: { surveyId: string; questionId: string }, { rejectWithValue }) => {
+  async (
+    { surveyId, questionId }: { surveyId: string; questionId: string },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await DeleteQuestionService(surveyId, questionId);
       if (response?.status === 200 || response?.status === 204) {
@@ -203,9 +212,9 @@ export const GetUserSurveyByIdAction = createAsyncThunk(
 
 export const GetUserSurveysAction = createAsyncThunk(
   GET_USER_SURVEYS,
-  async (surveyId: string, { rejectWithValue }) => {
+  async (params: { surveyId: string; page?: number; size?: number }, { rejectWithValue }) => {
     try {
-      const response = await GetUserSurveysService(surveyId);
+      const response = await GetUserSurveysService(params);
       if (response?.status === 200) {
         return response.data;
       } else {

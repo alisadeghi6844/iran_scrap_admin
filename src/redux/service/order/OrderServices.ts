@@ -6,6 +6,7 @@ import {
   APPROVE_ORDER_POINT,
   REJECT_ORDER_POINT,
   VERIFY_PAYMENT_POINT,
+  MAKE_DELIVERED_POINT,
 } from "../../api/order/OrderApi";
 
 export const getOrderAdminService = async (query: any) => {
@@ -33,5 +34,12 @@ export const verifyPaymentService = async (orderId: string, verified: boolean, c
     orderId,
     verified,
     comment,
+  });
+};
+
+export const makeDeliveredService = async (orderId: string, unloadingDate: string) => {
+  return await HttpServises.post(`${BASE_URL}${MAKE_DELIVERED_POINT}`, {
+    orderId,
+    unloadingDate,
   });
 };

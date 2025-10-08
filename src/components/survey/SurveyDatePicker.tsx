@@ -1,6 +1,5 @@
 import React from "react";
 import Typography from "../typography/Typography";
-import { FiCalendar } from "react-icons/fi";
 
 interface SurveyDatePickerProps {
   label?: string;
@@ -79,10 +78,7 @@ const SurveyDatePicker: React.FC<SurveyDatePickerProps> = ({
           `}
         />
         
-        {/* Custom Calendar Icon */}
-        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-          <FiCalendar className="w-4 h-4 text-gray-400" />
-        </div>
+
         
         {/* Placeholder when no value */}
         {!value && (

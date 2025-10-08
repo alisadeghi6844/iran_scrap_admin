@@ -117,6 +117,20 @@ const routes = [
     layout: "admin",
     role: ["admin", "client", "reservation"],
   },
+  {
+    path: "/survey-management/edit/:id",
+    breadCrumb: "ویرایش نظرسنجی",
+    component: lazy(() => import("../page/surveyManagement/SurveyEdit")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
+  {
+    path: "/survey-response/:responseId",
+    breadCrumb: "جزئیات پاسخ نظرسنجی",
+    component: lazy(() => import("../page/surveyResponseDetail")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
 ];
 
 export const privateRoutes = [

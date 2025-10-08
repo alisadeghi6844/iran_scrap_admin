@@ -242,10 +242,8 @@ const surveySlice = createSlice({
       })
       .addCase(GetUserSurveysAction.fulfilled, (state, action) => {
         state.getUserSurveysLoading = false;
-        // Handle both array and object response
-        state.getUserSurveysData = Array.isArray(action.payload) 
-          ? action.payload 
-          : (action.payload?.data || action.payload?.surveys || []);
+        // Handle pagination response structure
+        state.getUserSurveysData = action.payload;
         state.getUserSurveysError = null;
       })
       .addCase(GetUserSurveysAction.rejected, (state, action) => {

@@ -21,7 +21,11 @@ import {
 } from "../../../redux/slice/order/orderSlice";
 import { GetOrderAdminAction } from "../../../redux/actions/order/OrderActions";
 import StatusSelect from "./StatusSelect";
-import { OrderStatus, getOrderStatusText, getOrderStatusColor } from "../../../types/OrderStatus";
+import {
+  OrderStatus,
+  getOrderStatusText,
+  getOrderStatusColor,
+} from "../../../types/OrderStatus";
 
 interface OrderItem {
   id: string;
@@ -121,8 +125,6 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
     const date = new Date(timestamp);
     return date.toLocaleDateString("fa-IR");
   };
-
-
 
   const getPaymentTypeText = (paymentType: string) => {
     switch (paymentType?.toUpperCase()) {
@@ -231,8 +233,11 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
                       >
                         مشاهده بیشتر
                       </Button>
-                      {(row?.status?.toLowerCase() === OrderStatus.Payed.toLowerCase() ||
-                        row?.status?.toLowerCase() === OrderStatus.PaymentDeclined.toLowerCase()) && (
+                      {(row?.status?.toLowerCase() ===
+                        OrderStatus.PaymentDeclined.toLowerCase() ||
+                        (row?.status?.toLowerCase() ===
+                          OrderStatus.Payed.toLowerCase() &&
+                          row?.paymentType?.toUpperCase() === "CASH")) && (
                         <>
                           <Button
                             type="button"
@@ -253,6 +258,17 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
                             رد
                           </Button>
                         </>
+                      )}
+                      {row?.status?.toLowerCase() ===
+                        OrderStatus.Shipping.toLowerCase() && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="info"
+                          onClick={() => onRowClick?.("delivery", row)}
+                        >
+                          تحویل داده شد
+                        </Button>
                       )}
                     </div>
                   </TableCell>

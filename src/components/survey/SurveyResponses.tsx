@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Survey } from "../../redux/types/survey/SurveyTypes";
+import { HandleFilterParams } from "../../types/FilterParams";
 import Typography from "../typography/Typography";
 import Button from "../button";
 import Modal from "../modal";
-import { FiX, FiDownload, FiEye, FiUsers } from "react-icons/fi";
+import { FiUsers, FiEye } from "react-icons/fi";
 import {
   GetUserSurveysAction,
 } from "../../redux/actions/survey/SurveyActions";
@@ -12,6 +14,15 @@ import {
   selectGetUserSurveysData,
   selectGetUserSurveysLoading,
 } from "../../redux/slice/survey/SurveySlice";
+import CollectionControls from "../../container/organism/CollectionControls";
+import Table from "../table";
+import TableHead from "../table/TableHead";
+import TableHeadCell from "../table/TableHeadCell";
+import TableRow from "../table/TableRow";
+import TableBody from "../table/TableBody";
+import TableCell from "../table/TableCell";
+import EmptyImage from "../image/EmptyImage";
+import TableSkeleton from "../../container/organism/skeleton/TableSkeleton";
 
 interface SurveyResponsesProps {
   survey: Survey;
@@ -21,175 +32,189 @@ interface SurveyResponsesProps {
 
 const SurveyResponses: React.FC<SurveyResponsesProps> = ({ survey, onClose, open = true }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const responsesDataRaw = useSelector(selectGetUserSurveysData);
   const responsesLoading = useSelector(selectGetUserSurveysLoading);
-  
-  // Handle both array and object response
-  const responsesData = Array.isArray(responsesDataRaw) ? responsesDataRaw : (responsesDataRaw?.data || []);
+
+  const filterDefaultInitialValues = {};
+
+  const responsesData = responsesDataRaw;
 
   useEffect(() => {
     if (survey.id) {
-      dispatch(GetUserSurveysAction(survey.id.toString()));
+      dispatch(GetUserSurveysAction({ 
+        surveyId: survey.id.toString(), 
+        page: 1, 
+        size: 20 
+      }) as any);
     }
   }, [dispatch, survey.id]);
 
-  const handleExportResponses = () => {
-    // Implementation for exporting responses to CSV/Excel
-    console.log("Exporting responses...");
+  const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
+    dispatch(
+      GetUserSurveysAction({
+        surveyId: survey.id.toString(),
+        page: page ?? 1,
+        size: pageSize ?? 20,
+      }) as any
+    );
+  };
+
+  const handleFilterParameters = (data: unknown) => {
+    // اگر فیلتری نیاز باشد اینجا پیاده‌سازی می‌شود
+    return "";
   };
 
   const handleViewResponse = (responseId: string) => {
-    // Implementation for viewing individual response
-    console.log("Viewing response:", responseId);
+    // Navigate to response detail page with responseId in URL
+    navigate(`/survey-response/${responseId}`);
+  };
+
+  // محاسبه آمار بر اساس DTO جدید
+  const totalResponses = responsesData?.total || 0;
+  const currentPageResponses = responsesData?.data || [];
+  const completedResponses = currentPageResponses?.filter((r: any) => r.completed)?.length || 0;
+  const inProgressResponses = currentPageResponses?.filter((r: any) => !r.completed)?.length || 0;
+  const completionRate = currentPageResponses.length > 0 ? Math.round((completedResponses / currentPageResponses.length) * 100) : 0;
+
+  // تبدیل timestamp به تاریخ فارسی
+  const formatDate = (timestamp: number) => {
+    if (!timestamp) return "-";
+    const date = new Date(timestamp);
+    return date.toLocaleDateString("fa-IR");
   };
 
   return (
     <Modal
       open={open}
       onClose={onClose}
-      size="2xl"
+      size="7xl"
       headerTitle={`پاسخ‌های: ${survey.title}`}
       headerIcon={<FiUsers className="ml-2" />}
     >
       <div className="space-y-4">
-        {/* Export Button */}
-        <div className="flex justify-end">
-          <Button
-            onClick={handleExportResponses}
-            variant="success"
-            size="sm"
-          >
-            <FiDownload className="ml-1" />
-            خروجی Excel
-          </Button>
-        </div>
-
-        {/* Survey Stats */}
+        {/* آمار نظرسنجی */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           <div className="bg-blue-50 p-3 rounded-lg">
             <Typography className="text-xs text-gray-600">کل پاسخ‌ها</Typography>
             <Typography className="text-lg font-bold text-blue-600">
-              {responsesData?.length || 0}
+              {totalResponses}
             </Typography>
           </div>
           <div className="bg-green-50 p-3 rounded-lg">
             <Typography className="text-xs text-gray-600">تکمیل شده</Typography>
             <Typography className="text-lg font-bold text-green-600">
-              {responsesData?.filter((r: any) => r.completed)?.length || 0}
+              {completedResponses}
             </Typography>
           </div>
           <div className="bg-yellow-50 p-3 rounded-lg">
             <Typography className="text-xs text-gray-600">در حال انجام</Typography>
             <Typography className="text-lg font-bold text-yellow-600">
-              {responsesData?.filter((r: any) => !r.completed)?.length || 0}
+              {inProgressResponses}
             </Typography>
           </div>
           <div className="bg-purple-50 p-3 rounded-lg">
             <Typography className="text-xs text-gray-600">نرخ تکمیل</Typography>
             <Typography className="text-lg font-bold text-purple-600">
-              {responsesData?.length > 0
-                ? Math.round(
-                    (responsesData.filter((r: any) => r.completed).length /
-                      responsesData.length) *
-                      100
-                  )
-                : 0}
-              %
+              {completionRate}%
             </Typography>
           </div>
         </div>
 
-        {/* Responses Table */}
-        {responsesLoading ? (
-          <div className="text-center py-6">
-            <Typography className="text-sm">در حال بارگذاری پاسخ‌ها...</Typography>
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg border overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
-                      شناسه
-                    </th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
-                      کاربر
-                    </th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
-                      وضعیت
-                    </th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
-                      تاریخ شروع
-                    </th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
-                      عملیات
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {responsesData?.length > 0 ? (
-                    responsesData.map((response: any) => (
-                      <tr key={response.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">
-                          <Typography className="font-medium text-gray-900 text-xs">
-                            #{response.id}
-                          </Typography>
-                        </td>
-                        <td className="px-4 py-3">
-                          <Typography className="text-gray-900 text-xs">
-                            {response.user?.name || response.user?.email || "کاربر ناشناس"}
-                          </Typography>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                              response.completed
-                                ? "bg-green-100 text-green-700"
-                                : "bg-yellow-100 text-yellow-700"
-                            }`}
-                          >
-                            {response.completed ? "تکمیل" : "در حال انجام"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <Typography className="text-gray-500 text-xs">
-                            {response.startedAt
-                              ? new Date(response.startedAt).toLocaleDateString("fa-IR")
-                              : "-"}
-                          </Typography>
-                        </td>
-                        <td className="px-4 py-3">
-                          <Button
-                            onClick={() => handleViewResponse(response.id)}
-                            variant="outline-primary"
-                            size="xs"
-                            title="مشاهده پاسخ"
-                          >
-                            <FiEye />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-6 text-center">
-                        <div className="flex flex-col items-center">
-                          <Typography className="text-gray-500 text-sm mb-1">
-                            هیچ پاسخی یافت نشد
-                          </Typography>
-                          <Typography className="text-gray-400 text-xs">
-                            هنوز کسی به این نظرسنجی پاسخ نداده است
-                          </Typography>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        {/* جدول پاسخ‌ها با pagination */}
+        <CollectionControls
+          buttons={["filter"]}
+          hasBox={false}
+          filterInitialValues={filterDefaultInitialValues}
+          onFilter={handleFilterParameters}
+          data={responsesData}
+          onMetaChange={handleFilter}
+        >
+          <Table className="w-full" isLoading={false} shadow={false}>
+            <TableHead className="w-full" isLoading={false} shadow={false}>
+              <TableRow>
+                <TableHeadCell>کاربر</TableHeadCell>
+                <TableHeadCell>وضعیت</TableHeadCell>
+                <TableHeadCell>تعداد پاسخ‌ها</TableHeadCell>
+                <TableHeadCell>تاریخ ایجاد</TableHeadCell>
+                <TableHeadCell>آخرین بروزرسانی</TableHeadCell>
+                <TableHeadCell>عملیات</TableHeadCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {!responsesLoading ? (
+                currentPageResponses?.length > 0 ? (
+                  currentPageResponses.map((response: any) => (
+                    <TableRow key={response.id}>
+                      <TableCell>
+                        <Typography className="text-gray-900 text-sm">
+                          {response.userId ? `کاربر ${response.userId.slice(-8)}` : "کاربر ناشناس"}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                            response.completed
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {response.completed ? "تکمیل شده" : "در حال انجام"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Typography className="text-gray-900 text-sm">
+                          {response.answers?.length || 0} پاسخ
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography className="text-gray-500 text-sm">
+                          {formatDate(response.createdAt)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography className="text-gray-500 text-sm">
+                          {formatDate(response.updatedAt)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={() => handleViewResponse(response.id)}
+                          variant="outline-primary"
+                          size="sm"
+                          title="مشاهده جزئیات پاسخ"
+                        >
+                          <FiEye className="ml-1" />
+                          مشاهده
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colspan="6" className="flex justify-center !py-4">
+                      <div className="flex flex-col items-center">
+                        <EmptyImage />
+                        <Typography className="text-gray-500 text-sm mb-1 mt-2">
+                          هیچ پاسخی یافت نشد
+                        </Typography>
+                        <Typography className="text-gray-400 text-xs">
+                          هنوز کسی به این نظرسنجی پاسخ نداده است
+                        </Typography>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )
+              ) : (
+                <TableRow>
+                  <TableCell colspan="6" className="flex justify-center !py-4">
+                    <TableSkeleton />
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CollectionControls>
       </div>
     </Modal>
   );

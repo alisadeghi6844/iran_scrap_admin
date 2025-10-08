@@ -9,8 +9,7 @@ import moment from "jalali-moment";
 import { IoClose } from "react-icons/io5";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { JalaliDatepickerTypes } from "../../types/components/JalaliDatepickerTypes";
-import { useSelector } from "react-redux";
-import { selectGetTimeData } from "../../redux/slice/time/TimeSlice";
+
 
 const JalaliDatepicker: React.FC<JalaliDatepickerTypes> = (props) => {
   const {
@@ -49,18 +48,13 @@ const JalaliDatepicker: React.FC<JalaliDatepickerTypes> = (props) => {
 
   const [currentDate, setCurrentDate] = useState("");
 
-  const getDate: any = useSelector(selectGetTimeData);
-
   useEffect(() => {
-    if (getDate && getDate.data) {
-      const current: any = new Date(getDate.data);
-      setCurrentDate(
-        moment.from(current, "en", "YYYY/MM/DD").format("jYYYY/jMM/jDD")
-      );
-    } else {
-      setCurrentDate("");
-    }
-  }, [getDate]);
+    // Set current date without Redux dependency
+    const current = new Date();
+    setCurrentDate(
+      moment.from(current, "en", "YYYY/MM/DD").format("jYYYY/jMM/jDD")
+    );
+  }, []);
 
   return (
     <div className="w-full">

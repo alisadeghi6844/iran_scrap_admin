@@ -59,6 +59,8 @@ export const GetUserSurveyByIdService = async (id: string) => {
   return await HttpServises.get(`${BASE_URL}${GET_USER_SURVEY_BY_ID_POINT}/${id}`);
 };
 
-export const GetUserSurveysService = async (surveyId: string) => {
-  return await HttpServises.get(`${BASE_URL}${GET_USER_SURVEYS_POINT}?surveyId=${surveyId}`);
+export const GetUserSurveysService = async (params: { surveyId: string; page?: number; size?: number }) => {
+  const { surveyId, page = 1, size = 20 } = params;
+  let queryParams = `surveyId=${surveyId}&page=${page}&size=${size}`;
+  return await HttpServises.get(`${BASE_URL}${GET_USER_SURVEYS_POINT}?${queryParams}`);
 };

@@ -1,10 +1,14 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../redux/store";
-import { VerifyPaymentAction } from "../../redux/actions/order/OrderActions";
-import { 
-  selectVerifyPaymentLoading, 
-  selectVerifyPaymentData 
+import {
+  VerifyPaymentAction,
+  MakeDeliveredAction,
+} from "../../redux/actions/order/OrderActions";
+import {
+  selectVerifyPaymentLoading,
+  selectVerifyPaymentData,
+  selectMakeDeliveredLoading,
 } from "../../redux/slice/order/orderSlice";
 import CRUD from "../../container/organism/CRUD";
 
@@ -66,6 +70,7 @@ const OrderRejectionModal = lazy(
       /* webpackChunkName: "PendingOrders" */ "../../container/features/order/OrderRejectionModal"
     )
 );
+import OrderDeliveryModal from "../../container/features/order/OrderDeliveryModal";
 
 const PendingOrdersFinancial = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -75,6 +80,7 @@ const PendingOrdersFinancial = () => {
 
   const verifyPaymentLoading = useSelector(selectVerifyPaymentLoading);
   const verifyPaymentData = useSelector(selectVerifyPaymentData);
+  const makeDeliveredLoading = useSelector(selectMakeDeliveredLoading);
 
   const handleApproveOrder = (orderId: string) => {
     dispatch(
@@ -96,6 +102,20 @@ const PendingOrdersFinancial = () => {
     );
   };
 
+  const handleDeliveryOrder = (orderId: string, unloadingDate: string) => {
+    dispatch(
+      MakeDeliveredAction({
+        orderId,
+        unloadingDate,
+        onSubmitForm: () => {
+          setMode("content");
+          setSelectedRow(null);
+          setRefreshTable((prev) => prev + 1);
+        },
+      })
+    );
+  };
+
   const handleCloseModal = () => {
     setMode("content");
     setSelectedRow(null);
@@ -106,7 +126,7 @@ const PendingOrdersFinancial = () => {
     if (verifyPaymentData?.status === 200) {
       setMode("content");
       setSelectedRow(null);
-      setRefreshTable(prev => prev + 1);
+      setRefreshTable((prev) => prev + 1);
     }
   }, [verifyPaymentData]);
 
@@ -176,6 +196,17 @@ const PendingOrdersFinancial = () => {
             loading={verifyPaymentLoading}
           />
         </Suspense>
+      )}
+
+      {/* Render OrderDeliveryModal separately outside CRUD */}
+      {mode === "delivery" && (
+        <OrderDeliveryModal
+          isOpen={true}
+          onClose={handleCloseModal}
+          orderId={selectedRow?.id || ""}
+          onDelivery={handleDeliveryOrder}
+          loading={makeDeliveredLoading}
+        />
       )}
     </div>
   );

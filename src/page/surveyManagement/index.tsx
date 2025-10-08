@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "../../components/button";
 import Typography from "../../components/typography/Typography";
@@ -11,7 +11,6 @@ import SurveyDeleteModal from "../../components/survey/SurveyDeleteModal";
 import {
   CreateSurveyAction,
   GetAllSurveysAction,
-  UpdateSurveyAction,
   DeleteSurveyAction,
   GetSurveyByIdAction,
 } from "../../redux/actions/survey/SurveyActions";
@@ -19,7 +18,6 @@ import {
   selectGetAllSurveysData,
   selectGetAllSurveysLoading,
   selectCreateSurveyLoading,
-  selectUpdateSurveyLoading,
   selectDeleteSurveyLoading,
   selectGetSurveyByIdData,
   selectGetSurveyByIdLoading,
@@ -27,7 +25,7 @@ import {
 import { Survey } from "../../redux/types/survey/SurveyTypes";
 import { FiPlus, FiRefreshCw } from "react-icons/fi";
 
-type ViewMode = "list" | "create" | "edit" | "view" | "responses";
+type ViewMode = "list" | "create" | "view" | "responses";
 
 const SurveyManagement = () => {
   const dispatch = useDispatch();
@@ -35,20 +33,18 @@ const SurveyManagement = () => {
   const surveysData = useSelector(selectGetAllSurveysData);
   const surveysLoading = useSelector(selectGetAllSurveysLoading);
   const createLoading = useSelector(selectCreateSurveyLoading);
-  const updateLoading = useSelector(selectUpdateSurveyLoading);
   const deleteLoading = useSelector(selectDeleteSurveyLoading);
   const selectedSurvey = useSelector(selectGetSurveyByIdData);
   const selectedSurveyLoading = useSelector(selectGetSurveyByIdLoading);
 
   const [viewMode, setViewMode] = useState<ViewMode>("list");
-  const [editingSurvey, setEditingSurvey] = useState<Survey | null>(null);
   const [viewingSurvey, setViewingSurvey] = useState<Survey | null>(null);
   const [responsesSurvey, setResponsesSurvey] = useState<Survey | null>(null);
   const [deletingSurvey, setDeletingSurvey] = useState<Survey | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
-    dispatch(GetAllSurveysAction({ page: 1, limit: 50 }));
+    dispatch(GetAllSurveysAction({ page: 1, limit: 500 }) as any);
   }, [dispatch]);
 
   const handleCreateSurvey = (values: any) => {
@@ -63,55 +59,23 @@ const SurveyManagement = () => {
       questions,
     };
 
-    dispatch(CreateSurveyAction(surveyData)).then((result: any) => {
+    dispatch(CreateSurveyAction(surveyData) as any).then((result: any) => {
       if (result.type.endsWith("/fulfilled")) {
         setViewMode("list");
-        dispatch(GetAllSurveysAction({ page: 1, limit: 50 }));
+        dispatch(GetAllSurveysAction({ page: 1, limit: 500 }) as any);
       }
     });
   };
 
-  const handleUpdateSurvey = (values: any) => {
-    if (!editingSurvey?.id) return;
+  // Update functionality moved to separate route
 
-    // Prepare questions with proper order
-    const questions = values.questions.map((q: any, index: number) => ({
-      ...q,
-      order: index,
-    }));
-
-    const surveyData = {
-      ...values,
-      questions,
-    };
-
-    dispatch(
-      UpdateSurveyAction({
-        id: editingSurvey.id.toString(),
-        data: surveyData,
-      })
-    ).then((result: any) => {
-      if (result.type.endsWith("/fulfilled")) {
-        setViewMode("list");
-        setEditingSurvey(null);
-        dispatch(GetAllSurveysAction({ page: 1, limit: 50 }));
-      }
-    });
-  };
-
-  const handleEditSurvey = (survey: Survey) => {
-    setEditingSurvey(survey);
-    if (survey.id) {
-      dispatch(GetSurveyByIdAction(survey.id.toString()));
-    }
-    setViewMode("edit");
-  };
+  // Edit functionality moved to separate route
 
   const handleViewSurvey = (survey: Survey) => {
     setViewingSurvey(survey);
     // Load full survey data with questions
     if (survey.id) {
-      dispatch(GetSurveyByIdAction(survey.id.toString()));
+      dispatch(GetSurveyByIdAction(survey.id.toString()) as any);
     }
     setViewMode("view");
   };
@@ -127,17 +91,17 @@ const SurveyManagement = () => {
   };
 
   const confirmDeleteSurvey = (surveyId: string) => {
-    dispatch(DeleteSurveyAction(surveyId)).then((result: any) => {
+    dispatch(DeleteSurveyAction(surveyId) as any).then((result: any) => {
       if (result.type.endsWith("/fulfilled")) {
         setShowDeleteModal(false);
         setDeletingSurvey(null);
-        dispatch(GetAllSurveysAction({ page: 1, limit: 50 }));
+        dispatch(GetAllSurveysAction({ page: 1, limit: 500 }) as any);
       }
     });
   };
 
   const handleRefresh = () => {
-    dispatch(GetAllSurveysAction({ page: 1, limit: 50 }));
+    dispatch(GetAllSurveysAction({ page: 1, limit: 500 }) as unknown);
   };
 
   const renderContent = () => {
@@ -151,18 +115,7 @@ const SurveyManagement = () => {
           />
         );
 
-      case "edit":
-        return (
-          <SurveyForm
-            initialData={selectedSurvey || editingSurvey}
-            onSubmit={handleUpdateSurvey}
-            loading={updateLoading || selectedSurveyLoading}
-            onCancel={() => {
-              setViewMode("list");
-              setEditingSurvey(null);
-            }}
-          />
-        );
+      // Edit case removed - handled by separate route
 
       case "view":
         return (
@@ -181,7 +134,7 @@ const SurveyManagement = () => {
             <SurveyList
               surveys={surveys}
               loading={surveysLoading}
-              onEdit={handleEditSurvey}
+              onEdit={() => {}} // Not used anymore
               onDelete={handleDeleteSurvey}
               onView={handleViewSurvey}
               onViewResponses={handleViewResponses}
@@ -206,7 +159,7 @@ const SurveyManagement = () => {
             <SurveyList
               surveys={surveys}
               loading={surveysLoading}
-              onEdit={handleEditSurvey}
+              onEdit={() => {}} // Not used anymore
               onDelete={handleDeleteSurvey}
               onView={handleViewSurvey}
               onViewResponses={handleViewResponses}
@@ -220,7 +173,7 @@ const SurveyManagement = () => {
           <SurveyList
             surveys={surveys}
             loading={surveysLoading}
-            onEdit={handleEditSurvey}
+            onEdit={() => {}} // Not used anymore
             onDelete={handleDeleteSurvey}
             onView={handleViewSurvey}
             onViewResponses={handleViewResponses}

@@ -118,6 +118,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableHeadCell className="min-w-[170px]">وضعیت</TableHeadCell>
             <TableHeadCell />
             <TableHeadCell />
+            <TableHeadCell />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -140,6 +141,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                 onChange={(status: any) => setSelectedStatus(status)}
               />
             </TableFilterCell>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
@@ -198,18 +200,30 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                       مشاهده پیشنهادات
                     </Button>
                   </TableCell>
+                  {row?.status === "SEND_FINAL_OFFER_TO_BUYER" && (
+                    <TableCell className="flex justify-center">
+                      <Button
+                        onClick={() => {
+                          onRowClick && onRowClick("payment", row);
+                        }}
+                        variant="outline-success"
+                      >
+                        پرداخت هزینه
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="flex justify-center !py-4">
+                <TableCell colSpan={12} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colSpan={11} className="flex justify-center !py-4">
+              <TableCell colSpan={12} className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

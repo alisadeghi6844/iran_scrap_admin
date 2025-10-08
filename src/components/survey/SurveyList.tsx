@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Survey } from "../../redux/types/survey/SurveyTypes";
 import Button from "../button";
 import Typography from "../typography/Typography";
@@ -23,6 +24,11 @@ const SurveyList: React.FC<SurveyListProps> = ({
   onViewResponses,
   deleteLoading = false,
 }) => {
+  const navigate = useNavigate();
+
+  const handleEdit = (survey: Survey) => {
+    navigate(`/survey-management/edit/${survey.id}`);
+  };
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -90,7 +96,7 @@ const SurveyList: React.FC<SurveyListProps> = ({
                 <FiEye />
               </Button>
               <Button
-                onClick={() => onEdit(survey)}
+                onClick={() => handleEdit(survey)}
                 variant="outline-warning"
                 size="xs"
                 title="ویرایش"

@@ -1,6 +1,12 @@
-import React, { lazy, Suspense, useState } from "react";
+import React, { lazy, Suspense, useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import CRUD from "../../container/organism/CRUD";
 import OpenRequestDetail from "../../container/features/openRequest/OpenRequestDetail";
+import { VerifyRequestPaymentAction } from "../../redux/actions/requestOrder/RequestOrderActions";
+import {
+  selectVerifyRequestPaymentLoading,
+  selectVerifyRequestPaymentData,
+} from "../../redux/slice/requestOrder/requestOrderSlice";
 
 const CloseRequestTable = lazy(
   () =>
@@ -14,10 +20,49 @@ const CloseRequestForm = lazy(
       /* webpackChunkName: "closeRequest" */ "../../container/features/closeRequest/CloseRequestForm"
     )
 );
+const RequestOrderPaymentModal = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "RequestOrderPayment" */ "../../container/features/requestOrder/RequestOrderPaymentModal"
+    )
+);
 
 const CloseRequest = () => {
+  const dispatch: any = useDispatch();
   const [mode, setMode] = useState<string>("content");
   const [selectedRow, setSelectedRow] = useState<any>({});
+
+  const verifyRequestPaymentLoading = useSelector(selectVerifyRequestPaymentLoading);
+  const verifyRequestPaymentData = useSelector(selectVerifyRequestPaymentData);
+
+  const handleRequestPayment = (requestOrderId: string) => {
+    dispatch(
+      VerifyRequestPaymentAction({
+        requestOrderId,
+        verified: true,
+        comment: "پرداخت توسط خریدار انجام شد",
+        onSubmitForm: () => {
+          setMode("content");
+          setSelectedRow({});
+        },
+      })
+    );
+  };
+
+  const handleClosePaymentModal = () => {
+    if (!verifyRequestPaymentLoading) {
+      setMode("content");
+      setSelectedRow({});
+    }
+  };
+
+  // Handle successful payment response
+  useEffect(() => {
+    if (verifyRequestPaymentData?.status === 200) {
+      setMode("content");
+      setSelectedRow({});
+    }
+  }, [verifyRequestPaymentData]);
 
   return (
     <div
@@ -70,6 +115,19 @@ const CloseRequest = () => {
           setMode("content");
         }}
       />
+
+      {/* Render RequestOrderPaymentModal separately outside CRUD */}
+      {mode === "payment" && (
+        <Suspense>
+          <RequestOrderPaymentModal
+            isOpen={true}
+            onClose={handleClosePaymentModal}
+            requestOrder={selectedRow}
+            onPayment={handleRequestPayment}
+            loading={verifyRequestPaymentLoading}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };
