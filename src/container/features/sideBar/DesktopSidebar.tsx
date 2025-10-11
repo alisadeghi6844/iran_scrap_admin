@@ -16,6 +16,7 @@ import { SiPagespeedinsights } from "react-icons/si";
 import { LuTicketPercent } from "react-icons/lu";
 import { FiUsers } from "react-icons/fi";
 import { MdPoll } from "react-icons/md";
+import { MdLocalShipping } from "react-icons/md";
 
 import { MdProductionQuantityLimits } from "react-icons/md";
 
@@ -242,6 +243,16 @@ const DesktopSidebar = () => {
           title: "مدیریت قیمت گذاری محصولات",
           icon: <MdOutlineProductionQuantityLimits className="text-2xl" />,
           id: 250182,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+        {
+          path: "/shipment-management",
+          title: "محاسبه کرایه ناوگان",
+          icon: <MdLocalShipping className="text-2xl" />,
+          id: 250183,
           isNew: false,
           subRoutes: [],
           notif: "",

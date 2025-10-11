@@ -207,7 +207,11 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
                   </TableCell>
                   <TableCell>{row?.name ?? "_"}</TableCell>
                   <TableCell>{row?.category?.name ?? "_"}</TableCell>
-                  <TableCell>{row?.provider?.name ?? "_"}</TableCell>
+                  <TableCell>
+                    {row?.provider?.firstName && row?.provider?.lastName
+                      ? row?.provider?.firstName + " " + row?.provider?.lastName
+                      : row?.provider?.agentName}
+                  </TableCell>
                   <TableCell>{row?.address?.city ?? "_"}</TableCell>
                   <TableCell>
                     {row?.price ? `${row.price.toLocaleString()} تومان` : "_"}

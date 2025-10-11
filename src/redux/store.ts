@@ -15,7 +15,8 @@ import ticketSlice from "./slice/ticket/TicketSlice";
 import productSlice from "./slice/product/ProductSlice";
 import orderSlice from "./slice/order/orderSlice";
 import requestOrderSlice from "./slice/requestOrder/requestOrderSlice";
-import surveySlice from "./slice/survey/SurveySlice"; 
+import surveySlice from "./slice/survey/SurveySlice";
+import shipmentSlice from "./slice/shipment/shipmentSlice"; 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -33,7 +34,8 @@ export const store = configureStore({
     product: productSlice,
     order: orderSlice,
     requestOrder: requestOrderSlice,
-    survey: surveySlice
+    survey: surveySlice,
+    shipment: shipmentSlice
   },
 });
 
