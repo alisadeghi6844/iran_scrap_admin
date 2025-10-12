@@ -123,7 +123,7 @@ const PendingOrdersFinancial = () => {
 
   // Handle successful verify payment response
   useEffect(() => {
-    if (verifyPaymentData?.status === 200) {
+    if (verifyPaymentData?.status === 200 || verifyPaymentData?.status === 201) {
       setMode("content");
       setSelectedRow(null);
       setRefreshTable((prev) => prev + 1);

@@ -22,6 +22,11 @@ import {
   convertToJalali,
   convertToJalali_2,
 } from "../../../utils/MomentConvertor";
+import { CloseRequestAction } from "../../../redux/actions/product-request-offer-admin/ProductRequestOfferAdminActions";
+import {
+  selectCloseRequestLoading,
+  selectCloseRequestData,
+} from "../../../redux/slice/product-request-offer-admin/ProductRequestOfferAdminSlice";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
@@ -41,6 +46,8 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
   const loading = useSelector(selectGetProductRequestAdminLoading);
   const productAdminData = useSelector(selectGetProductRequestAdminData);
   const updateData = useSelector(selectUpdateProductRequestAdminData);
+  const closeRequestLoading = useSelector(selectCloseRequestLoading);
+  const closeRequestData = useSelector(selectCloseRequestData);
 
   useEffect(() => {
     dispatch(
@@ -84,6 +91,22 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
       );
     }
   }, [updateData]);
+
+  useEffect(() => {
+    if (closeRequestData?.status == 200) {
+      dispatch(
+        GetRequestProductAdminAction({
+          page: 0,
+          size: 20,
+          status: ["REGISTERED"],
+        })
+      );
+    }
+  }, [closeRequestData]);
+
+  const handleCloseRequest = (requestId: string) => {
+    dispatch(CloseRequestAction({ requestId }));
+  };
 
   return (
     <CollectionControls
@@ -146,7 +169,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>{row?.statusTitle ?? "_"}</TableCell>
 
-                  <TableCell className="flex justify-center">
+                  <TableCell className="flex justify-center gap-2">
                     <Button
                       onClick={() => {
                         onRowClick && onRowClick("update", row);
@@ -155,6 +178,11 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                     >
                       پردازش درخواست
                     </Button>
+                    <Button
+                      onClick={() => handleCloseRequest(row?.id)}
+                      variant="outline-error"
+                      loading={closeRequestLoading}
+                    > تغییر وضعیت درخواست</Button>
                   </TableCell>
                 </TableRow>
               ))

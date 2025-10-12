@@ -16,6 +16,7 @@ export interface CreateShipmentRequest {
 export interface GetShipmentAdminQuery {
   page?: number;
   limit?: number;
+  filter?: string;
 }
 
 export interface GetShipmentSuggestQuery {

@@ -233,11 +233,8 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
                       >
                         مشاهده بیشتر
                       </Button>
-                      {(row?.status?.toLowerCase() ===
-                        OrderStatus.PaymentDeclined.toLowerCase() ||
-                        (row?.status?.toLowerCase() ===
-                          OrderStatus.Payed.toLowerCase() &&
-                          row?.paymentType?.toUpperCase() === "CASH")) && (
+                      {row?.status?.toLowerCase() ===
+                        OrderStatus.Payed.toLowerCase() && (
                         <>
                           <Button
                             type="button"

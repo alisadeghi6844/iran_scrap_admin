@@ -1,14 +1,15 @@
 export enum OrderStatus {
-  Pending = 'Pending', // در حال بررسی - وضعیت اولیه
-  Rejected = 'Rejected', // رد شده توسط تامین کننده
-  Accepted = 'Accepted', // پذیرفته شده توسط تامین کننده
-  PayFailed = 'PayFailed', // پرداخت ناموفق
-  Payed = 'Payed', // پرداخت موفق
-  PaymentVerified = 'PaymentVerified', // تایید پرداخت
-  PaymentDeclined = 'PaymentDeclined', // عدم تایید پرداخت
-  Preparing = 'Preparing', // فعلا استفاده نشده
-  Shipping = 'Shipping', // در حال ارسال
-  Delivered = 'Delivered', // تحویل شده
+  Pending = "Pending", // در حال بررسی - وضعیت اولیه
+  Rejected = "Rejected", // رد شده توسط تامین کننده
+  Accepted = "Accepted", // پذیرفته شده توسط تامین کننده
+  PayFailed = "PayFailed", // پرداخت ناموفق
+  Payed = "Payed", // پرداخت موفق
+  FinancePending = "FinancePending", // در انتظار تایید مالی
+  PaymentVerified = "PaymentVerified", // تایید پرداخت
+  PaymentDeclined = "PaymentDeclined", // عدم تایید پرداخت
+  Preparing = "Preparing", // فعلا استفاده نشده
+  Shipping = "Shipping", // در حال ارسال
+  Delivered = "Delivered", // تحویل شده
 }
 
 export const getOrderStatusText = (status: string): string => {
@@ -23,6 +24,8 @@ export const getOrderStatusText = (status: string): string => {
       return "پرداخت ناموفق";
     case OrderStatus.Payed.toLowerCase():
       return "پرداخت شده";
+    case OrderStatus.FinancePending.toLowerCase():
+      return "در انتظار تایید مالی";
     case OrderStatus.PaymentVerified.toLowerCase():
       return "پرداخت تایید شده";
     case OrderStatus.PaymentDeclined.toLowerCase():
@@ -50,6 +53,8 @@ export const getOrderStatusColor = (status: string): string => {
       return "text-red-500";
     case OrderStatus.Payed.toLowerCase():
       return "text-green-600";
+    case OrderStatus.FinancePending.toLowerCase():
+      return "text-orange-500";
     case OrderStatus.PaymentVerified.toLowerCase():
       return "text-green-700";
     case OrderStatus.PaymentDeclined.toLowerCase():
@@ -85,6 +90,10 @@ export const orderStatusOptions = [
   {
     label: "پرداخت شده",
     value: OrderStatus.Payed,
+  },
+  {
+    label: "در انتظار تایید مالی",
+    value: OrderStatus.FinancePending,
   },
   {
     label: "پرداخت تایید شده",

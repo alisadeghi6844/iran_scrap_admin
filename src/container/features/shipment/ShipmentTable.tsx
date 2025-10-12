@@ -38,8 +38,6 @@ const ShipmentTable: React.FC<ShipmentTableTypes> = (props) => {
     destProvince: "",
   };
 
-  const [inputName, setInputName] = useState("");
-
   const loading = useSelector(selectGetShipmentAdminLoading);
   const shipmentData = useSelector(selectGetShipmentAdminData);
   const createData = useSelector(selectCreateShipmentAdminData);
@@ -51,6 +49,7 @@ const ShipmentTable: React.FC<ShipmentTableTypes> = (props) => {
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     dispatch(
       GetShipmentAdminAction({
+        filter,
         page: page ?? 1,
         limit: pageSize ?? 10,
       })
@@ -58,7 +57,15 @@ const ShipmentTable: React.FC<ShipmentTableTypes> = (props) => {
   };
 
   const handleFilterParameters = (data: any) => {
-    // Filter logic if needed
+    const { originProvince, destProvince } = data as {
+      originProvince?: string;
+      destProvince?: string;
+    };
+    let queryParam = "";
+    if (originProvince) queryParam += "originProvince=" + originProvince + ",";
+    if (destProvince) queryParam += "destProvince=" + destProvince + ",";
+
+    return queryParam.substring(0, queryParam.length - 1);
   };
 
   useEffect(() => {
@@ -102,9 +109,16 @@ const ShipmentTable: React.FC<ShipmentTableTypes> = (props) => {
           <TableRow>
             <TableFilterCell>
               <SearchInputField 
-                onChange={(e: any) => setInputName(e.target.value)} 
                 name="originProvince" 
                 noBorder 
+                placeholder="جستجوی استان مبدا..."
+              />
+            </TableFilterCell>
+            <TableFilterCell>
+              <SearchInputField 
+                name="destProvince" 
+                noBorder 
+                placeholder="جستجوی استان مقصد..."
               />
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>

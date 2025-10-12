@@ -68,7 +68,7 @@ const OrderRejectionModal: React.FC<OrderRejectionModalProps> = ({
           </Typography>
           <TextArea
             value={reason}
-            onChange={(e) => handleReasonChange(e.target.value)}
+            onChange={(e) => handleReasonChange(e)}
             placeholder="لطفاً دلیل رد سفارش را به طور کامل توضیح دهید..."
             rows={4}
             className={`w-full ${error ? "border-red-500" : ""}`}
