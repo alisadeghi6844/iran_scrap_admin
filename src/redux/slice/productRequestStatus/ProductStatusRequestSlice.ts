@@ -8,6 +8,7 @@ import {
   UpdateRequestProductAdminAction,
   UpdateRequestProductAdminProviderAction,
   UpdateRequestProductStatusAction,
+  DeleteRequestProductAdminAction,
 } from "../../actions/productRequestStatus/RequestProductStatus";
 
 interface productRequestStatusState {
@@ -38,6 +39,10 @@ interface productRequestStatusState {
   updateProductRequestProviderAdminError: string | null;
   updateProductRequestProviderAdminLoading: boolean;
   updateProductRequestProviderAdminData: any;
+
+  deleteProductRequestAdminError: string | null;
+  deleteProductRequestAdminLoading: boolean;
+  deleteProductRequestAdminData: any;
 }
 
 const initialState: productRequestStatusState = {
@@ -68,6 +73,10 @@ const initialState: productRequestStatusState = {
   updateProductRequestProviderAdminError: null,
   updateProductRequestProviderAdminLoading: false,
   updateProductRequestProviderAdminData: [],
+
+  deleteProductRequestAdminError: null,
+  deleteProductRequestAdminLoading: false,
+  deleteProductRequestAdminData: [],
 };
 
 const productRequestStatusSlice = createSlice({
@@ -216,6 +225,28 @@ const productRequestStatusSlice = createSlice({
           state.updateProductRequestProviderAdminError = action.payload;
           state.updateProductRequestProviderAdminData = [];
         }
+      )
+      // delete products request admin
+      .addCase(DeleteRequestProductAdminAction.pending, (state) => {
+        state.deleteProductRequestAdminLoading = true;
+        state.deleteProductRequestAdminData = [];
+        state.deleteProductRequestAdminError = null;
+      })
+      .addCase(
+        DeleteRequestProductAdminAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.deleteProductRequestAdminLoading = false;
+          state.deleteProductRequestAdminData = action.payload;
+          state.deleteProductRequestAdminError = null;
+        }
+      )
+      .addCase(
+        DeleteRequestProductAdminAction.rejected,
+        (state, action: PayloadAction<string>) => {
+          state.deleteProductRequestAdminLoading = false;
+          state.deleteProductRequestAdminError = action.payload;
+          state.deleteProductRequestAdminData = [];
+        }
       );
   },
 });
@@ -268,5 +299,12 @@ export const selectUpdateProductRequestProviderAdminLoading = (state: any) =>
   state.productRequestStatus.updateProductRequestProviderAdminLoading;
 export const selectUpdateProductRequestProviderAdminData = (state: any) =>
   state.productRequestStatus.updateProductRequestProviderAdminData;
+
+export const selectDeleteProductRequestAdminError = (state: any) =>
+  state.productRequestStatus.deleteProductRequestAdminError;
+export const selectDeleteProductRequestAdminLoading = (state: any) =>
+  state.productRequestStatus.deleteProductRequestAdminLoading;
+export const selectDeleteProductRequestAdminData = (state: any) =>
+  state.productRequestStatus.deleteProductRequestAdminData;
 
 export default productRequestStatusSlice.reducer;

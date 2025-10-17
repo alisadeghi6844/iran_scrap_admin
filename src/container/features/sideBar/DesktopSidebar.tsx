@@ -81,6 +81,16 @@ const DesktopSidebar = () => {
           notif: "",
           role: ["admin", "client", "reservation"],
         },
+        {
+          path: "/product-requests",
+          title: "مدیریت درخواست‌های محصول",
+          icon: <LuGitPullRequest className="text-2xl" />,
+          id: 241,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
       ],
     },
 
