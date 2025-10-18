@@ -4,12 +4,16 @@ export enum OrderStatus {
   Accepted = "Accepted", // پذیرفته شده توسط تامین کننده
   PayFailed = "PayFailed", // پرداخت ناموفق
   Payed = "Payed", // پرداخت موفق
-  FinancePending = "FinancePending", // در انتظار تایید مالی
+  Paid = "Paid", // پرداخت شده
+  FinancePending = "FinancePending", // در انتظار تسویه مالی
   PaymentVerified = "PaymentVerified", // تایید پرداخت
   PaymentDeclined = "PaymentDeclined", // عدم تایید پرداخت
   Preparing = "Preparing", // فعلا استفاده نشده
   Shipping = "Shipping", // در حال ارسال
   Delivered = "Delivered", // تحویل شده
+  BUYER_CONFIRMED = "BUYER_CONFIRMED", // تایید شده توسط خریدار
+  BUYER_REJECTED = "BUYER_REJECTED", // رد شده توسط خریدار
+  CANCELED = "CANCELED", // لغو شده
 }
 
 export const getOrderStatusText = (status: string): string => {
@@ -36,9 +40,39 @@ export const getOrderStatusText = (status: string): string => {
       return "در حال ارسال";
     case OrderStatus.Delivered.toLowerCase():
       return "تحویل داده شده";
+    case OrderStatus.BUYER_CONFIRMED.toLowerCase():
+      return "تایید شده توسط خریدار";
+    case OrderStatus.BUYER_REJECTED.toLowerCase():
+      return "رد شده توسط خریدار";
+    case OrderStatus.CANCELED.toLowerCase():
+      return "لغو شده";
+    case OrderStatus.Paid.toLowerCase():
+      return "پرداخت شده";
     default:
       return status || "نامشخص";
   }
+};
+
+export const getOrderStatusLabel = (status: string): string => {
+  const statusLabels: { [key: string]: string } = {
+    [OrderStatus.Pending]: "در حال بررسی",
+    [OrderStatus.Rejected]: "رد شده",
+    [OrderStatus.Accepted]: "پذیرفته شده",
+    [OrderStatus.PayFailed]: "پرداخت ناموفق",
+    [OrderStatus.Payed]: "پرداخت موفق",
+    [OrderStatus.PaymentVerified]: "تایید پرداخت",
+    [OrderStatus.PaymentDeclined]: "عدم تایید پرداخت",
+    [OrderStatus.FinancePending]: "در انتظار تسویه مالی",
+    [OrderStatus.Preparing]: "در حال آماده‌سازی",
+    [OrderStatus.Shipping]: "در حال ارسال",
+    [OrderStatus.Delivered]: "تحویل شده",
+    [OrderStatus.BUYER_CONFIRMED]: "تایید شده توسط تامین کننده",
+    [OrderStatus.BUYER_REJECTED]: "رد شده توسط خریدار",
+    [OrderStatus.CANCELED]: "لغو شده",
+    [OrderStatus.Paid]: "پرداخت شده",
+    "PENDING": "در حال بررسی",
+  };
+  return statusLabels[status] || status;
 };
 
 export const getOrderStatusColor = (status: string): string => {
@@ -65,6 +99,14 @@ export const getOrderStatusColor = (status: string): string => {
       return "text-purple-600";
     case OrderStatus.Delivered.toLowerCase():
       return "text-green-800";
+    case OrderStatus.BUYER_CONFIRMED.toLowerCase():
+      return "text-blue-700";
+    case OrderStatus.BUYER_REJECTED.toLowerCase():
+      return "text-red-600";
+    case OrderStatus.CANCELED.toLowerCase():
+      return "text-gray-500";
+    case OrderStatus.Paid.toLowerCase():
+      return "text-green-600";
     default:
       return "text-gray-600";
   }
@@ -114,5 +156,21 @@ export const orderStatusOptions = [
   {
     label: "تحویل داده شده",
     value: OrderStatus.Delivered,
+  },
+  {
+    label: "تایید شده توسط خریدار",
+    value: OrderStatus.BUYER_CONFIRMED,
+  },
+  {
+    label: "رد شده توسط خریدار",
+    value: OrderStatus.BUYER_REJECTED,
+  },
+  {
+    label: "لغو شده",
+    value: OrderStatus.CANCELED,
+  },
+  {
+    label: "پرداخت شده",
+    value: OrderStatus.Paid,
   },
 ];

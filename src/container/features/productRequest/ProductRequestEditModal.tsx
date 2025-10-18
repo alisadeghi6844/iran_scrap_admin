@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Modal from "../../../components/modal";
 import Button from "../../../components/button";
 import Input from "../../../components/input";
-import Select from "../../../components/select";
+import SingleSelect from "../../../components/select/SingleSelect";
 import TextArea from "../../../components/textArea";
 
 interface ProductRequestItem {
@@ -125,7 +125,7 @@ const ProductRequestEditModal: React.FC<ProductRequestEditModalProps> = ({
             onChange={(e) => handleInputChange("categoryId", e.target.value)}
             placeholder="شناسه دسته‌بندی"
           />
-          <Select
+          <SingleSelect
             label="نوع درخواست"
             value={requestTypeOptions.find(opt => opt.value === formData.requestType)}
             onChange={(option) => handleInputChange("requestType", option?.value)}
@@ -157,7 +157,7 @@ const ProductRequestEditModal: React.FC<ProductRequestEditModalProps> = ({
             onChange={(e) => handleInputChange("amount", Number(e.target.value))}
             placeholder="مقدار"
           />
-          <Select
+          <SingleSelect
             label="واحد مقدار"
             value={amountTypeOptions.find(opt => opt.value === formData.amountType)}
             onChange={(option) => handleInputChange("amountType", option?.value)}
@@ -167,7 +167,7 @@ const ProductRequestEditModal: React.FC<ProductRequestEditModalProps> = ({
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Select
+          <SingleSelect
             label="نوع پرداخت"
             value={paymentTypeOptions.find(opt => opt.value === formData.paymentType)}
             onChange={(option) => handleInputChange("paymentType", option?.value)}

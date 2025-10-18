@@ -13,28 +13,62 @@ import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import Button from "../../../components/button";
+import {
+  getOrderStatusText,
+  getOrderStatusColor,
+} from "../../../types/OrderStatus";
 
 import {
-  selectGetProductRequestAdminData,
-  selectGetProductRequestAdminLoading,
-  selectUpdateProductRequestAdminData,
-} from "../../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
-import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
+  selectGetProductRequestOfferAdminData,
+  selectGetProductRequestOfferAdminLoading,
+} from "../../../redux/slice/product-request-offer-admin/ProductRequestOfferAdminSlice";
+import { GetProductRequestOfferAdminAction } from "../../../redux/actions/product-request-offer-admin/ProductRequestOfferAdminActions";
 
 interface ProductRequestItem {
   id: string;
-  providerIds: string[];
-  description: string;
-  categoryId: string;
-  province: string;
-  city: string;
-  requestType: string;
-  amount: number;
-  amountType: string;
-  paymentType: string;
-  expectedDate: number;
-  status: any;
+  category: {
+    name: string;
+    code: string;
+    parentId: string;
+    icon: string | null;
+    image: string;
+  };
+  cheques: Array<{
+    date: string;
+    bank: string;
+    no: string;
+    sayyad: string;
+  }>;
+  comments: string[];
   createdAt: number;
+  deliveryTime: number;
+  description: string;
+  expireDate: number;
+  finalPrice: number;
+  image: string | null;
+  installmentMonths: number;
+  payingPrice: number;
+  paymentType: string;
+  price: number;
+  provider: {
+    mobile: string;
+    profileImg: string | null;
+  };
+  providerId: string;
+  request: {
+    description: string;
+    categoryId: string;
+    amount: number;
+    amountType: string;
+    city: string;
+    province: string;
+  };
+  requestId: string;
+  shippingPrice: number;
+  shippings: string;
+  state: string;
+  status: string;
+  statusFa: string;
   updatedAt: number;
 }
 
@@ -52,19 +86,18 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
     Status: null,
   };
 
-  const loading = useSelector(selectGetProductRequestAdminLoading);
-  const requestData = useSelector(selectGetProductRequestAdminData);
-  const updateRequestData = useSelector(selectUpdateProductRequestAdminData);
+  const loading = useSelector(selectGetProductRequestOfferAdminLoading);
+  const requestData = useSelector(selectGetProductRequestOfferAdminData);
 
   useEffect(() => {
-    dispatch(GetRequestProductAdminAction({ page: 1, size: 20 }));
+    dispatch(GetProductRequestOfferAdminAction({ page: 0, size: 20 }));
   }, [dispatch]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     dispatch(
-      GetRequestProductAdminAction({
+      GetProductRequestOfferAdminAction({
         filter,
-        page: page ?? 1,
+        page: page ?? 0,
         size: pageSize ?? 20,
       })
     );
@@ -81,19 +114,8 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
   };
 
   useEffect(() => {
-    if (updateRequestData?.status == 200) {
-      dispatch(
-        GetRequestProductAdminAction({
-          page: 1,
-          size: 20,
-        })
-      );
-    }
-  }, [updateRequestData, dispatch]);
-
-  useEffect(() => {
     if (refreshTrigger && refreshTrigger > 0) {
-      dispatch(GetRequestProductAdminAction({ page: 1, size: 20 }));
+      dispatch(GetProductRequestOfferAdminAction({ page: 0, size: 20 }));
     }
   }, [refreshTrigger, dispatch]);
 
@@ -133,15 +155,32 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
     }
   };
 
-  const getRequestTypeText = (requestType: string) => {
-    switch (requestType?.toUpperCase()) {
-      case "NORMAL":
-        return "عادی";
-      case "URGENT":
-        return "فوری";
-      default:
-        return requestType || "_";
+  const getStatusDisplay = (row: ProductRequestItem) => {
+    let statusText;
+    let statusValue;
+
+    if (row?.state) {
+      statusValue = row.state;
+      statusText = getOrderStatusText(statusValue);
+    } else if (row?.statusFa) {
+      statusValue = row.status || "";
+      statusText = row.statusFa;
+    } else {
+      statusValue = "";
+      statusText = "_";
     }
+
+    const colorClass = getOrderStatusColor(statusValue);
+
+    return {
+      text: statusText,
+      className: `px-2 py-1 rounded text-sm bg-opacity-20 ${colorClass
+        .replace("text-", "bg-")
+        .replace("-600", "-100")
+        .replace("-500", "-100")
+        .replace("-700", "-100")
+        .replace("-800", "-100")} ${colorClass}`,
+    };
   };
 
   return (
@@ -157,12 +196,13 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
             <TableHeadCell>توضیحات</TableHeadCell>
+            <TableHeadCell>دسته‌بندی</TableHeadCell>
             <TableHeadCell>مقدار</TableHeadCell>
-            <TableHeadCell>نوع درخواست</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
-            <TableHeadCell>شهر</TableHeadCell>
-            <TableHeadCell>استان</TableHeadCell>
-            <TableHeadCell>تاریخ ایجاد</TableHeadCell>
+            <TableHeadCell>قیمت به ازای هر تن</TableHeadCell>
+            <TableHeadCell>قیمت نهایی</TableHeadCell>
+            <TableHeadCell>تامین‌کننده</TableHeadCell>
+            <TableHeadCell>تاریخ تحویل</TableHeadCell>
             <TableHeadCell className="min-w-[180px]">وضعیت</TableHeadCell>
             <TableHeadCell>عملیات</TableHeadCell>
           </TableRow>
@@ -178,25 +218,35 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             requestData?.data?.length > 0 ? (
               requestData?.data?.map((row: ProductRequestItem) => (
                 <TableRow key={row?.id}>
                   <TableCell>{row?.description ?? "_"}</TableCell>
+                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>
-                    {row?.amount
-                      ? `${row.amount} ${getAmountTypeText(row?.amountType)}`
+                    {row?.request?.amount
+                      ? `${row.request.amount} ${getAmountTypeText(
+                          row?.request?.amountType
+                        )}`
                       : "_"}
                   </TableCell>
-                  <TableCell>{getRequestTypeText(row?.requestType)}</TableCell>
                   <TableCell>{getPaymentTypeText(row?.paymentType)}</TableCell>
-                  <TableCell>{row?.city ?? "_"}</TableCell>
-                  <TableCell>{row?.province ?? "_"}</TableCell>
-                  <TableCell>{formatDate(row?.createdAt)}</TableCell>
                   <TableCell>
-                    <span className="px-2 py-1 rounded text-sm bg-blue-100 text-blue-800">
-                      {JSON.stringify(row?.status) || "_"}
+                    {row?.price ? row.price.toLocaleString() + " تومان" : "_"}
+                  </TableCell>
+                  <TableCell>
+                    {row?.finalPrice
+                      ? row.finalPrice.toLocaleString() + " تومان"
+                      : "_"}
+                  </TableCell>
+                  <TableCell>{row?.provider?.mobile ?? "_"}</TableCell>
+                  <TableCell>{formatDate(row?.deliveryTime)}</TableCell>
+                  <TableCell>
+                    <span className={getStatusDisplay(row).className}>
+                      {getStatusDisplay(row).text}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -214,45 +264,59 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
                       <Button
                         type="button"
                         size="sm"
-                        variant="warning"
-                        onClick={() => onRowClick?.("edit", row)}
+                        variant="success"
+                        onClick={() => onRowClick?.("viewSuggestions", row)}
                       >
-                        ویرایش
+                        مشاهده پیشنهاد
                       </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="info"
-                        onClick={() => onRowClick?.("providers", row)}
-                      >
-                        تامین‌کنندگان
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="error"
-                        onClick={() => {
-                          if (confirm("آیا از حذف این درخواست اطمینان دارید؟")) {
-                            onRowClick?.("delete", row);
-                          }
-                        }}
-                      >
-                        حذف
-                      </Button>
+                      {(row?.state === "Payed" ||
+                        row?.status === "Payed" ||
+                        row?.state === "Paid" ||
+                        row?.status === "Paid") &&
+                        row?.paymentType?.toUpperCase() === "INSTALLMENTS" && (
+                          <>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="success"
+                              onClick={() => onRowClick?.("approve", row)}
+                            >
+                              تایید
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="error"
+                              onClick={() => onRowClick?.("reject", row)}
+                            >
+                              رد
+                            </Button>
+                          </>
+                        )}
+                      {row?.state === "Shipping" && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="warning"
+                          onClick={() => onRowClick?.("delivery", row)}
+                        >
+                          تحویل داده شده
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colspan="10" className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="9" className="flex justify-center !py-4">
+              <TableCell colspan="10" className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>
