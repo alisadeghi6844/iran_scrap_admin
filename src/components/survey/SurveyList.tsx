@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Survey } from "../../redux/types/survey/SurveyTypes";
 import Button from "../button";
 import Typography from "../typography/Typography";
-import { FiEdit, FiTrash2, FiEye, FiUsers, FiFileText } from "react-icons/fi";
+import ToastContainer from "../toast/ToastContainer";
+import { useToast } from "../../hooks/useToast";
+import { FiEdit, FiTrash2, FiEye, FiUsers, FiFileText, FiShare2 } from "react-icons/fi";
 
 interface SurveyListProps {
   surveys: Survey[];
@@ -25,9 +27,28 @@ const SurveyList: React.FC<SurveyListProps> = ({
   deleteLoading = false,
 }) => {
   const navigate = useNavigate();
+  const { toasts, showToast, removeToast } = useToast();
 
   const handleEdit = (survey: Survey) => {
     navigate(`/survey-management/edit/${survey.id}`);
+  };
+
+  const handleShare = (survey: Survey) => {
+    const baseUrl = import.meta.env.VITE_APP_SURVEY_BASE_URL || "http://localhost:3000";
+    const shareUrl = `${baseUrl}/survey/${survey.id}`;
+    
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showToast("لینک نظرسنجی کپی شد!", "success");
+    }).catch(() => {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = shareUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      showToast("لینک نظرسنجی کپی شد!", "success");
+    });
   };
   if (loading) {
     return (
@@ -54,8 +75,10 @@ const SurveyList: React.FC<SurveyListProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {surveys?.map((survey) => (
+    <>
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {surveys?.map((survey) => (
         <div key={survey.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
           <div className="p-4">
             <div className="flex justify-between items-start mb-3">
@@ -112,6 +135,14 @@ const SurveyList: React.FC<SurveyListProps> = ({
                 <FiUsers />
               </Button>
               <Button
+                onClick={() => handleShare(survey)}
+                variant="outline-success"
+                size="xs"
+                title="اشتراک‌گذاری"
+              >
+                <FiShare2 />
+              </Button>
+              <Button
                 onClick={() => onDelete(survey)}
                 loading={deleteLoading}
                 variant="outline-error"
@@ -122,9 +153,10 @@ const SurveyList: React.FC<SurveyListProps> = ({
               </Button>
             </div>
           </div>
-        </div>
-      ))}
-    </div>
+          </div>
+        ))}
+      </div>
+    </>
   );
 };
 
