@@ -117,8 +117,7 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
 
   const getInventoryUnit = (inventoryType: string) => {
     switch (inventoryType?.toUpperCase()) {
-      case "TON":
-        return "تن";
+      case "KILOGRAM":
       case "KG":
         return "کیلوگرم";
       case "GRAM":

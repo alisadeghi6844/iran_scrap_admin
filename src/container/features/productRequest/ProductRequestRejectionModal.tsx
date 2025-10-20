@@ -77,8 +77,6 @@ const ProductRequestRejectionModal: React.FC<ProductRequestRejectionModalProps> 
     switch (amountType?.toUpperCase()) {
       case "KILOGRAM":
         return "کیلوگرم";
-      case "TON":
-        return "تن";
       case "GRAM":
         return "گرم";
       case "LITER":
@@ -95,7 +93,7 @@ const ProductRequestRejectionModal: React.FC<ProductRequestRejectionModalProps> 
       case "CASH":
         return "نقدی";
       case "INSTALLMENTS":
-        return "اقساطی";
+        return "مدت دار";
       case "CREDIT":
         return "اعتباری";
       default:

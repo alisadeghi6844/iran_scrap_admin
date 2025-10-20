@@ -459,7 +459,7 @@ const ProductRequestSuggestionsModal: React.FC<
                     مقدار:
                   </Typography>
                   <Typography variant="body2" className="font-medium">
-                    {offerData?.amount} تن
+                    {offerData?.amount} کیلوگرم
                   </Typography>
                 </div>
                 <div>
@@ -596,7 +596,7 @@ const ProductRequestSuggestionsModal: React.FC<
                     >
                       {offerData.winner.paymentType === "CASH"
                         ? "نقدی"
-                        : "اقساطی"}
+                        : "مدت دار"}
                       {offerData.winner.installmentMonths && (
                         <span className="text-sm text-green-600 block">
                           {offerData.winner.installmentMonths} ماهه

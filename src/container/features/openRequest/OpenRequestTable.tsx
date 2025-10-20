@@ -196,9 +196,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>
                   {row?.amount
-                    ? `${row?.amount} (${
-                        row?.amountType === "TON" ? "تن" : "کیلوگرم"
-                      })`
+                    ? `${row?.amount} (کیلوگرم)`
                     : "_"}
                 </TableCell>
                   <TableCell>

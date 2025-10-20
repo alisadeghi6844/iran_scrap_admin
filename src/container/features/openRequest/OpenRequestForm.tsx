@@ -72,9 +72,7 @@ const OpenRequestForm: React.FC<FormProps> = (props) => {
                 </TableCell>
                 <TableCell>
                   {value?.amount
-                    ? `${value?.amount} (${
-                        value?.amountType === "TON" ? "تن" : "کیلوگرم"
-                      })`
+                    ? `${value?.amount} (کیلوگرم)`
                     : "_"}
                 </TableCell>
                 <TableCell>
@@ -151,9 +149,7 @@ const OpenRequestForm: React.FC<FormProps> = (props) => {
                   <TableCell>{row?.status}</TableCell>
                   <TableCell>
                     {row?.request?.amount
-                      ? `${row?.request?.amount} (${
-                          row?.request?.amountType === "TON" ? "تن" : "کیلوگرم"
-                        })`
+                      ? `${row?.request?.amount} (کیلوگرم)`
                       : "_"}
                   </TableCell>
                 </TableRow>

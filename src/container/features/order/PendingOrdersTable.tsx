@@ -131,7 +131,7 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
       case "CASH":
         return "نقدی";
       case "INSTALLMENTS":
-        return "اقساطی";
+        return "مدت دار";
       case "CREDIT":
         return "اعتباری";
       default:
@@ -141,8 +141,7 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
 
   const getInventoryUnit = (inventoryType: string) => {
     switch (inventoryType?.toUpperCase()) {
-      case "TON":
-        return "تن";
+      case "KILOGRAM":
       case "KG":
         return "کیلوگرم";
       case "GRAM":

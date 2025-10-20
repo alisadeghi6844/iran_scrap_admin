@@ -153,9 +153,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                   <TableCell>
                     {" "}
                     {row?.amount
-                      ? `${row?.amount} (${
-                          row?.amountType === "TON" ? "تن" : "کیلوگرم"
-                        })`
+                      ? `${row?.amount} (کیلوگرم)`
                       : "_"}
                   </TableCell>
                   <TableCell>

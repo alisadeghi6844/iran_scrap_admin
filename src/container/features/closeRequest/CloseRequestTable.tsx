@@ -172,9 +172,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                 </TableCell>
                 <TableCell>
                     {row?.amount
-                      ? `${row?.amount} (${
-                          row?.amountType === "TON" ? "تن" : "کیلوگرم"
-                        })`
+                      ? `${row?.amount} (کیلوگرم)`
                       : "_"}
                   </TableCell>
 

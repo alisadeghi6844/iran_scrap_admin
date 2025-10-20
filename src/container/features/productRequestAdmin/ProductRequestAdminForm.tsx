@@ -74,9 +74,7 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
                 </TableCell>
                 <TableCell>
                   {reqData?.amount
-                    ? `${reqData?.amount} (${
-                        reqData?.amountType === "TON" ? "تن" : "کیلوگرم"
-                      })`
+                    ? `${reqData?.amount} (کیلوگرم)`
                     : "_"}
                 </TableCell>
                 <TableCell>

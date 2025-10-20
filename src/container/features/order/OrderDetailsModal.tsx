@@ -67,7 +67,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       case "CASH":
         return "نقدی";
       case "INSTALLMENTS":
-        return "اقساطی";
+        return "مدت دار";
       case "CREDIT":
         return "اعتباری";
       default:
@@ -77,8 +77,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
   const getInventoryUnit = (inventoryType: string) => {
     switch (inventoryType?.toUpperCase()) {
-      case "TON":
-        return "تن";
+      case "KILOGRAM":
       case "KG":
         return "کیلوگرم";
       case "GRAM":

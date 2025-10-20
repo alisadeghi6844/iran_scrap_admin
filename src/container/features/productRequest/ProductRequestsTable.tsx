@@ -130,7 +130,7 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
       case "CASH":
         return "نقدی";
       case "INSTALLMENTS":
-        return "اقساطی";
+        return "مدت دار";
       case "CREDIT":
         return "اعتباری";
       default:
@@ -142,8 +142,6 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
     switch (amountType?.toUpperCase()) {
       case "KILOGRAM":
         return "کیلوگرم";
-      case "TON":
-        return "تن";
       case "GRAM":
         return "گرم";
       case "LITER":
@@ -199,7 +197,7 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
             <TableHeadCell>دسته‌بندی</TableHeadCell>
             <TableHeadCell>مقدار</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
-            <TableHeadCell>قیمت به ازای هر تن</TableHeadCell>
+            <TableHeadCell>قیمت به ازای هر کیلوگرم</TableHeadCell>
             <TableHeadCell>قیمت نهایی</TableHeadCell>
             <TableHeadCell>تامین‌کننده</TableHeadCell>
             <TableHeadCell>تاریخ تحویل</TableHeadCell>

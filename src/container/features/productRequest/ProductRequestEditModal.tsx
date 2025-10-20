@@ -88,7 +88,6 @@ const ProductRequestEditModal: React.FC<ProductRequestEditModalProps> = ({
 
   const amountTypeOptions = [
     { label: "کیلوگرم", value: "KILOGRAM" },
-    { label: "تن", value: "TON" },
     { label: "گرم", value: "GRAM" },
     { label: "لیتر", value: "LITER" },
     { label: "عدد", value: "PIECE" },
@@ -96,7 +95,7 @@ const ProductRequestEditModal: React.FC<ProductRequestEditModalProps> = ({
 
   const paymentTypeOptions = [
     { label: "نقدی", value: "CASH" },
-    { label: "اقساطی", value: "INSTALLMENTS" },
+    { label: "مدت دار", value: "INSTALLMENTS" },
     { label: "اعتباری", value: "CREDIT" },
   ];
 

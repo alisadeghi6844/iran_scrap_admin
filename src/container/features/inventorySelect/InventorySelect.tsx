@@ -17,10 +17,6 @@ const InventorySelect: React.FC<InventorySelectProps> = (props) => {
       label: "کیلو گرم",
       value: "KILOGRAM",
     },
-    {
-      label: "تن",
-      value: "TON",
-    },
   ];
 
   return (

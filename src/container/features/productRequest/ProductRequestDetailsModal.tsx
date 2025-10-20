@@ -80,7 +80,7 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
       case "CASH":
         return "نقدی";
       case "INSTALLMENTS":
-        return "اقساطی";
+        return "مدت دار";
       case "CREDIT":
         return "اعتباری";
       default:
@@ -92,8 +92,6 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
     switch (amountType?.toUpperCase()) {
       case "KILOGRAM":
         return "کیلوگرم";
-      case "TON":
-        return "تن";
       case "GRAM":
         return "گرم";
       case "LITER":
@@ -244,7 +242,7 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
               </div>
               <div>
                 <Typography className="text-sm text-gray-600">
-                  قیمت به ازای هر تن
+                  قیمت به ازای هر کیلوگرم
                 </Typography>
                 <Typography className="font-bold">
                   {request.price
@@ -254,7 +252,7 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
               </div>
               <div>
                 <Typography className="text-sm text-gray-600">
-                  قیمت نهایی (مقدار × قیمت هر تن)
+                  قیمت نهایی (مقدار × قیمت هر کیلوگرم)
                 </Typography>
                 <Typography className="font-bold">
                   {request.finalPrice

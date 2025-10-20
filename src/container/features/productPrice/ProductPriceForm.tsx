@@ -83,8 +83,8 @@ const ProductPriceForm: React.FC<FormProps> = (props) => {
       setInitialValues({
         Name: value?.name || "",
         Inventory:{
-          label: value?.inventoryType==="TON"?"تن":"کیلو گرم",
-          value: value?.inventoryType || "",
+          label: "کیلو گرم",
+          value: "KILOGRAM",
         },
         // IsActive: {
         //   label: value?.isEnable ? "فعال" : "غیرفعال",

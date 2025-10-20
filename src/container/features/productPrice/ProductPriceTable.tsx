@@ -134,9 +134,7 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
                   <TableCell>{row?.name ?? "_"}</TableCell>
                   <TableCell>
                     {row?.lastPrice
-                      ? `هر ${
-                          row?.inventoryType === "TON" ? "تن" : "کیلوگرم"
-                        } ${formatNumber(row?.lastPrice)} تومان`
+                      ? `هر کیلوگرم ${formatNumber(row?.lastPrice)} تومان`
                       : "_"}{" "}
                   </TableCell>
                   <TableCell
