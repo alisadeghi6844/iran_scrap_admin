@@ -9,6 +9,8 @@ import {
   PRODUCT_REQUEST_OFFER_ADMIN,
   VERIFY_PAYMENT,
   MAKE_DELIVERED,
+  SEND_OFFER_TO_BUYER,
+  UPDATE_PRODUCT_REQUEST_OFFER_ADMIN,
 } from "../../types/product-request-offer-admin/ProductRequestOfferAdminTypes";
 import {
   closeRequestService,
@@ -18,6 +20,8 @@ import {
   getProductRequestOffersByRequestIdService,
   verifyPaymentService,
   makeDeliveredService,
+  sendOfferToBuyerService,
+  updateProductRequestOfferAdminService,
 } from "../../service/product-request-offer-admin/ProductRequestOfferAdminServices";
 
 export const CloseRequestAction = createAsyncThunk(
@@ -153,6 +157,46 @@ export const MakeDeliveredAction = createAsyncThunk(
       }
     } catch (error: any) {
       toast.error("خطا در علامت‌گذاری سفارش به عنوان تحویل شده");
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const SendOfferToBuyerAction = createAsyncThunk(
+  `${PRODUCT_REQUEST_OFFER_ADMIN}/${SEND_OFFER_TO_BUYER}`,
+  async ({ offerId }: { offerId: string }, { rejectWithValue }: any) => {
+    try {
+      const response = await sendOfferToBuyerService(offerId);
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success("پیشنهاد با موفقیت به خریدار ارسال شد");
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      toast.error("خطا در ارسال پیشنهاد به خریدار");
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const UpdateProductRequestOfferAdminAction = createAsyncThunk(
+  `${PRODUCT_REQUEST_OFFER_ADMIN}/${UPDATE_PRODUCT_REQUEST_OFFER_ADMIN}`,
+  async ({ offerId, data }: { offerId: string; data: any }, { rejectWithValue }: any) => {
+    try {
+      const response = await updateProductRequestOfferAdminService(offerId, data);
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success("اطلاعات با موفقیت به‌روزرسانی شد");
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      toast.error("خطا در به‌روزرسانی اطلاعات");
       return rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }
       );

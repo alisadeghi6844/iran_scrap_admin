@@ -36,6 +36,13 @@ interface ProductRequestItem {
     no: string;
     sayyad: string;
   }>;
+  driver?: {
+    billNumber: string;
+    licensePlate: string;
+    vehicleName: string;
+    driverName: string;
+    driverPhone: string;
+  };
   comments: unknown[];
   createdAt: number;
   deliveryTime: number;

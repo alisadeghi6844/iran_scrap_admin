@@ -7,6 +7,8 @@ import {
   GetProductRequestOffersByRequestIdAction,
   VerifyPaymentAction,
   MakeDeliveredAction,
+  SendOfferToBuyerAction,
+  UpdateProductRequestOfferAdminAction,
 } from "../../actions/product-request-offer-admin/ProductRequestOfferAdminActions";
 import { PRODUCT_REQUEST_OFFER_ADMIN } from "../../types/product-request-offer-admin/ProductRequestOfferAdminTypes";
 
@@ -38,6 +40,14 @@ interface ProductRequestOfferAdminState {
   makeDeliveredError: string | null;
   makeDeliveredLoading: boolean;
   makeDeliveredData: any;
+
+  sendOfferToBuyerError: string | null;
+  sendOfferToBuyerLoading: boolean;
+  sendOfferToBuyerData: any;
+
+  updateProductRequestOfferAdminError: string | null;
+  updateProductRequestOfferAdminLoading: boolean;
+  updateProductRequestOfferAdminData: any;
 }
 
 const initialState: ProductRequestOfferAdminState = {
@@ -68,6 +78,14 @@ const initialState: ProductRequestOfferAdminState = {
   makeDeliveredError: null,
   makeDeliveredLoading: false,
   makeDeliveredData: null,
+
+  sendOfferToBuyerError: null,
+  sendOfferToBuyerLoading: false,
+  sendOfferToBuyerData: null,
+
+  updateProductRequestOfferAdminError: null,
+  updateProductRequestOfferAdminLoading: false,
+  updateProductRequestOfferAdminData: null,
 };
 
 const productRequestOfferAdminSlice = createSlice({
@@ -235,6 +253,52 @@ const productRequestOfferAdminSlice = createSlice({
           state.makeDeliveredError = action.payload;
           state.makeDeliveredData = null;
         }
+      )
+
+      // Send Offer To Buyer
+      .addCase(SendOfferToBuyerAction.pending, (state) => {
+        state.sendOfferToBuyerLoading = true;
+        state.sendOfferToBuyerData = null;
+        state.sendOfferToBuyerError = null;
+      })
+      .addCase(
+        SendOfferToBuyerAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.sendOfferToBuyerLoading = false;
+          state.sendOfferToBuyerData = action.payload;
+          state.sendOfferToBuyerError = null;
+        }
+      )
+      .addCase(
+        SendOfferToBuyerAction.rejected,
+        (state, action: PayloadAction<any>) => {
+          state.sendOfferToBuyerLoading = false;
+          state.sendOfferToBuyerError = action.payload;
+          state.sendOfferToBuyerData = null;
+        }
+      )
+
+      // Update Product Request Offer Admin
+      .addCase(UpdateProductRequestOfferAdminAction.pending, (state) => {
+        state.updateProductRequestOfferAdminLoading = true;
+        state.updateProductRequestOfferAdminData = null;
+        state.updateProductRequestOfferAdminError = null;
+      })
+      .addCase(
+        UpdateProductRequestOfferAdminAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.updateProductRequestOfferAdminLoading = false;
+          state.updateProductRequestOfferAdminData = action.payload;
+          state.updateProductRequestOfferAdminError = null;
+        }
+      )
+      .addCase(
+        UpdateProductRequestOfferAdminAction.rejected,
+        (state, action: PayloadAction<any>) => {
+          state.updateProductRequestOfferAdminLoading = false;
+          state.updateProductRequestOfferAdminError = action.payload;
+          state.updateProductRequestOfferAdminData = null;
+        }
       );
   },
 });
@@ -292,7 +356,23 @@ export const selectMakeDeliveredError = (state: any) =>
   state.productRequestOfferAdmin.makeDeliveredError;
 export const selectMakeDeliveredLoading = (state: any) =>
   state.productRequestOfferAdmin.makeDeliveredLoading;
-export const selectMakeDeliveredData = (state: unknown) =>
+export const selectMakeDeliveredData = (state: any) =>
   state.productRequestOfferAdmin.makeDeliveredData;
+
+// Selectors for Send Offer To Buyer
+export const selectSendOfferToBuyerError = (state: any) =>
+  state.productRequestOfferAdmin.sendOfferToBuyerError;
+export const selectSendOfferToBuyerLoading = (state: any) =>
+  state.productRequestOfferAdmin.sendOfferToBuyerLoading;
+export const selectSendOfferToBuyerData = (state: any) =>
+  state.productRequestOfferAdmin.sendOfferToBuyerData;
+
+// Selectors for Update Product Request Offer Admin
+export const selectUpdateProductRequestOfferAdminError = (state: any) =>
+  state.productRequestOfferAdmin.updateProductRequestOfferAdminError;
+export const selectUpdateProductRequestOfferAdminLoading = (state: any) =>
+  state.productRequestOfferAdmin.updateProductRequestOfferAdminLoading;
+export const selectUpdateProductRequestOfferAdminData = (state: any) =>
+  state.productRequestOfferAdmin.updateProductRequestOfferAdminData;
 
 export default productRequestOfferAdminSlice.reducer;

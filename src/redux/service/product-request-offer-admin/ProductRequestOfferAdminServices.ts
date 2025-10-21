@@ -8,6 +8,8 @@ import {
   GET_PRODUCT_REQUEST_OFFERS_BY_REQUEST_ID_POINT,
   VERIFY_PAYMENT_POINT,
   MAKE_DELIVERED_POINT,
+  SEND_OFFER_TO_BUYER_POINT,
+  UPDATE_PRODUCT_REQUEST_OFFER_ADMIN_POINT,
 } from "../../api/product-request-offer-admin/ProductRequestOfferAdminApi";
 
 export const closeRequestService = async (requestId: string) => {
@@ -60,6 +62,20 @@ export const makeDeliveredService = async (data: {
 }) => {
   return await HttpServises.post(
     `${BASE_URL}${MAKE_DELIVERED_POINT}`,
+    data
+  );
+};
+
+export const sendOfferToBuyerService = async (offerId: string) => {
+  return await HttpServises.patch(
+    `${BASE_URL}${SEND_OFFER_TO_BUYER_POINT}/${offerId}`,
+    {}
+  );
+};
+
+export const updateProductRequestOfferAdminService = async (offerId: string, data: any) => {
+  return await HttpServises.patch(
+    `${BASE_URL}${UPDATE_PRODUCT_REQUEST_OFFER_ADMIN_POINT}/${offerId}`,
     data
   );
 };

@@ -6,6 +6,7 @@ import {
   RejectOrderAction,
   VerifyPaymentAction,
   MakeDeliveredAction,
+  UpdateOrderAdminAction,
 } from "../../actions/order/OrderActions";
 
 interface orderState {
@@ -28,6 +29,10 @@ interface orderState {
   makeDeliveredError: string | null;
   makeDeliveredLoading: boolean;
   makeDeliveredData: any;
+
+  updateOrderAdminError: string | null;
+  updateOrderAdminLoading: boolean;
+  updateOrderAdminData: any;
 }
 
 const initialState: orderState = {
@@ -50,6 +55,10 @@ const initialState: orderState = {
   makeDeliveredError: null,
   makeDeliveredLoading: false,
   makeDeliveredData: [],
+
+  updateOrderAdminError: null,
+  updateOrderAdminLoading: false,
+  updateOrderAdminData: [],
 };
 
 const orderSlice = createSlice({
@@ -143,6 +152,22 @@ const orderSlice = createSlice({
         state.makeDeliveredLoading = false;
         state.makeDeliveredError = action.payload;
         state.makeDeliveredData = [];
+      })
+      // Update order admin
+      .addCase(UpdateOrderAdminAction.pending, (state) => {
+        state.updateOrderAdminLoading = true;
+        state.updateOrderAdminData = [];
+        state.updateOrderAdminError = null;
+      })
+      .addCase(UpdateOrderAdminAction.fulfilled, (state, action) => {
+        state.updateOrderAdminLoading = false;
+        state.updateOrderAdminData = action.payload;
+        state.updateOrderAdminError = null;
+      })
+      .addCase(UpdateOrderAdminAction.rejected, (state, action) => {
+        state.updateOrderAdminLoading = false;
+        state.updateOrderAdminError = action.payload;
+        state.updateOrderAdminData = [];
       });
   },
 });
@@ -181,5 +206,12 @@ export const selectMakeDeliveredLoading = (state: any) =>
   state.order.makeDeliveredLoading;
 export const selectMakeDeliveredData = (state: any) =>
   state.order.makeDeliveredData;
+
+export const selectUpdateOrderAdminError = (state: any) =>
+  state.order.updateOrderAdminError;
+export const selectUpdateOrderAdminLoading = (state: any) =>
+  state.order.updateOrderAdminLoading;
+export const selectUpdateOrderAdminData = (state: any) =>
+  state.order.updateOrderAdminData;
 
 export default orderSlice.reducer;

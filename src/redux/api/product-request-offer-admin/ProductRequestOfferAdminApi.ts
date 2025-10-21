@@ -5,3 +5,5 @@ export const GET_PRODUCT_REQUEST_OFFER_ADMIN_BY_ID_POINT = "product-request-offe
 export const GET_PRODUCT_REQUEST_OFFERS_BY_REQUEST_ID_POINT = "product-request-offer-admin/by-request";
 export const VERIFY_PAYMENT_POINT = "product-request-offer-admin/confirmed-offer/verify-payment";
 export const MAKE_DELIVERED_POINT = "product-request-offer-admin/confirmed-offer/make-delivered";
+export const SEND_OFFER_TO_BUYER_POINT = "product-request-offer-admin/sendOfferToBuyer";
+export const UPDATE_PRODUCT_REQUEST_OFFER_ADMIN_POINT = "product-request-offer-admin";

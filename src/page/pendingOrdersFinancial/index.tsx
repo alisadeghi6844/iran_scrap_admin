@@ -39,6 +39,13 @@ interface OrderItem {
     no: string;
     sayyad: string;
   }>;
+  driver?: {
+    billNumber: string;
+    licensePlate: string;
+    vehicleName: string;
+    driverName: string;
+    driverPhone: string;
+  };
   shippings: {
     digifarm: number;
     provider: number;

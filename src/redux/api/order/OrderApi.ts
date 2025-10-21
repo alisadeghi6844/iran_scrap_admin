@@ -3,3 +3,4 @@ export const APPROVE_ORDER_POINT = "order-admin/approve";
 export const REJECT_ORDER_POINT = "order-admin/reject";
 export const VERIFY_PAYMENT_POINT = "order-admin/verify-payment";
 export const MAKE_DELIVERED_POINT = "order-admin/make-delivered";
+export const UPDATE_ORDER_ADMIN_POINT = "order-admin";

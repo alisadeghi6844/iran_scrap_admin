@@ -1,9 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../../../redux/store";
 import Modal from "../../../components/modal";
 import Typography from "../../../components/typography/Typography";
 import Input from "../../../components/input";
 import Button from "../../../components/button";
 import { getOrderStatusText, getOrderStatusColor } from "../../../types/OrderStatus";
+import { UpdateOrderAdminAction } from "../../../redux/actions/order/OrderActions";
+import {
+  selectUpdateOrderAdminLoading,
+  selectUpdateOrderAdminData,
+  selectUpdateOrderAdminError,
+} from "../../../redux/slice/order/orderSlice";
 
 interface OrderItem {
   id: string;
@@ -32,6 +40,13 @@ interface OrderItem {
     no: string;
     sayyad: string;
   }>;
+  driver?: {
+    billNumber: string;
+    licensePlate: string;
+    vehicleName: string;
+    driverName: string;
+    driverPhone: string;
+  };
   shippings: {
     digifarm: number;
     provider: number;
@@ -50,8 +65,24 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   onClose,
   order,
 }) => {
-  const [editableCheques, setEditableCheques] = useState(order?.cheques || []);
+  const dispatch = useDispatch<AppDispatch>();
+  const [editableCheques, setEditableCheques] = useState<Array<{date: string; bank: string; no: string; sayyad: string}>>([]);
+  const [editableDriver, setEditableDriver] = useState<{billNumber: string; licensePlate: string; vehicleName: string; driverName: string; driverPhone: string} | null>(null);
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+  const [driverValidationErrors, setDriverValidationErrors] = useState<{[key: string]: string}>({});
+  
+  const updateLoading = useSelector(selectUpdateOrderAdminLoading);
+  const updateData = useSelector(selectUpdateOrderAdminData);
+  const updateError = useSelector(selectUpdateOrderAdminError);
+
+  useEffect(() => {
+    if (order) {
+      setEditableCheques(order.cheques || []);
+      setEditableDriver(order.driver || null);
+    }
+  }, [order]);
+
+
   
   console.log("OrderDetailsModal rendered with isOpen:", isOpen, "order:", order);
   if (!order) {
@@ -100,11 +131,68 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     return Object.keys(errors).length === 0;
   };
 
+  const handleDriverChange = (field: string, value: string) => {
+    if (editableDriver) {
+      setEditableDriver({
+        ...editableDriver,
+        [field]: value,
+      });
+      
+      // Clear validation error for this field
+      if (driverValidationErrors[field]) {
+        const newErrors = { ...driverValidationErrors };
+        delete newErrors[field];
+        setDriverValidationErrors(newErrors);
+      }
+    }
+  };
+
+  const validateDriver = () => {
+    const errors: {[key: string]: string} = {};
+    
+    if (editableDriver) {
+      if (!editableDriver.billNumber?.trim()) {
+        errors.billNumber = "شماره بارنامه الزامی است";
+      }
+      if (!editableDriver.licensePlate?.trim()) {
+        errors.licensePlate = "شماره پلاک الزامی است";
+      }
+      if (!editableDriver.vehicleName?.trim()) {
+        errors.vehicleName = "نام وسیله نقلیه الزامی است";
+      }
+      if (!editableDriver.driverName?.trim()) {
+        errors.driverName = "نام راننده الزامی است";
+      }
+      if (!editableDriver.driverPhone?.trim()) {
+        errors.driverPhone = "شماره تلفن راننده الزامی است";
+      } else if (!/^09\d{9}$/.test(editableDriver.driverPhone)) {
+        errors.driverPhone = "شماره تلفن باید با 09 شروع شده و 11 رقم باشد";
+      }
+    }
+    
+    setDriverValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSaveCheques = () => {
     if (validateCheques()) {
-      // Here you can add API call to save cheques
-      console.log("Saving cheques:", editableCheques);
-      alert("چک‌ها با موفقیت ذخیره شدند");
+      dispatch(UpdateOrderAdminAction({
+        orderId: order.id,
+        data: {
+          cheques: editableCheques
+        }
+      }));
+    }
+  };
+
+  const handleSaveDriver = () => {
+    if (validateDriver()) {
+      dispatch(UpdateOrderAdminAction({
+        orderId: order.id,
+        data: {
+          driver: editableDriver
+        }
+      }));
     }
   };
 
@@ -287,6 +375,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 variant="primary"
                 size="sm"
                 onClick={handleSaveCheques}
+                loading={updateLoading}
+                disabled={updateLoading}
               >
                 ویرایش چک‌ها
               </Button>
@@ -345,6 +435,85 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           ) : (
             <div className="bg-gray-50 p-4 rounded-lg text-center">
               <Typography className="text-gray-500">چکی موجود نیست</Typography>
+            </div>
+          )}
+        </div>
+
+        {/* Driver Section */}
+        <div>
+          <div className="flex justify-between items-center mb-3">
+            <Typography className="text-lg font-bold">اطلاعات راننده</Typography>
+            {editableDriver && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleSaveDriver}
+                loading={updateLoading}
+                disabled={updateLoading}
+              >
+                ویرایش اطلاعات راننده
+              </Button>
+            )}
+          </div>
+          {editableDriver ? (
+            <div className="bg-gray-50 p-4 rounded-lg border">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Input
+                    label="شماره بارنامه"
+                    value={editableDriver.billNumber}
+                    onChange={(e) => handleDriverChange('billNumber', e.target.value)}
+                    size="md"
+                    errorMessage={driverValidationErrors.billNumber}
+                    required
+                  />
+                </div>
+                <div>
+                  <Input
+                    label="شماره پلاک"
+                    value={editableDriver.licensePlate}
+                    onChange={(e) => handleDriverChange('licensePlate', e.target.value)}
+                    size="md"
+                    errorMessage={driverValidationErrors.licensePlate}
+                    required
+                  />
+                </div>
+                <div>
+                  <Input
+                    label="نام وسیله نقلیه"
+                    value={editableDriver.vehicleName}
+                    onChange={(e) => handleDriverChange('vehicleName', e.target.value)}
+                    size="md"
+                    errorMessage={driverValidationErrors.vehicleName}
+                    required
+                  />
+                </div>
+                <div>
+                  <Input
+                    label="نام راننده"
+                    value={editableDriver.driverName}
+                    onChange={(e) => handleDriverChange('driverName', e.target.value)}
+                    size="md"
+                    errorMessage={driverValidationErrors.driverName}
+                    required
+                  />
+                </div>
+                <div>
+                  <Input
+                    label="شماره تلفن راننده"
+                    value={editableDriver.driverPhone}
+                    onChange={(e) => handleDriverChange('driverPhone', e.target.value)}
+                    size="md"
+                    errorMessage={driverValidationErrors.driverPhone}
+                    helperText="مثال: 09123456789"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gray-50 p-4 rounded-lg text-center">
+              <Typography className="text-gray-500">اطلاعات راننده موجود نیست</Typography>
             </div>
           )}
         </div>

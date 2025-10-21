@@ -7,6 +7,7 @@ import {
   REJECT_ORDER_POINT,
   VERIFY_PAYMENT_POINT,
   MAKE_DELIVERED_POINT,
+  UPDATE_ORDER_ADMIN_POINT,
 } from "../../api/order/OrderApi";
 
 export const getOrderAdminService = async (query: any) => {
@@ -42,4 +43,8 @@ export const makeDeliveredService = async (orderId: string, unloadingDate: strin
     orderId,
     unloadingDate,
   });
+};
+
+export const updateOrderAdminService = async (orderId: string, data: any) => {
+  return await HttpServises.patch(`${BASE_URL}${UPDATE_ORDER_ADMIN_POINT}/${orderId}`, data);
 };

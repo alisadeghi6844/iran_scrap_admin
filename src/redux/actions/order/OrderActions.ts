@@ -6,6 +6,7 @@ import {
   REJECT_ORDER,
   VERIFY_PAYMENT,
   MAKE_DELIVERED,
+  UPDATE_ORDER_ADMIN,
 } from "../../types/order/OrderTypes";
 import {
   getOrderAdminService,
@@ -13,6 +14,7 @@ import {
   rejectOrderService,
   verifyPaymentService,
   makeDeliveredService,
+  updateOrderAdminService,
 } from "../../service/order/OrderServices";
 import { toast } from "react-toastify";
 
@@ -98,6 +100,24 @@ export const MakeDeliveredAction = createAsyncThunk(
       const response = await makeDeliveredService(orderId, unloadingDate);
       if (response?.status === 200 || response?.status === 201) {
         toast.success("سفارش با موفقیت تحویل داده شد");
+        onSubmitForm && onSubmitForm();
+      }
+      return response;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const UpdateOrderAdminAction = createAsyncThunk(
+  `${ORDER}/${UPDATE_ORDER_ADMIN}`,
+  async ({ orderId, data, onSubmitForm }: any, thunkAPI) => {
+    try {
+      const response = await updateOrderAdminService(orderId, data);
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success("سفارش با موفقیت به‌روزرسانی شد");
         onSubmitForm && onSubmitForm();
       }
       return response;
