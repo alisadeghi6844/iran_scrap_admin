@@ -74,7 +74,7 @@ export const sendOfferToBuyerService = async (offerId: string) => {
 };
 
 export const updateProductRequestOfferAdminService = async (offerId: string, data: any) => {
-  return await HttpServises.patch(
+  return await HttpServises.put(
     `${BASE_URL}${UPDATE_PRODUCT_REQUEST_OFFER_ADMIN_POINT}/${offerId}`,
     data
   );
