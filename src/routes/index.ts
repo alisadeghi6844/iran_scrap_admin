@@ -3,25 +3,12 @@ import { lazy } from "react";
 const routes = [
   {
     path: "/",
-    breadCrumb: "صفحه اصلی (مدیریت DG_FARM)",
-    component: lazy(() => import("../page/homePage")),
+    breadCrumb: "همه درخواست ها",
+    component: lazy(() => import("../page/allRequests")),
     layout: "admin",
     role: ["admin", "client", "reservation"],
   },
-  {
-    path: "/open-request",
-    breadCrumb: "درخواست های بسته",
-    component: lazy(() => import("../page/openRequest")),
-    layout: "admin",
-    role: ["admin", "client", "reservation"],
-  },
-  {
-    path: "/close-request",
-    breadCrumb: "درخواست های درحال پردازش",
-    component: lazy(() => import("../page/closeRequest")),
-    layout: "admin",
-    role: ["admin", "client", "reservation"],
-  },
+
   {
     path: "/product-request-status",
     breadCrumb: "مدیریت وضعیت درخواست ها",
