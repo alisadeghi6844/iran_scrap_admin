@@ -33,6 +33,8 @@ interface OrderItem {
   province: string;
   createdAt: number;
   updatedAt: number;
+  loadingDate?: string;
+  unloadingDate?: string;
   cheques?: Array<{
     date: string;
     bank: string;
@@ -109,11 +111,11 @@ const PendingOrdersFinancial = () => {
     );
   };
 
-  const handleDeliveryOrder = (orderId: string, unloadingDate: string) => {
+  const handleDeliveryOrder = (orderId: string, loadingDate: string) => {
     dispatch(
       MakeDeliveredAction({
         orderId,
-        unloadingDate,
+        loadingDate,
         onSubmitForm: () => {
           setMode("content");
           setSelectedRow(null);
@@ -130,7 +132,10 @@ const PendingOrdersFinancial = () => {
 
   // Handle successful verify payment response
   useEffect(() => {
-    if (verifyPaymentData?.status === 200 || verifyPaymentData?.status === 201) {
+    if (
+      verifyPaymentData?.status === 200 ||
+      verifyPaymentData?.status === 201
+    ) {
       setMode("content");
       setSelectedRow(null);
       setRefreshTable((prev) => prev + 1);
@@ -211,6 +216,7 @@ const PendingOrdersFinancial = () => {
           isOpen={true}
           onClose={handleCloseModal}
           orderId={selectedRow?.id || ""}
+          order={selectedRow}
           onDelivery={handleDeliveryOrder}
           loading={makeDeliveredLoading}
         />

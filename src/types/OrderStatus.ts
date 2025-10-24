@@ -1,53 +1,59 @@
 export enum OrderStatus {
-  Pending = "Pending", // در حال بررسی - وضعیت اولیه
-  Rejected = "Rejected", // رد شده توسط تامین کننده
-  Accepted = "Accepted", // پذیرفته شده توسط تامین کننده
-  PayFailed = "PayFailed", // پرداخت ناموفق
-  Payed = "Payed", // پرداخت موفق
-  Paid = "Paid", // پرداخت شده
-  FinancePending = "FinancePending", // در انتظار تسویه مالی
-  PaymentVerified = "PaymentVerified", // تایید پرداخت
-  PaymentDeclined = "PaymentDeclined", // عدم تایید پرداخت
-  Preparing = "Preparing", // فعلا استفاده نشده
-  Shipping = "Shipping", // در حال ارسال
-  Delivered = "Delivered", // تحویل شده
-  BUYER_CONFIRMED = "BUYER_CONFIRMED", // تایید شده توسط خریدار
-  BUYER_REJECTED = "BUYER_REJECTED", // رد شده توسط خریدار
-  CANCELED = "CANCELED", // لغو شده
+  REGISTERED = "REGISTERED",
+  WAITING_FOR_OFFERS = "WAITING_FOR_OFFERS",
+  LOADING_ORDER = "LOADING_ORDER",
+  SEND_FINAL_OFFER_TO_BUYER = "SEND_FINAL_OFFER_TO_BUYER",
+  CONFIRMATION_REQUEST_BY_BUYER = "CONFIRMATION_REQUEST_BY_BUYER",
+  BUYER_FAILURE_APPROVE = "BUYER_FAILURE_APPROVE",
+  BUYER_CANCELLATION = "BUYER_CANCELLATION",
+  NOT_RECEIVING_ENOUGH_OFFERS = "NOT_RECEIVING_ENOUGH_OFFERS",
+  CLOSED = "CLOSED",
+  WAITING_UNLOADING = "WAITING_UNLOADING",
+  BUYER_WAITINGFORPAY = "BUYER_WAITINGFORPAY",
+  BUYER_WAITINGFORCHEK = "BUYER_WAITINGFORCHEK",
+  BUYER_WAITFORFINANCE = "BUYER_WAITFORFINANCE",
+  BUYER_CANCELPAY = "BUYER_CANCELPAY",
+  BUYER_CANCEL_LOADING = "BUYER_CANCEL_LOADING",
+  CONSIDERING_SUGGESTIONS = "CONSIDERING_SUGGESTIONS",
+  RETURN_TO_BUYER_REQUEST = "RETURN_TO_BUYER_REQUEST",
 }
 
 export const getOrderStatusText = (status: string): string => {
   switch (status?.toLowerCase()) {
-    case OrderStatus.Pending.toLowerCase():
-      return "در انتظار تایید";
-    case OrderStatus.Accepted.toLowerCase():
-      return "تایید شده";
-    case OrderStatus.Rejected.toLowerCase():
-      return "رد شده";
-    case OrderStatus.PayFailed.toLowerCase():
-      return "پرداخت ناموفق";
-    case OrderStatus.Payed.toLowerCase():
-      return "پرداخت شده";
-    case OrderStatus.FinancePending.toLowerCase():
-      return "در انتظار تایید مالی";
-    case OrderStatus.PaymentVerified.toLowerCase():
-      return "پرداخت تایید شده";
-    case OrderStatus.PaymentDeclined.toLowerCase():
-      return "پرداخت رد شده";
-    case OrderStatus.Preparing.toLowerCase():
-      return "در حال آماده‌سازی";
-    case OrderStatus.Shipping.toLowerCase():
-      return "در حال ارسال";
-    case OrderStatus.Delivered.toLowerCase():
-      return "تحویل داده شده";
-    case OrderStatus.BUYER_CONFIRMED.toLowerCase():
-      return "تایید شده توسط خریدار";
-    case OrderStatus.BUYER_REJECTED.toLowerCase():
-      return "رد شده توسط خریدار";
-    case OrderStatus.CANCELED.toLowerCase():
-      return "لغو شده";
-    case OrderStatus.Paid.toLowerCase():
-      return "پرداخت شده";
+    case OrderStatus.REGISTERED.toLowerCase():
+      return "ثبت درخواست";
+    case OrderStatus.WAITING_FOR_OFFERS.toLowerCase():
+      return "در انتظار دریافت پیشنهادات";
+    case OrderStatus.LOADING_ORDER.toLowerCase():
+      return "بارگیری سفارش";
+    case OrderStatus.SEND_FINAL_OFFER_TO_BUYER.toLowerCase():
+      return "ارسال پیشنهاد نهایی برای خریدار";
+    case OrderStatus.CONFIRMATION_REQUEST_BY_BUYER.toLowerCase():
+      return "تائید درخواست توسط خریدار";
+    case OrderStatus.BUYER_FAILURE_APPROVE.toLowerCase():
+      return "عدم تائید درخواست توسط خریدار";
+    case OrderStatus.BUYER_CANCELLATION.toLowerCase():
+      return "انصراف خریدار";
+    case OrderStatus.NOT_RECEIVING_ENOUGH_OFFERS.toLowerCase():
+      return "عدم دریافت پیشنهاد کافی";
+    case OrderStatus.CLOSED.toLowerCase():
+      return "تحویل داده شد";
+    case OrderStatus.WAITING_UNLOADING.toLowerCase():
+      return "در انتظار تخلیه و تحویل سفارش";
+    case OrderStatus.BUYER_WAITINGFORPAY.toLowerCase():
+      return "در انتظار پرداخت سفارش";
+    case OrderStatus.BUYER_WAITINGFORCHEK.toLowerCase():
+      return "در انتظار ثبت چک الکترونیک";
+    case OrderStatus.BUYER_WAITFORFINANCE.toLowerCase():
+      return "در انتظار تائید مالی";
+    case OrderStatus.BUYER_CANCELPAY.toLowerCase():
+      return "عدم پرداخت و لغو سفارش";
+    case OrderStatus.BUYER_CANCEL_LOADING.toLowerCase():
+      return "عدم بارگیری و لغو سفارش";
+    case OrderStatus.CONSIDERING_SUGGESTIONS.toLowerCase():
+      return "در حال بررسی پیشنهادات";
+    case OrderStatus.RETURN_TO_BUYER_REQUEST.toLowerCase():
+      return "بازگشت به درخواست خریدار";
     default:
       return status || "نامشخص";
   }
@@ -55,58 +61,63 @@ export const getOrderStatusText = (status: string): string => {
 
 export const getOrderStatusLabel = (status: string): string => {
   const statusLabels: { [key: string]: string } = {
-    [OrderStatus.Pending]: "در حال بررسی",
-    [OrderStatus.Rejected]: "رد شده",
-    [OrderStatus.Accepted]: "پذیرفته شده",
-    [OrderStatus.PayFailed]: "پرداخت ناموفق",
-    [OrderStatus.Payed]: "پرداخت موفق",
-    [OrderStatus.PaymentVerified]: "تایید پرداخت",
-    [OrderStatus.PaymentDeclined]: "عدم تایید پرداخت",
-    [OrderStatus.FinancePending]: "در انتظار تسویه مالی",
-    [OrderStatus.Preparing]: "در حال آماده‌سازی",
-    [OrderStatus.Shipping]: "در حال ارسال",
-    [OrderStatus.Delivered]: "تحویل شده",
-    [OrderStatus.BUYER_CONFIRMED]: "تایید شده توسط تامین کننده",
-    [OrderStatus.BUYER_REJECTED]: "رد شده توسط خریدار",
-    [OrderStatus.CANCELED]: "لغو شده",
-    [OrderStatus.Paid]: "پرداخت شده",
-    "PENDING": "در حال بررسی",
+    [OrderStatus.REGISTERED]: "ثبت درخواست",
+    [OrderStatus.WAITING_FOR_OFFERS]: "در انتظار دریافت پیشنهادات",
+    [OrderStatus.LOADING_ORDER]: "بارگیری سفارش",
+    [OrderStatus.SEND_FINAL_OFFER_TO_BUYER]: "ارسال پیشنهاد نهایی برای خریدار",
+    [OrderStatus.CONFIRMATION_REQUEST_BY_BUYER]: "تائید درخواست توسط خریدار",
+    [OrderStatus.BUYER_FAILURE_APPROVE]: "عدم تائید درخواست توسط خریدار",
+    [OrderStatus.BUYER_CANCELLATION]: "انصراف خریدار",
+    [OrderStatus.NOT_RECEIVING_ENOUGH_OFFERS]: "عدم دریافت پیشنهاد کافی",
+    [OrderStatus.CLOSED]: "تحویل داده شد",
+    [OrderStatus.WAITING_UNLOADING]: "در انتظار تخلیه و تحویل سفارش",
+    [OrderStatus.BUYER_WAITINGFORPAY]: "در انتظار پرداخت سفارش",
+    [OrderStatus.BUYER_WAITINGFORCHEK]: "در انتظار ثبت چک الکترونیک",
+    [OrderStatus.BUYER_WAITFORFINANCE]: "در انتظار تائید مالی",
+    [OrderStatus.BUYER_CANCELPAY]: "عدم پرداخت و لغو سفارش",
+    [OrderStatus.BUYER_CANCEL_LOADING]: "عدم بارگیری و لغو سفارش",
+    [OrderStatus.CONSIDERING_SUGGESTIONS]: "در حال بررسی پیشنهادات",
+    [OrderStatus.RETURN_TO_BUYER_REQUEST]: "بازگشت به درخواست خریدار",
   };
   return statusLabels[status] || status;
 };
 
 export const getOrderStatusColor = (status: string): string => {
   switch (status?.toLowerCase()) {
-    case OrderStatus.Pending.toLowerCase():
-      return "text-yellow-600";
-    case OrderStatus.Accepted.toLowerCase():
+    case OrderStatus.REGISTERED.toLowerCase():
       return "text-blue-600";
-    case OrderStatus.Rejected.toLowerCase():
-      return "text-red-600";
-    case OrderStatus.PayFailed.toLowerCase():
-      return "text-red-500";
-    case OrderStatus.Payed.toLowerCase():
-      return "text-green-600";
-    case OrderStatus.FinancePending.toLowerCase():
-      return "text-orange-500";
-    case OrderStatus.PaymentVerified.toLowerCase():
-      return "text-green-700";
-    case OrderStatus.PaymentDeclined.toLowerCase():
-      return "text-red-700";
-    case OrderStatus.Preparing.toLowerCase():
-      return "text-orange-600";
-    case OrderStatus.Shipping.toLowerCase():
-      return "text-purple-600";
-    case OrderStatus.Delivered.toLowerCase():
-      return "text-green-800";
-    case OrderStatus.BUYER_CONFIRMED.toLowerCase():
+    case OrderStatus.WAITING_FOR_OFFERS.toLowerCase():
+      return "text-yellow-600";
+    case OrderStatus.LOADING_ORDER.toLowerCase():
       return "text-blue-700";
-    case OrderStatus.BUYER_REJECTED.toLowerCase():
-      return "text-red-600";
-    case OrderStatus.CANCELED.toLowerCase():
-      return "text-gray-500";
-    case OrderStatus.Paid.toLowerCase():
+    case OrderStatus.SEND_FINAL_OFFER_TO_BUYER.toLowerCase():
+      return "text-purple-600";
+    case OrderStatus.CONFIRMATION_REQUEST_BY_BUYER.toLowerCase():
       return "text-green-600";
+    case OrderStatus.BUYER_FAILURE_APPROVE.toLowerCase():
+      return "text-red-600";
+    case OrderStatus.BUYER_CANCELLATION.toLowerCase():
+      return "text-red-500";
+    case OrderStatus.NOT_RECEIVING_ENOUGH_OFFERS.toLowerCase():
+      return "text-red-600";
+    case OrderStatus.CLOSED.toLowerCase():
+      return "text-green-800";
+    case OrderStatus.WAITING_UNLOADING.toLowerCase():
+      return "text-indigo-600";
+    case OrderStatus.BUYER_WAITINGFORPAY.toLowerCase():
+      return "text-orange-500";
+    case OrderStatus.BUYER_WAITINGFORCHEK.toLowerCase():
+      return "text-purple-600";
+    case OrderStatus.BUYER_WAITFORFINANCE.toLowerCase():
+      return "text-orange-600";
+    case OrderStatus.BUYER_CANCELPAY.toLowerCase():
+      return "text-red-400";
+    case OrderStatus.BUYER_CANCEL_LOADING.toLowerCase():
+      return "text-red-500";
+    case OrderStatus.CONSIDERING_SUGGESTIONS.toLowerCase():
+      return "text-yellow-500";
+    case OrderStatus.RETURN_TO_BUYER_REQUEST.toLowerCase():
+      return "text-blue-500";
     default:
       return "text-gray-600";
   }
@@ -114,63 +125,71 @@ export const getOrderStatusColor = (status: string): string => {
 
 export const orderStatusOptions = [
   {
-    label: "در انتظار تایید",
-    value: OrderStatus.Pending,
+    label: "ثبت درخواست",
+    value: OrderStatus.REGISTERED,
   },
   {
-    label: "تایید شده",
-    value: OrderStatus.Accepted,
+    label: "در انتظار دریافت پیشنهادات",
+    value: OrderStatus.WAITING_FOR_OFFERS,
   },
   {
-    label: "رد شده",
-    value: OrderStatus.Rejected,
+    label: "بارگیری سفارش",
+    value: OrderStatus.LOADING_ORDER,
   },
   {
-    label: "پرداخت ناموفق",
-    value: OrderStatus.PayFailed,
+    label: "ارسال پیشنهاد نهایی برای خریدار",
+    value: OrderStatus.SEND_FINAL_OFFER_TO_BUYER,
   },
   {
-    label: "پرداخت شده",
-    value: OrderStatus.Payed,
+    label: "تائید درخواست توسط خریدار",
+    value: OrderStatus.CONFIRMATION_REQUEST_BY_BUYER,
   },
   {
-    label: "در انتظار تایید مالی",
-    value: OrderStatus.FinancePending,
+    label: "عدم تائید درخواست توسط خریدار",
+    value: OrderStatus.BUYER_FAILURE_APPROVE,
   },
   {
-    label: "پرداخت تایید شده",
-    value: OrderStatus.PaymentVerified,
+    label: "انصراف خریدار",
+    value: OrderStatus.BUYER_CANCELLATION,
   },
   {
-    label: "پرداخت رد شده",
-    value: OrderStatus.PaymentDeclined,
+    label: "عدم دریافت پیشنهاد کافی",
+    value: OrderStatus.NOT_RECEIVING_ENOUGH_OFFERS,
   },
   {
-    label: "در حال آماده‌سازی",
-    value: OrderStatus.Preparing,
+    label: "تحویل داده شد",
+    value: OrderStatus.CLOSED,
   },
   {
-    label: "در حال ارسال",
-    value: OrderStatus.Shipping,
+    label: "در انتظار تخلیه و تحویل سفارش",
+    value: OrderStatus.WAITING_UNLOADING,
   },
   {
-    label: "تحویل داده شده",
-    value: OrderStatus.Delivered,
+    label: "در انتظار پرداخت سفارش",
+    value: OrderStatus.BUYER_WAITINGFORPAY,
   },
   {
-    label: "تایید شده توسط خریدار",
-    value: OrderStatus.BUYER_CONFIRMED,
+    label: "در انتظار ثبت چک الکترونیک",
+    value: OrderStatus.BUYER_WAITINGFORCHEK,
   },
   {
-    label: "رد شده توسط خریدار",
-    value: OrderStatus.BUYER_REJECTED,
+    label: "در انتظار تائید مالی",
+    value: OrderStatus.BUYER_WAITFORFINANCE,
   },
   {
-    label: "لغو شده",
-    value: OrderStatus.CANCELED,
+    label: "عدم پرداخت و لغو سفارش",
+    value: OrderStatus.BUYER_CANCELPAY,
   },
   {
-    label: "پرداخت شده",
-    value: OrderStatus.Paid,
+    label: "عدم بارگیری و لغو سفارش",
+    value: OrderStatus.BUYER_CANCEL_LOADING,
+  },
+  {
+    label: "در حال بررسی پیشنهادات",
+    value: OrderStatus.CONSIDERING_SUGGESTIONS,
+  },
+  {
+    label: "بازگشت به درخواست خریدار",
+    value: OrderStatus.RETURN_TO_BUYER_REQUEST,
   },
 ];

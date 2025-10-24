@@ -30,7 +30,7 @@ const OpenRequestDetail: React.FC<FormProps> = (props) => {
   const [selectedItem, setSelectedItem] = useState("");
 
   useEffect(() => {
-    dispatch(GetRequestProductStatusAction({ page: 1, size: 20 }));
+    dispatch(GetRequestProductStatusAction({ page: 0, size: 20 }));
   }, [dispatch]);
 
   // اگر داده‌ای از سرور دریافت شد، استیت را به‌روز کنیم

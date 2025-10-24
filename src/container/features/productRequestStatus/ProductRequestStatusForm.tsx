@@ -47,7 +47,7 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
   }, [loadData]);
 
   useEffect(() => {
-    dispatch(GetRequestProductStatusAction({ page: 1, size: 20 }));
+    dispatch(GetRequestProductStatusAction({ page: 0, size: 20 }));
   }, []);
 
   useEffect(() => {

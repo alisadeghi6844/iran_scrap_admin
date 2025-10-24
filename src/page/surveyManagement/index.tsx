@@ -44,7 +44,7 @@ const SurveyManagement = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
-    dispatch(GetAllSurveysAction({ page: 1, limit: 500 }) as any);
+    dispatch(GetAllSurveysAction({ page: 0, limit: 500 }) as any);
   }, [dispatch]);
 
   const handleCreateSurvey = (values: any) => {
@@ -62,7 +62,7 @@ const SurveyManagement = () => {
     dispatch(CreateSurveyAction(surveyData) as any).then((result: any) => {
       if (result.type.endsWith("/fulfilled")) {
         setViewMode("list");
-        dispatch(GetAllSurveysAction({ page: 1, limit: 500 }) as any);
+        dispatch(GetAllSurveysAction({ page: 0, limit: 500 }) as any);
       }
     });
   };
@@ -95,13 +95,13 @@ const SurveyManagement = () => {
       if (result.type.endsWith("/fulfilled")) {
         setShowDeleteModal(false);
         setDeletingSurvey(null);
-        dispatch(GetAllSurveysAction({ page: 1, limit: 500 }) as any);
+        dispatch(GetAllSurveysAction({ page: 0, limit: 500 }) as any);
       }
     });
   };
 
   const handleRefresh = () => {
-    dispatch(GetAllSurveysAction({ page: 1, limit: 500 }) as unknown);
+    dispatch(GetAllSurveysAction({ page: 0, limit: 500 }) as unknown);
   };
 
   const renderContent = () => {

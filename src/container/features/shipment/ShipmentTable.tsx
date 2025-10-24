@@ -43,7 +43,7 @@ const ShipmentTable: React.FC<ShipmentTableTypes> = (props) => {
   const createData = useSelector(selectCreateShipmentAdminData);
 
   useEffect(() => {
-    dispatch(GetShipmentAdminAction({ page: 1, limit: 10 }));
+    dispatch(GetShipmentAdminAction({ page: 0, limit: 10 }));
   }, []);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
@@ -71,7 +71,7 @@ const ShipmentTable: React.FC<ShipmentTableTypes> = (props) => {
   useEffect(() => {
     if (createData?.status === 200 || createData?.status === 201) {
       // Refresh the table data
-      dispatch(GetShipmentAdminAction({ page: 1, limit: 10 }));
+      dispatch(GetShipmentAdminAction({ page: 0, limit: 10 }));
       // Reset the create state to prevent multiple refreshes
       dispatch(resetCreateShipmentAdmin());
     }

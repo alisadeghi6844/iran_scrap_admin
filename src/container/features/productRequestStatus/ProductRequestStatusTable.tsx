@@ -37,7 +37,7 @@ const ProductRequestStatus: React.FC<ProductRequestStatusTypes> = (props) => {
   const productStatusData = useSelector(selectGetProductRequestStatusData);
 
   useEffect(() => {
-    dispatch(GetRequestProductStatusAction({ page: 1, size: 20 }));
+    dispatch(GetRequestProductStatusAction({ page: 0, size: 20 }));
   }, []);
 
   const handleFilter = ({

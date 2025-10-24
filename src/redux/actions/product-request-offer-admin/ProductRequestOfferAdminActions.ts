@@ -30,13 +30,13 @@ export const CloseRequestAction = createAsyncThunk(
     try {
       const response = await closeRequestService(requestId);
       if (response?.status === 200 || response?.status === 201) {
-        toast.success("درخواست با موفقیت بسته شد");
+        toast.success("درخواست با موفقیت تحویل داده شد");
         return response;
       } else {
         return rejectWithValue(response.data);
       }
     } catch (error: any) {
-      toast.error("خطا در بستن درخواست");
+      toast.error("خطا در تحویل درخواست");
       return rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }
       );

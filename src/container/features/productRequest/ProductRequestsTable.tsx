@@ -267,8 +267,8 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
                       >
                         مشاهده پیشنهاد
                       </Button>
-                      {(row?.state === "Payed" ||
-                        row?.status === "Payed" ||
+                      {(row?.state === "BUYER_WAITFORFINANCE" ||
+                        row?.status === "BUYER_WAITFORFINANCE" ||
                         row?.state === "Paid" ||
                         row?.status === "Paid") &&
                         row?.paymentType?.toUpperCase() === "INSTALLMENTS" && (
@@ -291,7 +291,7 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
                             </Button>
                           </>
                         )}
-                      {row?.state === "Shipping" && (
+                      {row?.state === "WAITING_UNLOADING" && (
                         <Button
                           type="button"
                           size="sm"

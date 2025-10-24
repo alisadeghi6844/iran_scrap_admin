@@ -92,7 +92,7 @@ const AllRequests = () => {
   const tabs = [
     { key: "new", label: "درخواست های جدید" },
     { key: "processing", label: "درخواست های درحال پردازش" },
-    { key: "closed", label: "درخواست های بسته" },
+    { key: "closed", label: "درخواست های تحویل داده شده" },
   ];
 
   const renderTabContent = () => {

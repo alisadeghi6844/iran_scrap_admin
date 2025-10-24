@@ -44,7 +44,7 @@ const SurveyResponses: React.FC<SurveyResponsesProps> = ({ survey, onClose, open
     if (survey.id) {
       dispatch(GetUserSurveysAction({ 
         surveyId: survey.id.toString(), 
-        page: 1, 
+        page: 0, 
         size: 20 
       }) as any);
     }

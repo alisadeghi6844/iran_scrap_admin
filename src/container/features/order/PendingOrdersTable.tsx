@@ -48,6 +48,8 @@ interface OrderItem {
   province: string;
   createdAt: number;
   updatedAt: number;
+  loadingDate?: string;
+  unloadingDate?: string;
   cheques?: Array<{
     date: string;
     bank: string;
@@ -80,7 +82,7 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
   const verifyPaymentData = useSelector(selectVerifyPaymentData);
 
   useEffect(() => {
-    dispatch(GetOrderAdminAction({ page: 1, size: 20 }));
+    dispatch(GetOrderAdminAction({ page: 0, size: 20 }));
   }, [dispatch]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
@@ -107,7 +109,7 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
     if (verifyPaymentData?.status == 200) {
       dispatch(
         GetOrderAdminAction({
-          page: 1,
+          page: 0,
           size: 20,
         })
       );
@@ -116,7 +118,7 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
 
   useEffect(() => {
     if (refreshTrigger && refreshTrigger > 0) {
-      dispatch(GetOrderAdminAction({ page: 1, size: 20 }));
+      dispatch(GetOrderAdminAction({ page: 0, size: 20 }));
     }
   }, [refreshTrigger, dispatch]);
 
@@ -155,6 +157,18 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
     }
   };
 
+  // Custom status text function for pending orders financial page
+  const getPendingOrderStatusText = (status: string): string => {
+    switch (status?.toLowerCase()) {
+      case OrderStatus.WAITING_FOR_OFFERS.toLowerCase():
+        return "تایید شده توسط تامین کننده";
+      case OrderStatus.NOT_RECEIVING_ENOUGH_OFFERS.toLowerCase():
+        return "رد شده توسط تامین کننده";
+      default:
+        return getOrderStatusText(status);
+    }
+  };
+
   return (
     <CollectionControls
       buttons={[]}
@@ -174,12 +188,14 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
             <TableHeadCell>نوع پرداخت</TableHeadCell>
             <TableHeadCell>شهر</TableHeadCell>
             <TableHeadCell>تاریخ ایجاد</TableHeadCell>
+            <TableHeadCell>تاریخ تخلیه</TableHeadCell>
             <TableHeadCell className="min-w-[180px]">وضعیت</TableHeadCell>
             <TableHeadCell>عملیات</TableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
@@ -216,8 +232,14 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
                   <TableCell>{row?.city ?? "_"}</TableCell>
                   <TableCell>{formatDate(row?.createdAt)}</TableCell>
                   <TableCell>
+                    {row?.unloadingDate 
+                      ? new Date(row.unloadingDate).toLocaleDateString("fa-IR")
+                      : "_"
+                    }
+                  </TableCell>
+                  <TableCell>
                     <span className={getOrderStatusColor(row?.status)}>
-                      {getOrderStatusText(row?.status)}
+                      {getPendingOrderStatusText(row?.status)}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -233,7 +255,7 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
                         مشاهده بیشتر
                       </Button>
                       {row?.status?.toLowerCase() ===
-                        OrderStatus.Payed.toLowerCase() && (
+                        OrderStatus.BUYER_WAITFORFINANCE.toLowerCase() && (
                         <>
                           <Button
                             type="button"
@@ -256,7 +278,8 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
                         </>
                       )}
                       {row?.status?.toLowerCase() ===
-                        OrderStatus.Shipping.toLowerCase() && (
+                        OrderStatus.WAITING_UNLOADING.toLowerCase() && 
+                        row?.loadingDate && (
                         <Button
                           type="button"
                           size="sm"
@@ -272,14 +295,14 @@ const PendingOrdersTable: React.FC<PendingOrdersTypes> = (props) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colspan="10" className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="9" className="flex justify-center !py-4">
+              <TableCell colspan="10" className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

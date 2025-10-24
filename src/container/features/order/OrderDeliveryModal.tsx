@@ -7,7 +7,12 @@ interface OrderDeliveryModalProps {
   isOpen: boolean;
   onClose: () => void;
   orderId: string;
-  onDelivery: (orderId: string, unloadingDate: string) => void;
+  order?: {
+    loadingDate?: string;
+    unloadingDate?: string;
+    status: string;
+  } | null;
+  onDelivery: (orderId: string, loadingDate: string) => void;
   loading: boolean;
 }
 
@@ -15,11 +20,25 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
   isOpen,
   onClose,
   orderId,
+  order,
   onDelivery,
   loading,
 }) => {
-  const [unloadingDate, setUnloadingDate] = useState("");
+  const [loadingDate, setLoadingDate] = useState("");
   const [dateError, setDateError] = useState("");
+  
+  // Check if order status is delivered
+  const isDelivered = order?.status?.toLowerCase() === "delivered";
+
+  // Initialize loadingDate from order if available
+  React.useEffect(() => {
+    if (order?.loadingDate) {
+      // Convert ISO date to Persian format for display
+      const date = new Date(order.loadingDate);
+      const persianDate = date.toLocaleDateString("fa-IR");
+      setLoadingDate(persianDate);
+    }
+  }, [order?.loadingDate]);
 
   // Persian date validation
   const validatePersianDate = (date: string): boolean => {
@@ -45,7 +64,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setUnloadingDate(value);
+    setLoadingDate(value);
 
     if (value && !validatePersianDate(value)) {
       setDateError("فرمت تاریخ صحیح نیست. مثال: 1403/09/15");
@@ -55,17 +74,17 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
   };
 
   const handleSubmit = () => {
-    if (!unloadingDate.trim() || !validatePersianDate(unloadingDate)) {
+    if (!loadingDate.trim() || !validatePersianDate(loadingDate)) {
       return;
     }
 
     // Convert Persian date to ISO format before sending
-    const isoDate = convertPersianToISO(unloadingDate);
+    const isoDate = convertPersianToISO(loadingDate);
     onDelivery(orderId, isoDate);
   };
 
   const handleClose = () => {
-    setUnloadingDate("");
+    setLoadingDate("");
     setDateError("");
     onClose();
   };
@@ -78,23 +97,36 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
       size="lg"
     >
       <div className="space-y-6 p-4">
-        <div className="space-y-4">
-          <div className="text-sm text-gray-600 mb-4">
-            لطفاً تاریخ تخلیه سفارش را انتخاب کنید:
+        {/* تاریخ تخلیه - خارج از اطلاعات راننده */}
+        {isDelivered && order?.unloadingDate && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="text-sm font-medium text-blue-800 mb-2">
+              تاریخ تخلیه
+            </div>
+            <div className="text-lg text-blue-900">
+              {new Date(order.unloadingDate).toLocaleDateString("fa-IR")}
+            </div>
           </div>
+        )}
 
+        {/* اطلاعات راننده */}
+        <div className="space-y-4">
+          <div className="text-lg font-medium text-gray-800 mb-4 border-b border-gray-200 pb-2">
+            اطلاعات راننده
+          </div>
+          
           <div className="mb-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                تاریخ تخلیه (شمسی) *
+                تاریخ بارگیری (شمسی) *
               </label>
               <Input
                 type="text"
-                value={unloadingDate}
+                value={loadingDate}
                 onChange={handleDateChange}
                 placeholder="مثال: 1403/09/15"
                 className={`w-full ${dateError ? "border-red-500" : ""}`}
-                disabled={loading}
+                disabled={loading || isDelivered}
                 dir="ltr"
               />
               {dateError && (
@@ -115,18 +147,20 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
             disabled={loading}
             size="md"
           >
-            انصراف
+            {isDelivered ? "بستن" : "انصراف"}
           </Button>
-          <Button
-            type="button"
-            variant="primary"
-            onClick={handleSubmit}
-            disabled={loading || !unloadingDate.trim() || !!dateError}
-            loading={loading}
-            size="md"
-          >
-            تحویل داده شد
-          </Button>
+          {!isDelivered && (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={handleSubmit}
+              disabled={loading || !loadingDate.trim() || !!dateError}
+              loading={loading}
+              size="md"
+            >
+              تحویل داده شد
+            </Button>
+          )}
         </div>
       </div>
     </Modal>

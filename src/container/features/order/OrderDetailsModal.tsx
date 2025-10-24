@@ -5,13 +5,19 @@ import Modal from "../../../components/modal";
 import Typography from "../../../components/typography/Typography";
 import Input from "../../../components/input";
 import Button from "../../../components/button";
-import { getOrderStatusText, getOrderStatusColor } from "../../../types/OrderStatus";
+import {
+  getOrderStatusText,
+  getOrderStatusColor,
+} from "../../../types/OrderStatus";
 import { UpdateOrderAdminAction } from "../../../redux/actions/order/OrderActions";
 import {
   selectUpdateOrderAdminLoading,
-  selectUpdateOrderAdminData,
-  selectUpdateOrderAdminError,
 } from "../../../redux/slice/order/orderSlice";
+import {
+  convertPersianToGregorian_2,
+  convertGregorianToPersian,
+} from "../../../utils/MomentConvertor";
+import moment from "jalali-moment";
 
 interface OrderItem {
   id: string;
@@ -34,6 +40,8 @@ interface OrderItem {
   province: string;
   createdAt: number;
   updatedAt: number;
+  loadingDate?: string;
+  unloadingDate?: string;
   cheques?: Array<{
     date: string;
     bank: string;
@@ -66,25 +74,82 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   order,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const [editableCheques, setEditableCheques] = useState<Array<{date: string; bank: string; no: string; sayyad: string}>>([]);
-  const [editableDriver, setEditableDriver] = useState<{billNumber: string; licensePlate: string; vehicleName: string; driverName: string; driverPhone: string} | null>(null);
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
-  const [driverValidationErrors, setDriverValidationErrors] = useState<{[key: string]: string}>({});
-  
+  const [editableCheques, setEditableCheques] = useState<
+    Array<{ date: string; bank: string; no: string; sayyad: string }>
+  >([]);
+  const [editableDriver, setEditableDriver] = useState<{
+    billNumber: string;
+    licensePlate: string;
+    vehicleName: string;
+    driverName: string;
+    driverPhone: string;
+  } | null>(null);
+  const [editableLoadingDate, setEditableLoadingDate] = useState<string>("");
+  const [validationErrors, setValidationErrors] = useState<{
+    [key: string]: string;
+  }>({});
+  const [driverValidationErrors, setDriverValidationErrors] = useState<{
+    [key: string]: string;
+  }>({});
+  const [loadingDateError, setLoadingDateError] = useState<string>("");
+
   const updateLoading = useSelector(selectUpdateOrderAdminLoading);
-  const updateData = useSelector(selectUpdateOrderAdminData);
-  const updateError = useSelector(selectUpdateOrderAdminError);
+
+  // Convert Gregorian date to Persian format using jalali-moment
+  const convertGregorianToPersianLocal = (gregorianDate: Date): string => {
+    try {
+      // Use the utility function to convert Gregorian to Persian
+      const isoString = gregorianDate.toISOString();
+      return convertGregorianToPersian(isoString);
+    } catch (error) {
+      console.error("Error converting Gregorian date to Persian:", error);
+      // Fallback to current Persian date if conversion fails
+      return moment().locale("fa").format("jYYYY/jMM/jDD");
+    }
+  };
 
   useEffect(() => {
     if (order) {
       setEditableCheques(order.cheques || []);
       setEditableDriver(order.driver || null);
+      // Initialize loadingDate from DTO if exists
+      if (order.loadingDate) {
+        const date = new Date(order.loadingDate);
+        const persianDate = convertGregorianToPersianLocal(date);
+        setEditableLoadingDate(persianDate);
+      } else {
+        setEditableLoadingDate("");
+      }
     }
   }, [order]);
 
+  // Persian date validation
+  const validatePersianDate = (date: string): boolean => {
+    const persianDateRegex =
+      /^14\d{2}\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/;
+    return persianDateRegex.test(date);
+  };
 
-  
-  console.log("OrderDetailsModal rendered with isOpen:", isOpen, "order:", order);
+  // Convert Persian date to Gregorian ISO string using jalali-moment
+  const convertPersianToISO = (persianDate: string): string => {
+    try {
+      // Use the utility function to convert Persian to Gregorian
+      const gregorianDate = convertPersianToGregorian_2(persianDate);
+      // Convert to ISO format
+      return moment(gregorianDate, "YYYY-MM-DD").toISOString();
+    } catch (error) {
+      console.error("Error converting Persian date to ISO:", error);
+      // Fallback to current date if conversion fails
+      return new Date().toISOString();
+    }
+  };
+
+  console.log(
+    "OrderDetailsModal rendered with isOpen:",
+    isOpen,
+    "order:",
+    order
+  );
   if (!order) {
     console.log("OrderDetailsModal: No order provided, returning null");
     return null;
@@ -97,7 +162,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       [field]: value,
     };
     setEditableCheques(updatedCheques);
-    
+
     // Clear validation error for this field
     const errorKey = `${index}-${field}`;
     if (validationErrors[errorKey]) {
@@ -108,8 +173,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   };
 
   const validateCheques = () => {
-    const errors: {[key: string]: string} = {};
-    
+    const errors: { [key: string]: string } = {};
+
     editableCheques.forEach((cheque, index) => {
       if (!cheque.bank?.trim()) {
         errors[`${index}-bank`] = "نام بانک الزامی است";
@@ -126,7 +191,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         errors[`${index}-date`] = "تاریخ الزامی است";
       }
     });
-    
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -137,7 +202,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         ...editableDriver,
         [field]: value,
       });
-      
+
       // Clear validation error for this field
       if (driverValidationErrors[field]) {
         const newErrors = { ...driverValidationErrors };
@@ -147,9 +212,20 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     }
   };
 
+  const handleLoadingDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEditableLoadingDate(value);
+
+    if (value && !validatePersianDate(value)) {
+      setLoadingDateError("فرمت تاریخ صحیح نیست. مثال: 1403/09/15");
+    } else {
+      setLoadingDateError("");
+    }
+  };
+
   const validateDriver = () => {
-    const errors: {[key: string]: string} = {};
-    
+    const errors: { [key: string]: string } = {};
+
     if (editableDriver) {
       if (!editableDriver.billNumber?.trim()) {
         errors.billNumber = "شماره بارنامه الزامی است";
@@ -169,31 +245,59 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         errors.driverPhone = "شماره تلفن باید با 09 شروع شده و 11 رقم باشد";
       }
     }
-    
+
     setDriverValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSaveCheques = () => {
     if (validateCheques()) {
-      dispatch(UpdateOrderAdminAction({
-        orderId: order.id,
-        data: {
-          cheques: editableCheques
-        }
-      }));
+      dispatch(
+        UpdateOrderAdminAction({
+          orderId: order.id,
+          data: {
+            cheques: editableCheques,
+          },
+        })
+      );
     }
   };
 
   const handleSaveDriver = () => {
     if (validateDriver()) {
-      dispatch(UpdateOrderAdminAction({
+      dispatch(
+        UpdateOrderAdminAction({
+          orderId: order.id,
+          data: {
+            driver: editableDriver,
+          },
+        })
+      );
+    }
+  };
+
+  const handleSaveLoadingDate = () => {
+    if (!editableLoadingDate.trim()) {
+      setLoadingDateError("تاریخ بارگیری الزامی است");
+      return;
+    }
+
+    if (!validatePersianDate(editableLoadingDate)) {
+      setLoadingDateError("فرمت تاریخ صحیح نیست. مثال: 1403/09/15");
+      return;
+    }
+
+    // Convert Persian date to ISO format before sending
+    const isoDate = convertPersianToISO(editableLoadingDate);
+
+    dispatch(
+      UpdateOrderAdminAction({
         orderId: order.id,
         data: {
-          driver: editableDriver
-        }
-      }));
-    }
+          loadingDate: isoDate,
+        },
+      })
+    );
   };
 
   const formatDate = (timestamp: number) => {
@@ -201,8 +305,6 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     const date = new Date(timestamp);
     return date.toLocaleDateString("fa-IR");
   };
-
-
 
   const getPaymentTypeText = (paymentType: string) => {
     switch (paymentType?.toUpperCase()) {
@@ -233,10 +335,8 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     }
   };
 
-
-
   console.log("OrderDetailsModal: About to render Modal with open:", isOpen);
-  
+
   return (
     <Modal open={isOpen} onClose={onClose} size="xl" headerTitle="جزئیات سفارش">
       <div className="space-y-6">
@@ -251,9 +351,19 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 {formatDate(order.createdAt)}
               </Typography>
             </div>
+            {order?.status==="CLOSED"?(<div>
+              <Typography className="text-sm text-gray-600">
+             تاریخ تخلیه
+              </Typography>
+              <Typography className="font-bold">
+                {formatDate(order.unloadingDate)}
+              </Typography>
+            </div>):null}
             <div>
               <Typography className="text-sm text-gray-600">وضعیت</Typography>
-              <Typography className={`font-bold ${getOrderStatusColor(order.status)}`}>
+              <Typography
+                className={`font-bold ${getOrderStatusColor(order.status)}`}
+              >
                 {getOrderStatusText(order.status)}
               </Typography>
             </div>
@@ -391,7 +501,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       <Input
                         label="بانک"
                         value={cheque.bank}
-                        onChange={(e) => handleChequeChange(index, 'bank', e.target.value)}
+                        onChange={(e) =>
+                          handleChequeChange(index, "bank", e.target.value)
+                        }
                         size="md"
                         errorMessage={validationErrors[`${index}-bank`]}
                         required
@@ -401,7 +513,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       <Input
                         label="شماره چک"
                         value={cheque.no}
-                        onChange={(e) => handleChequeChange(index, 'no', e.target.value)}
+                        onChange={(e) =>
+                          handleChequeChange(index, "no", e.target.value)
+                        }
                         size="md"
                         errorMessage={validationErrors[`${index}-no`]}
                         required
@@ -411,7 +525,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       <Input
                         label="شماره صیاد"
                         value={cheque.sayyad}
-                        onChange={(e) => handleChequeChange(index, 'sayyad', e.target.value)}
+                        onChange={(e) =>
+                          handleChequeChange(index, "sayyad", e.target.value)
+                        }
                         size="md"
                         errorMessage={validationErrors[`${index}-sayyad`]}
                         helperText="باید 16 رقم باشد"
@@ -422,7 +538,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       <Input
                         label="تاریخ"
                         value={cheque.date}
-                        onChange={(e) => handleChequeChange(index, 'date', e.target.value)}
+                        onChange={(e) =>
+                          handleChequeChange(index, "date", e.target.value)
+                        }
                         size="md"
                         errorMessage={validationErrors[`${index}-date`]}
                         required
@@ -439,10 +557,64 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           )}
         </div>
 
+        {/* Loading Date Section - Only show if loadingDate exists in DTO */}
+        {order.loadingDate && (
+          <div>
+            <div className="flex justify-between items-center mb-3">
+              <Typography className="text-lg font-bold">تاریخ بارگیری</Typography>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleSaveLoadingDate}
+                loading={updateLoading}
+                disabled={
+                  updateLoading ||
+                  !editableLoadingDate.trim() ||
+                  !!loadingDateError
+                }
+              >
+                ذخیره تاریخ بارگیری
+              </Button>
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-lg border mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Input
+                    label="تاریخ بارگیری"
+                    value={editableLoadingDate}
+                    onChange={handleLoadingDateChange}
+                    size="md"
+                    errorMessage={loadingDateError}
+                    placeholder="مثال: 1403/09/15"
+                    helperText="تاریخ بارگیری محصول"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Unloading Date Display (only when status is delivered) */}
+        {order.status === "DELIVERED" && order.unloadingDate && (
+          <div>
+            <Typography className="text-lg font-bold mb-3">
+              تاریخ تخلیه
+            </Typography>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <Typography className="font-bold">
+                {convertGregorianToPersianLocal(new Date(order.unloadingDate))}
+              </Typography>
+            </div>
+          </div>
+        )}
+
         {/* Driver Section */}
         <div>
           <div className="flex justify-between items-center mb-3">
-            <Typography className="text-lg font-bold">اطلاعات راننده</Typography>
+            <Typography className="text-lg font-bold">
+              اطلاعات راننده
+            </Typography>
             {editableDriver && (
               <Button
                 variant="primary"
@@ -455,6 +627,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               </Button>
             )}
           </div>
+
           {editableDriver ? (
             <div className="bg-gray-50 p-4 rounded-lg border">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -462,7 +635,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   <Input
                     label="شماره بارنامه"
                     value={editableDriver.billNumber}
-                    onChange={(e) => handleDriverChange('billNumber', e.target.value)}
+                    onChange={(e) =>
+                      handleDriverChange("billNumber", e.target.value)
+                    }
                     size="md"
                     errorMessage={driverValidationErrors.billNumber}
                     required
@@ -472,7 +647,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   <Input
                     label="شماره پلاک"
                     value={editableDriver.licensePlate}
-                    onChange={(e) => handleDriverChange('licensePlate', e.target.value)}
+                    onChange={(e) =>
+                      handleDriverChange("licensePlate", e.target.value)
+                    }
                     size="md"
                     errorMessage={driverValidationErrors.licensePlate}
                     required
@@ -482,7 +659,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   <Input
                     label="نام وسیله نقلیه"
                     value={editableDriver.vehicleName}
-                    onChange={(e) => handleDriverChange('vehicleName', e.target.value)}
+                    onChange={(e) =>
+                      handleDriverChange("vehicleName", e.target.value)
+                    }
                     size="md"
                     errorMessage={driverValidationErrors.vehicleName}
                     required
@@ -492,7 +671,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   <Input
                     label="نام راننده"
                     value={editableDriver.driverName}
-                    onChange={(e) => handleDriverChange('driverName', e.target.value)}
+                    onChange={(e) =>
+                      handleDriverChange("driverName", e.target.value)
+                    }
                     size="md"
                     errorMessage={driverValidationErrors.driverName}
                     required
@@ -502,7 +683,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   <Input
                     label="شماره تلفن راننده"
                     value={editableDriver.driverPhone}
-                    onChange={(e) => handleDriverChange('driverPhone', e.target.value)}
+                    onChange={(e) =>
+                      handleDriverChange("driverPhone", e.target.value)
+                    }
                     size="md"
                     errorMessage={driverValidationErrors.driverPhone}
                     helperText="مثال: 09123456789"
@@ -513,7 +696,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </div>
           ) : (
             <div className="bg-gray-50 p-4 rounded-lg text-center">
-              <Typography className="text-gray-500">اطلاعات راننده موجود نیست</Typography>
+              <Typography className="text-gray-500">
+                اطلاعات راننده موجود نیست
+              </Typography>
             </div>
           )}
         </div>
