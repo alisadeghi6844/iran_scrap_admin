@@ -31,6 +31,7 @@ export const rejectOrderService = async (orderId: string, reason?: string) => {
 };
 
 export const verifyPaymentService = async (orderId: string, verified: boolean, comment: string) => {
+  console.log(orderId)
   return await HttpServises.post(`${BASE_URL}${VERIFY_PAYMENT_POINT}`, {
     orderId,
     verified,

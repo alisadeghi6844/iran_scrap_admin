@@ -185,7 +185,7 @@ const ProductRequests = () => {
   const handleApproveRequest = (requestId: string) => {
     dispatch(
       VerifyPaymentAction({
-        offerId: requestId,
+        requestId: requestId,
         verified: true,
         comment: "تایید پرداخت توسط ادمین",
       })
@@ -195,7 +195,7 @@ const ProductRequests = () => {
   const handleRejectRequest = (requestId: string, reason: string) => {
     dispatch(
       VerifyPaymentAction({
-        offerId: requestId,
+        requestId: requestId,
         verified: false,
         comment: reason,
       })

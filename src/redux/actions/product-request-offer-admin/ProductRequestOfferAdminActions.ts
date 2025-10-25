@@ -104,7 +104,9 @@ export const GetProductRequestOffersByRequestIdAction = createAsyncThunk(
   `${PRODUCT_REQUEST_OFFER_ADMIN}/${GET_PRODUCT_REQUEST_OFFERS_BY_REQUEST_ID}`,
   async ({ requestId }: { requestId: string }, { rejectWithValue }: any) => {
     try {
-      const response = await getProductRequestOffersByRequestIdService(requestId);
+      const response = await getProductRequestOffersByRequestIdService(
+        requestId
+      );
       if (response?.status === 200) {
         return response.data;
       } else {
@@ -121,13 +123,23 @@ export const GetProductRequestOffersByRequestIdAction = createAsyncThunk(
 export const VerifyPaymentAction = createAsyncThunk(
   `${PRODUCT_REQUEST_OFFER_ADMIN}/${VERIFY_PAYMENT}`,
   async (
-    { offerId, verified, comment }: { offerId: string; verified: boolean; comment: string },
+    {
+      requestId,
+      verified,
+      comment,
+    }: { requestId: string; verified: boolean; comment: string },
     { rejectWithValue }: any
   ) => {
     try {
-      const response = await verifyPaymentService({ offerId, verified, comment });
+      const response = await verifyPaymentService({
+        requestId,
+        verified,
+        comment,
+      });
       if (response?.status === 200 || response?.status === 201) {
-        toast.success(verified ? "پرداخت با موفقیت تایید شد" : "پرداخت با موفقیت رد شد");
+        toast.success(
+          verified ? "پرداخت با موفقیت تایید شد" : "پرداخت با موفقیت رد شد"
+        );
         return response.data;
       } else {
         return rejectWithValue(response.data);
@@ -186,9 +198,15 @@ export const SendOfferToBuyerAction = createAsyncThunk(
 
 export const UpdateProductRequestOfferAdminAction = createAsyncThunk(
   `${PRODUCT_REQUEST_OFFER_ADMIN}/${UPDATE_PRODUCT_REQUEST_OFFER_ADMIN}`,
-  async ({ offerId, data }: { offerId: string; data: any }, { rejectWithValue }: any) => {
+  async (
+    { offerId, data }: { offerId: string; data: any },
+    { rejectWithValue }: any
+  ) => {
     try {
-      const response = await updateProductRequestOfferAdminService(offerId, data);
+      const response = await updateProductRequestOfferAdminService(
+        offerId,
+        data
+      );
       if (response?.status === 200 || response?.status === 201) {
         toast.success("اطلاعات با موفقیت به‌روزرسانی شد");
         return response.data;

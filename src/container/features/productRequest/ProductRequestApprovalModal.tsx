@@ -65,8 +65,8 @@ const ProductRequestApprovalModal: React.FC<ProductRequestApprovalModalProps> = 
   loading,
 }) => {
   const handleApprove = () => {
-    if (request?.id) {
-      onApprove(request.id);
+    if (request?.requestId) {
+      onApprove(request.requestId);
     }
   };
 

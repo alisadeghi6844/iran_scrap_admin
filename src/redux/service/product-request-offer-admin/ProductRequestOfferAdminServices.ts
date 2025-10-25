@@ -46,7 +46,7 @@ export const getProductRequestOffersByRequestIdService = async (requestId: strin
 };
 
 export const verifyPaymentService = async (data: {
-  offerId: string;
+  requestId: string;
   verified: boolean;
   comment: string;
 }) => {
@@ -73,7 +73,7 @@ export const sendOfferToBuyerService = async (offerId: string) => {
   );
 };
 
-export const updateProductRequestOfferAdminService = async (offerId: string, data: any) => {
+export const updateProductRequestOfferAdminService = async (offerId: string, data: unknown) => {
   return await HttpServises.put(
     `${BASE_URL}${UPDATE_PRODUCT_REQUEST_OFFER_ADMIN_POINT}/${offerId}`,
     data

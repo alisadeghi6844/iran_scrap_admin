@@ -58,18 +58,14 @@ interface ProductRequestRejectionModalProps {
   loading: boolean;
 }
 
-const ProductRequestRejectionModal: React.FC<ProductRequestRejectionModalProps> = ({
-  isOpen,
-  onClose,
-  request,
-  onReject,
-  loading,
-}) => {
+const ProductRequestRejectionModal: React.FC<
+  ProductRequestRejectionModalProps
+> = ({ isOpen, onClose, request, onReject, loading }) => {
   const [reason, setReason] = useState("");
 
   const handleReject = () => {
-    if (request?.id && reason.trim()) {
-      onReject(request.id, reason.trim());
+    if (request?.requestId && reason.trim()) {
+      onReject(request.requestId, reason.trim());
     }
   };
 
@@ -119,28 +115,39 @@ const ProductRequestRejectionModal: React.FC<ProductRequestRejectionModalProps> 
           </Typography>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <span className="font-semibold">توضیحات پیشنهاد:</span> {request?.description || "_"}
+              <span className="font-semibold">توضیحات پیشنهاد:</span>{" "}
+              {request?.description || "_"}
             </div>
             <div>
-              <span className="font-semibold">توضیحات درخواست:</span> {request?.request?.description || "_"}
+              <span className="font-semibold">توضیحات درخواست:</span>{" "}
+              {request?.request?.description || "_"}
             </div>
             <div>
-              <span className="font-semibold">مقدار:</span> {request?.request?.amount || "_"} {getAmountTypeText(request?.request?.amountType || "")}
+              <span className="font-semibold">مقدار:</span>{" "}
+              {request?.request?.amount || "_"}{" "}
+              {getAmountTypeText(request?.request?.amountType || "")}
             </div>
             <div>
-              <span className="font-semibold">قیمت نهایی:</span> {request?.finalPrice ? request.finalPrice.toLocaleString() + " تومان" : "_"}
+              <span className="font-semibold">قیمت نهایی:</span>{" "}
+              {request?.finalPrice
+                ? request.finalPrice.toLocaleString() + " تومان"
+                : "_"}
             </div>
             <div>
-              <span className="font-semibold">نوع پرداخت:</span> {getPaymentTypeText(request?.paymentType || "")}
+              <span className="font-semibold">نوع پرداخت:</span>{" "}
+              {getPaymentTypeText(request?.paymentType || "")}
             </div>
             <div>
-              <span className="font-semibold">شهر:</span> {request?.request?.city || "_"}
+              <span className="font-semibold">شهر:</span>{" "}
+              {request?.request?.city || "_"}
             </div>
             <div>
-              <span className="font-semibold">استان:</span> {request?.request?.province || "_"}
+              <span className="font-semibold">استان:</span>{" "}
+              {request?.request?.province || "_"}
             </div>
             <div>
-              <span className="font-semibold">تامین‌کننده:</span> {request?.provider?.mobile || "_"}
+              <span className="font-semibold">تامین‌کننده:</span>{" "}
+              {request?.provider?.mobile || "_"}
             </div>
           </div>
         </div>
