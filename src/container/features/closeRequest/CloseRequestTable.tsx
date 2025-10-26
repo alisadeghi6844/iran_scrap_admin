@@ -164,9 +164,9 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                   <TableCell>
                   {row?.paymentType
                     ? row?.paymentType === "INSTALLMENTS"
-                      ? "اقساط"
+                      ? "مدت دار"
                       : row?.paymentType === "CASH_AND_INSTALLMENTS"
-                      ? "نقد و اقساط"
+                      ? "نقد و مدت دار"
                       : "نقد"
                     : "_"}
                 </TableCell>

@@ -87,9 +87,9 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
                 <TableCell>
                   {reqData?.paymentType
                     ? reqData?.paymentType === "INSTALLMENTS"
-                      ? "اقساط"
+                      ? "مدت دار"
                       : reqData?.paymentType === "CASH_AND_INSTALLMENTS"
-                      ? "نقد و اقساط"
+                      ? "نقد و مدت دار"
                       : "نقد"
                     : "_"}
                 </TableCell>

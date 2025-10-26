@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../redux/store";
 import { HandleFilterParams } from "../../../types/FilterParams";
@@ -13,6 +13,8 @@ import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import Image from "../../../components/image";
+import Button from "../../../components/button";
+import ProductDetailModal from "./ProductDetailModal";
 
 import {
   selectCreateProductData,
@@ -32,15 +34,42 @@ import RadioGroup from "../../../components/radio/RadioGroup";
 
 interface ProductItem {
   _id: string;
+  providerId: string;
   name: string;
-  images?: Array<{ url: string }>;
-  category?: { name: string };
-  provider?: { name: string };
-  address?: { city: string };
+  description?: string;
+  images?: Array<{ id: number; path: string }>;
+  category?: { _id: string; name: string; code: string };
+  categoryId: string;
+  provider?: {
+    mobile: string;
+    agentName: string;
+    agentPhone: string;
+    companyName: string;
+    firstName?: string;
+    lastName?: string;
+  };
+  address?: {
+    title: string;
+    province: string;
+    city: string;
+    detail: string;
+  };
+  addressId: string;
   price?: number;
+  priceExpire?: string;
   inventory?: number;
   inventoryType?: string;
+  minimumOrderQuantity?: number;
+  minimumOrderType?: string;
+  paymentType?: string;
+  installmentPrice?: Array<{ duration: number; price: number }>;
+  deliveryTime?: number;
+  deliveryTimeType?: string;
+  displayType?: Array<any>;
+  attributes?: Array<any>;
   status: string;
+  createdAt: number;
+  updatedAt: number;
 }
 
 interface ProductTypes {
@@ -51,6 +80,10 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
   const { onRowClick } = props;
 
   const dispatch = useDispatch<AppDispatch>();
+  const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(
+    null
+  );
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   const filterDefaultInitialValues = {
     ProductName: "",
@@ -115,8 +148,9 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
     }
   }, [updateData, createData, updateStatusData, changeStatusData, dispatch]);
 
-  const getInventoryUnit = (inventoryType: string) => {
-    switch (inventoryType?.toUpperCase()) {
+  const getInventoryUnit = (inventoryType?: string) => {
+    if (!inventoryType) return "";
+    switch (inventoryType.toUpperCase()) {
       case "KILOGRAM":
       case "KG":
         return "کیلوگرم";
@@ -128,6 +162,20 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
         return "عدد";
       default:
         return "";
+    }
+  };
+
+  const getPaymentTypeLabel = (paymentType?: string) => {
+    if (!paymentType) return "_";
+    switch (paymentType) {
+      case "CASH":
+        return "نقدی";
+      case "INSTALLMENTS":
+        return "مدت دار";
+      case "CASH_AND_INSTALLMENTS":
+        return "نقدی و مدت دار";
+      default:
+        return paymentType;
     }
   };
 
@@ -168,7 +216,9 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
             <TableHeadCell>شهر</TableHeadCell>
             <TableHeadCell>قیمت</TableHeadCell>
             <TableHeadCell>موجودی</TableHeadCell>
+            <TableHeadCell>نوع پرداخت</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
+            <TableHeadCell>عملیات</TableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -189,6 +239,8 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             productData?.data?.length > 0 ? (
@@ -198,8 +250,8 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
                     <Image
                       className="w-[60px] h-[60px] rounded-lg"
                       src={
-                        row?.images?.[0]?.url
-                          ? row?.images[0].url
+                        row?.images?.[0]?.path
+                          ? row?.images[0].path
                           : "/images/core/default-image.png"
                       }
                     />
@@ -222,6 +274,7 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
                         )}`
                       : "_"}
                   </TableCell>
+                  <TableCell>{getPaymentTypeLabel(row?.paymentType)}</TableCell>
                   <TableCell>
                     <RadioGroup
                       name={`status-${row?._id}`}
@@ -233,24 +286,46 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
                       className="flex-row gap-1"
                     />
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      size="sm"
+                      variant="outline-primary"
+                      onClick={() => {
+                        setSelectedProduct(row);
+                        setShowDetailModal(true);
+                      }}
+                    >
+                      مشاهده بیشتر
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colspan="8" className="flex justify-center !py-4">
+                <TableCell colspan="10" className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="8" className="flex justify-center !py-4">
+              <TableCell colspan="10" className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
+
+      {/* مودال جزئیات محصول */}
+      <ProductDetailModal
+        product={selectedProduct}
+        open={showDetailModal}
+        onClose={() => {
+          setShowDetailModal(false);
+          setSelectedProduct(null);
+        }}
+      />
     </CollectionControls>
   );
 };
