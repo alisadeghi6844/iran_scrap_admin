@@ -4,6 +4,7 @@ import {
   ExpireOfferAction,
   GetProductRequestOfferAdminAction,
   GetProductRequestOfferAdminByIdAction,
+  GetProductRequestAdminByIdAction,
   GetProductRequestOffersByRequestIdAction,
   VerifyPaymentAction,
   MakeDeliveredAction,
@@ -28,6 +29,10 @@ interface ProductRequestOfferAdminState {
   getProductRequestOfferAdminByIdError: string | null;
   getProductRequestOfferAdminByIdLoading: boolean;
   getProductRequestOfferAdminByIdData: any;
+
+  getProductRequestAdminByIdError: string | null;
+  getProductRequestAdminByIdLoading: boolean;
+  getProductRequestAdminByIdData: any;
 
   getProductRequestOffersByRequestIdError: string | null;
   getProductRequestOffersByRequestIdLoading: boolean;
@@ -66,6 +71,10 @@ const initialState: ProductRequestOfferAdminState = {
   getProductRequestOfferAdminByIdError: null,
   getProductRequestOfferAdminByIdLoading: false,
   getProductRequestOfferAdminByIdData: null,
+
+  getProductRequestAdminByIdError: null,
+  getProductRequestAdminByIdLoading: false,
+  getProductRequestAdminByIdData: null,
 
   getProductRequestOffersByRequestIdError: null,
   getProductRequestOffersByRequestIdLoading: false,
@@ -183,6 +192,29 @@ const productRequestOfferAdminSlice = createSlice({
           state.getProductRequestOfferAdminByIdLoading = false;
           state.getProductRequestOfferAdminByIdError = action.payload;
           state.getProductRequestOfferAdminByIdData = null;
+        }
+      )
+
+      // Get Product Request Admin By ID
+      .addCase(GetProductRequestAdminByIdAction.pending, (state) => {
+        state.getProductRequestAdminByIdLoading = true;
+        state.getProductRequestAdminByIdData = null;
+        state.getProductRequestAdminByIdError = null;
+      })
+      .addCase(
+        GetProductRequestAdminByIdAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.getProductRequestAdminByIdLoading = false;
+          state.getProductRequestAdminByIdData = action.payload;
+          state.getProductRequestAdminByIdError = null;
+        }
+      )
+      .addCase(
+        GetProductRequestAdminByIdAction.rejected,
+        (state, action: PayloadAction<any>) => {
+          state.getProductRequestAdminByIdLoading = false;
+          state.getProductRequestAdminByIdError = action.payload;
+          state.getProductRequestAdminByIdData = null;
         }
       )
 
@@ -334,6 +366,14 @@ export const selectGetProductRequestOfferAdminByIdLoading = (state: any) =>
   state.productRequestOfferAdmin.getProductRequestOfferAdminByIdLoading;
 export const selectGetProductRequestOfferAdminByIdData = (state: any) =>
   state.productRequestOfferAdmin.getProductRequestOfferAdminByIdData;
+
+// Selectors for Get Product Request Admin By ID
+export const selectGetProductRequestAdminByIdError = (state: any) =>
+  state.productRequestOfferAdmin.getProductRequestAdminByIdError;
+export const selectGetProductRequestAdminByIdLoading = (state: any) =>
+  state.productRequestOfferAdmin.getProductRequestAdminByIdLoading;
+export const selectGetProductRequestAdminByIdData = (state: any) =>
+  state.productRequestOfferAdmin.getProductRequestAdminByIdData;
 
 // Selectors for Get Product Request Offers By Request ID
 export const selectGetProductRequestOffersByRequestIdError = (state: any) =>

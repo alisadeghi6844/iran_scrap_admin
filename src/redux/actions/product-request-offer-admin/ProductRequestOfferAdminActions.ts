@@ -5,6 +5,7 @@ import {
   EXPIRE_OFFER,
   GET_PRODUCT_REQUEST_OFFER_ADMIN,
   GET_PRODUCT_REQUEST_OFFER_ADMIN_BY_ID,
+  GET_PRODUCT_REQUEST_ADMIN_BY_ID,
   GET_PRODUCT_REQUEST_OFFERS_BY_REQUEST_ID,
   PRODUCT_REQUEST_OFFER_ADMIN,
   VERIFY_PAYMENT,
@@ -17,6 +18,7 @@ import {
   expireOfferService,
   getProductRequestOfferAdminService,
   getProductRequestOfferAdminByIdService,
+  getProductRequestAdminByIdService,
   getProductRequestOffersByRequestIdService,
   verifyPaymentService,
   makeDeliveredService,
@@ -87,6 +89,24 @@ export const GetProductRequestOfferAdminByIdAction = createAsyncThunk(
   async ({ offerId }: { offerId: string }, { rejectWithValue }: any) => {
     try {
       const response = await getProductRequestOfferAdminByIdService(offerId);
+      if (response?.status === 200) {
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const GetProductRequestAdminByIdAction = createAsyncThunk(
+  `${PRODUCT_REQUEST_OFFER_ADMIN}/${GET_PRODUCT_REQUEST_ADMIN_BY_ID}`,
+  async ({ requestId }: { requestId: string }, { rejectWithValue }: any) => {
+    try {
+      const response = await getProductRequestAdminByIdService(requestId);
       if (response?.status === 200) {
         return response.data;
       } else {

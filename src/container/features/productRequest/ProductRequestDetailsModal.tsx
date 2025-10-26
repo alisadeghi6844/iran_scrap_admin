@@ -9,66 +9,134 @@ import {
   getOrderStatusText,
   getOrderStatusLabel,
 } from "../../../types/OrderStatus";
-import { UpdateProductRequestOfferAdminAction } from "../../../redux/actions/product-request-offer-admin/ProductRequestOfferAdminActions";
+import { 
+  UpdateProductRequestOfferAdminAction,
+  GetProductRequestAdminByIdAction 
+} from "../../../redux/actions/product-request-offer-admin/ProductRequestOfferAdminActions";
 import {
   selectUpdateProductRequestOfferAdminLoading,
   selectUpdateProductRequestOfferAdminData,
   selectUpdateProductRequestOfferAdminError,
+  selectGetProductRequestAdminByIdLoading,
+  selectGetProductRequestAdminByIdData,
+  selectGetProductRequestAdminByIdError,
 } from "../../../redux/slice/product-request-offer-admin/ProductRequestOfferAdminSlice";
 
 interface ProductRequestItem {
-  id: string;
+  _id: string;
+  id?: string;
+  address: string;
+  amount: number;
+  amountType: string;
   category: {
+    _id: string;
     name: string;
     code: string;
-    parentId: string;
-    icon: string | null;
     image: string;
   };
-  cheques: Array<{
-    date: string;
-    bank: string;
-    no: string;
-    sayyad: string;
-  }>;
-  driver?: {
-    billNumber: string;
-    licensePlate: string;
-    vehicleName: string;
-    driverName: string;
-    driverPhone: string;
+  catRoute: string;
+  categoryId: {
+    id: string;
+    name: string;
+    code: string;
+    isLast: boolean;
+    catRoute: string;
+    createdAt: number;
+    image: string;
+    parentId: string;
+    updatedAt: number;
   };
-  comments: string[];
+  city: string;
   createdAt: number;
-  deliveryTime: number;
   description: string;
+  expectedDate: number;
   expireDate: number;
-  finalPrice: number;
-  image: string | null;
   installmentMonths: number;
-  payingPrice: number;
+  invoiceId?: {
+    id: string;
+    offerId: string;
+    code: string;
+    cheques: Array<{
+      date: string;
+      bank: string;
+      no: string;
+      sayyad: string;
+    }>;
+    comments: string[];
+    createdAt: number;
+    finalPrice: number;
+    payingPrice: number;
+    paymentType: string;
+    price: number;
+    selectedShipping: string;
+    shippingPrice: number;
+    totalprice: number;
+    updatedAt: number;
+  };
   paymentType: string;
-  price: number;
-  provider: {
+  postalCode: string;
+  providerIds: Array<{
+    id: string;
     mobile: string;
-    profileImg: string | null;
-  };
-  providerId: string;
-  request: {
-    description: string;
-    categoryId: string;
-    amount: number;
-    amountType: string;
-    city: string;
-    province: string;
-  };
-  requestId: string;
-  shippingPrice: number;
-  shippings: string;
-  state: string;
+    phone?: string;
+    companyName?: string;
+    agentName?: string;
+    agentPhone?: string;
+    firstName?: string;
+    lastName?: string;
+  }>;
+  province: string;
+  requestType: string;
   status: string;
-  statusFa: string;
+  statusTitle: string;
   updatedAt: number;
+  user: {
+    id: string;
+    mobile: string;
+    firstName: string;
+    lastName: string;
+    authCode: string;
+    authCodeExpireTime: number;
+    createdAt: number;
+    extraImages: any[];
+    isWelcomeComplete: boolean;
+    lastLoginAt: number;
+    permissions: any[];
+    productCategories: string[];
+    roles: string[];
+    updatedAt: number;
+    updatedBy: string;
+    updatedFields: string;
+    userSort: string;
+    usertype: string;
+  };
+  userId: {
+    id: string;
+    mobile: string;
+    firstName: string;
+    lastName: string;
+    authCode: string;
+    authCodeExpireTime: number;
+    createdAt: number;
+    extraImages: any[];
+    isWelcomeComplete: boolean;
+    lastLoginAt: number;
+    permissions: any[];
+    productCategories: string[];
+    roles: string[];
+    updatedAt: number;
+    updatedBy: string;
+    updatedFields: string;
+    userSort: string;
+    usertype: string;
+  };
+  winner?: {
+    id: string;
+    requestId: string;
+    [key: string]: any;
+  };
+  winnerId?: string;
+  __v: number;
 }
 
 interface ProductRequestDetailsModalProps {
@@ -83,139 +151,31 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
   request,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const [editableCheques, setEditableCheques] = useState(request?.cheques || []);
-  const [editableDriver, setEditableDriver] = useState(request?.driver || null);
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
-  const [driverValidationErrors, setDriverValidationErrors] = useState<{[key: string]: string}>({});
+  const [requestDetails, setRequestDetails] = useState<any>(null);
   
-  const updateLoading = useSelector(selectUpdateProductRequestOfferAdminLoading);
-  const updateData = useSelector(selectUpdateProductRequestOfferAdminData);
-  const updateError = useSelector(selectUpdateProductRequestOfferAdminError);
+  const loading = useSelector(selectGetProductRequestAdminByIdLoading);
+  const requestData = useSelector(selectGetProductRequestAdminByIdData);
+  const error = useSelector(selectGetProductRequestAdminByIdError);
 
   useEffect(() => {
-    if (request?.cheques) {
-      setEditableCheques(request.cheques);
+    if (isOpen && (request?._id || request?.id)) {
+      dispatch(GetProductRequestAdminByIdAction({ requestId: request._id || request.id }));
     }
-    if (request?.driver) {
-      setEditableDriver(request.driver);
-    }
-  }, [request?.cheques, request?.driver]);
+  }, [isOpen, request?._id, request?.id, dispatch]);
 
   useEffect(() => {
-    if (updateData) {
-      onClose();
+    if (requestData) {
+      setRequestDetails(requestData);
     }
-  }, [updateData, onClose]);
+  }, [requestData]);
   
   if (!request) {
     return null;
   }
 
-  const handleChequeChange = (index: number, field: string, value: string) => {
-    const updatedCheques = [...editableCheques];
-    updatedCheques[index] = {
-      ...updatedCheques[index],
-      [field]: value,
-    };
-    setEditableCheques(updatedCheques);
-    
-    // Clear validation error for this field
-    const errorKey = `${index}-${field}`;
-    if (validationErrors[errorKey]) {
-      const newErrors = { ...validationErrors };
-      delete newErrors[errorKey];
-      setValidationErrors(newErrors);
-    }
-  };
+  const displayData = requestDetails || request;
 
-  const validateCheques = () => {
-    const errors: {[key: string]: string} = {};
-    
-    editableCheques.forEach((cheque, index) => {
-      if (!cheque.bank?.trim()) {
-        errors[`${index}-bank`] = "نام بانک الزامی است";
-      }
-      if (!cheque.no?.trim()) {
-        errors[`${index}-no`] = "شماره چک الزامی است";
-      }
-      if (!cheque.sayyad?.trim()) {
-        errors[`${index}-sayyad`] = "شماره صیاد الزامی است";
-      } else if (cheque.sayyad.length !== 16) {
-        errors[`${index}-sayyad`] = "شماره صیاد باید 16 رقم باشد";
-      }
-      if (!cheque.date?.trim()) {
-        errors[`${index}-date`] = "تاریخ الزامی است";
-      }
-    });
-    
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
 
-  const handleDriverChange = (field: string, value: string) => {
-    if (editableDriver) {
-      setEditableDriver({
-        ...editableDriver,
-        [field]: value,
-      });
-      
-      // Clear validation error for this field
-      if (driverValidationErrors[field]) {
-        const newErrors = { ...driverValidationErrors };
-        delete newErrors[field];
-        setDriverValidationErrors(newErrors);
-      }
-    }
-  };
-
-  const validateDriver = () => {
-    const errors: {[key: string]: string} = {};
-    
-    if (editableDriver) {
-      if (!editableDriver.billNumber?.trim()) {
-        errors.billNumber = "شماره بارنامه الزامی است";
-      }
-      if (!editableDriver.licensePlate?.trim()) {
-        errors.licensePlate = "شماره پلاک الزامی است";
-      }
-      if (!editableDriver.vehicleName?.trim()) {
-        errors.vehicleName = "نام وسیله نقلیه الزامی است";
-      }
-      if (!editableDriver.driverName?.trim()) {
-        errors.driverName = "نام راننده الزامی است";
-      }
-      if (!editableDriver.driverPhone?.trim()) {
-        errors.driverPhone = "شماره تلفن راننده الزامی است";
-      } else if (!/^09\d{9}$/.test(editableDriver.driverPhone)) {
-        errors.driverPhone = "شماره تلفن باید با 09 شروع شده و 11 رقم باشد";
-      }
-    }
-    
-    setDriverValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSaveCheques = () => {
-    if (validateCheques()) {
-      dispatch(UpdateProductRequestOfferAdminAction({
-        offerId: request.id,
-        data: {
-          cheques: editableCheques
-        }
-      }));
-    }
-  };
-
-  const handleSaveDriver = () => {
-    if (validateDriver()) {
-      dispatch(UpdateProductRequestOfferAdminAction({
-        offerId: request.id,
-        data: {
-          driver: editableDriver
-        }
-      }));
-    }
-  };
 
   const formatDate = (timestamp: number) => {
     if (!timestamp) return "_";
@@ -251,14 +211,14 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
     }
   };
 
-  const getShippingText = (shippings: string) => {
-    switch (shippings?.toLowerCase()) {
-      case "provider":
-        return "توسط تامین‌کننده";
-      case "buyer":
-        return "توسط خریدار";
+  const getRequestTypeText = (requestType: string) => {
+    switch (requestType?.toUpperCase()) {
+      case "NORMAL":
+        return "عادی";
+      case "URGENT":
+        return "فوری";
       default:
-        return shippings || "_";
+        return requestType || "_";
     }
   };
 
@@ -274,222 +234,27 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
       size="xl"
       headerTitle="جزئیات درخواست محصول"
     >
-      <div className="space-y-6">
-        {/* Request Header */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Typography className="text-sm text-gray-600">
-                تاریخ ایجاد
-              </Typography>
-              <Typography className="font-bold">
-                {formatDate(request.createdAt)}
-              </Typography>
-            </div>
-            <div>
-              <Typography className="text-sm text-gray-600">وضعیت</Typography>
-              <Typography className="font-bold">
-                {request?.statusFa ||
-                  (request?.state
-                    ? getOrderStatusText(request.state)
-                    : request?.status
-                    ? getOrderStatusLabel(request.status)
-                    : "_")}
-              </Typography>
-            </div>
-            <div>
-              <Typography className="text-sm text-gray-600">
-                آخرین بروزرسانی
-              </Typography>
-              <Typography className="font-bold">
-                {formatDate(request.updatedAt)}
-              </Typography>
-            </div>
-          </div>
+      {loading ? (
+        <div className="flex justify-center items-center py-8">
+          <div className="text-center">در حال بارگذاری...</div>
         </div>
-
-        {/* Category Information */}
-        <div>
-          <Typography className="text-lg font-bold mb-3">
-            اطلاعات دسته‌بندی
-          </Typography>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  نام دسته‌بندی
-                </Typography>
-                <Typography className="font-bold">
-                  {request.category?.name || "_"}
-                </Typography>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Request Information */}
-        <div>
-          <Typography className="text-lg font-bold mb-3">
-            اطلاعات درخواست اصلی
-          </Typography>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  توضیحات درخواست
-                </Typography>
-                <Typography className="font-bold">
-                  {request.request?.description || "_"}
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">مقدار</Typography>
-                <Typography className="font-bold">
-                  {request.request?.amount}{" "}
-                  {getAmountTypeText(request.request?.amountType)}
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">شهر</Typography>
-                <Typography className="font-bold">
-                  {request.request?.city || "_"}
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">استان</Typography>
-                <Typography className="font-bold">
-                  {request.request?.province || "_"}
-                </Typography>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Offer Information */}
-        <div>
-          <Typography className="text-lg font-bold mb-3">
-            اطلاعات پیشنهاد
-          </Typography>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  توضیحات پیشنهاد
-                </Typography>
-                <Typography className="font-bold">
-                  {request.description || "_"}
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  نوع پرداخت
-                </Typography>
-                <Typography className="font-bold">
-                  {getPaymentTypeText(request.paymentType)}
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  قیمت به ازای هر کیلوگرم
-                </Typography>
-                <Typography className="font-bold">
-                  {request.price
-                    ? request.price.toLocaleString() + " تومان"
-                    : "_"}
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  قیمت نهایی (مقدار × قیمت هر کیلوگرم)
-                </Typography>
-                <Typography className="font-bold">
-                  {request.finalPrice
-                    ? request.finalPrice.toLocaleString() + " تومان"
-                    : "_"}
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  مبلغ پرداختی
-                </Typography>
-                <Typography className="font-bold">
-                  {request.payingPrice
-                    ? request.payingPrice.toLocaleString() + " تومان"
-                    : "_"}
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  هزینه حمل و نقل (جداگانه)
-                </Typography>
-                <Typography className="font-bold">
-                  {request.shippingPrice
-                    ? request.shippingPrice.toLocaleString() + " تومان"
-                    : "_"}
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  نحوه حمل و نقل
-                </Typography>
-                <Typography className="font-bold">
-                  {getShippingText(request.shippings)}
-                </Typography>
-              </div>
-              {request.paymentType === "INSTALLMENTS" && (
-                <div>
-                  <Typography className="text-sm text-gray-600">
-                    تعداد اقساط
-                  </Typography>
-                  <Typography className="font-bold">
-                    {request.installmentMonths} ماه
-                  </Typography>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Provider Information */}
-        <div>
-          <Typography className="text-lg font-bold mb-3">
-            اطلاعات تامین‌کننده
-          </Typography>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  شماره موبایل
-                </Typography>
-                <Typography className="font-bold">
-                  {request.provider?.mobile || "_"}
-                </Typography>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Dates Information */}
-        <div>
-          <Typography className="text-lg font-bold mb-3">
-            اطلاعات تاریخ
-          </Typography>
+      ) : (
+        <div className="space-y-6">
+          {/* Request Header */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Typography className="text-sm text-gray-600">
-                  تاریخ تحویل
+                  تاریخ ایجاد
                 </Typography>
                 <Typography className="font-bold">
-                  {formatDate(request.deliveryTime)}
+                  {formatDate(displayData.createdAt)}
                 </Typography>
               </div>
               <div>
-                <Typography className="text-sm text-gray-600">
-                  تاریخ انقضا
-                </Typography>
+                <Typography className="text-sm text-gray-600">وضعیت</Typography>
                 <Typography className="font-bold">
-                  {formatDate(request.expireDate)}
+                  {displayData?.statusTitle || displayData?.status || "_"}
                 </Typography>
               </div>
               <div>
@@ -497,165 +262,341 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
                   آخرین بروزرسانی
                 </Typography>
                 <Typography className="font-bold">
-                  {formatDate(request.updatedAt)}
+                  {formatDate(displayData.updatedAt)}
                 </Typography>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Cheques Section */}
-        <div>
-          <div className="flex justify-between items-center mb-3">
-            <Typography className="text-lg font-bold">چک‌ها</Typography>
-            {editableCheques && editableCheques.length > 0 && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleSaveCheques}
-                loading={updateLoading}
-                disabled={updateLoading}
-              >
-                ویرایش چک‌ها
-              </Button>
-            )}
-          </div>
-          {editableCheques && editableCheques.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {editableCheques.map((cheque, index) => (
-                <div key={index} className="bg-gray-50 p-4 rounded-lg border">
-                  <div className="space-y-4">
-                    <div>
-                      <Input
-                        label="بانک"
-                        value={cheque.bank}
-                        onChange={(e) => handleChequeChange(index, 'bank', e.target.value)}
-                        size="md"
-                        errorMessage={validationErrors[`${index}-bank`]}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Input
-                        label="شماره چک"
-                        value={cheque.no}
-                        onChange={(e) => handleChequeChange(index, 'no', e.target.value)}
-                        size="md"
-                        errorMessage={validationErrors[`${index}-no`]}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Input
-                        label="شماره صیاد"
-                        value={cheque.sayyad}
-                        onChange={(e) => handleChequeChange(index, 'sayyad', e.target.value)}
-                        size="md"
-                        errorMessage={validationErrors[`${index}-sayyad`]}
-                        helperText="باید 16 رقم باشد"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Input
-                        label="تاریخ"
-                        value={cheque.date}
-                        onChange={(e) => handleChequeChange(index, 'date', e.target.value)}
-                        size="md"
-                        errorMessage={validationErrors[`${index}-date`]}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-gray-50 p-4 rounded-lg text-center">
-              <Typography className="text-gray-500">چکی موجود نیست</Typography>
-            </div>
-          )}
-        </div>
-
-        {/* Driver Section */}
-        <div>
-          <div className="flex justify-between items-center mb-3">
-            <Typography className="text-lg font-bold">اطلاعات راننده</Typography>
-            {editableDriver && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleSaveDriver}
-                loading={updateLoading}
-                disabled={updateLoading}
-              >
-                ویرایش اطلاعات راننده
-              </Button>
-            )}
-          </div>
-          {editableDriver ? (
-            <div className="bg-gray-50 p-4 rounded-lg border">
+          {/* Category Information */}
+          <div>
+            <Typography className="text-lg font-bold mb-3">
+              اطلاعات دسته‌بندی
+            </Typography>
+            <div className="bg-gray-50 p-4 rounded-lg">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Input
-                    label="شماره بارنامه"
-                    value={editableDriver.billNumber}
-                    onChange={(e) => handleDriverChange('billNumber', e.target.value)}
-                    size="md"
-                    errorMessage={driverValidationErrors.billNumber}
-                    required
-                  />
+                  <Typography className="text-sm text-gray-600">
+                    نام دسته‌بندی
+                  </Typography>
+                  <Typography className="font-bold">
+                    {displayData.category?.name || "_"}
+                  </Typography>
                 </div>
                 <div>
-                  <Input
-                    label="شماره پلاک"
-                    value={editableDriver.licensePlate}
-                    onChange={(e) => handleDriverChange('licensePlate', e.target.value)}
-                    size="md"
-                    errorMessage={driverValidationErrors.licensePlate}
-                    required
-                  />
-                </div>
-                <div>
-                  <Input
-                    label="نام وسیله نقلیه"
-                    value={editableDriver.vehicleName}
-                    onChange={(e) => handleDriverChange('vehicleName', e.target.value)}
-                    size="md"
-                    errorMessage={driverValidationErrors.vehicleName}
-                    required
-                  />
-                </div>
-                <div>
-                  <Input
-                    label="نام راننده"
-                    value={editableDriver.driverName}
-                    onChange={(e) => handleDriverChange('driverName', e.target.value)}
-                    size="md"
-                    errorMessage={driverValidationErrors.driverName}
-                    required
-                  />
-                </div>
-                <div>
-                  <Input
-                    label="شماره تلفن راننده"
-                    value={editableDriver.driverPhone}
-                    onChange={(e) => handleDriverChange('driverPhone', e.target.value)}
-                    size="md"
-                    errorMessage={driverValidationErrors.driverPhone}
-                    helperText="مثال: 09123456789"
-                    required
-                  />
+                  <Typography className="text-sm text-gray-600">
+                    مسیر دسته‌بندی
+                  </Typography>
+                  <Typography className="font-bold">
+                    {displayData.catRoute || "_"}
+                  </Typography>
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="bg-gray-50 p-4 rounded-lg text-center">
-              <Typography className="text-gray-500">اطلاعات راننده موجود نیست</Typography>
+          </div>
+
+          {/* Request Information */}
+          <div>
+            <Typography className="text-lg font-bold mb-3">
+              اطلاعات درخواست
+            </Typography>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Typography className="text-sm text-gray-600">
+                    توضیحات درخواست
+                  </Typography>
+                  <Typography className="font-bold">
+                    {displayData.description || "_"}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography className="text-sm text-gray-600">مقدار</Typography>
+                  <Typography className="font-bold">
+                    {displayData.amount} {getAmountTypeText(displayData.amountType)}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography className="text-sm text-gray-600">شهر</Typography>
+                  <Typography className="font-bold">
+                    {displayData.city || "_"}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography className="text-sm text-gray-600">استان</Typography>
+                  <Typography className="font-bold">
+                    {displayData.province || "_"}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography className="text-sm text-gray-600">آدرس</Typography>
+                  <Typography className="font-bold">
+                    {displayData.address || "_"}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography className="text-sm text-gray-600">نوع درخواست</Typography>
+                  <Typography className="font-bold">
+                    {getRequestTypeText(displayData.requestType)}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography className="text-sm text-gray-600">کد پستی</Typography>
+                  <Typography className="font-bold">
+                    {displayData.postalCode || "_"}
+                  </Typography>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Offer Information */}
+          {displayData.invoiceId && (
+            <div>
+              <Typography className="text-lg font-bold mb-3">
+                اطلاعات پیشنهاد
+              </Typography>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Typography className="text-sm text-gray-600">
+                      نوع پرداخت
+                    </Typography>
+                    <Typography className="font-bold">
+                      {getPaymentTypeText(displayData.invoiceId.paymentType)}
+                    </Typography>
+                  </div>
+                  <div>
+                    <Typography className="text-sm text-gray-600">
+                      قیمت به ازای هر کیلوگرم
+                    </Typography>
+                    <Typography className="font-bold">
+                      {displayData.invoiceId.price
+                        ? displayData.invoiceId.price.toLocaleString() + " تومان"
+                        : "_"}
+                    </Typography>
+                  </div>
+                  <div>
+                    <Typography className="text-sm text-gray-600">
+                      قیمت نهایی
+                    </Typography>
+                    <Typography className="font-bold">
+                      {displayData.invoiceId.finalPrice
+                        ? displayData.invoiceId.finalPrice.toLocaleString() + " تومان"
+                        : "_"}
+                    </Typography>
+                  </div>
+                  <div>
+                    <Typography className="text-sm text-gray-600">
+                      مبلغ پرداختی
+                    </Typography>
+                    <Typography className="font-bold">
+                      {displayData.invoiceId.payingPrice
+                        ? displayData.invoiceId.payingPrice.toLocaleString() + " تومان"
+                        : "_"}
+                    </Typography>
+                  </div>
+                  <div>
+                    <Typography className="text-sm text-gray-600">
+                      هزینه حمل و نقل
+                    </Typography>
+                    <Typography className="font-bold">
+                      {displayData.invoiceId.shippingPrice
+                        ? displayData.invoiceId.shippingPrice.toLocaleString() + " تومان"
+                        : "_"}
+                    </Typography>
+                  </div>
+                  <div>
+                    <Typography className="text-sm text-gray-600">
+                      نحوه حمل و نقل
+                    </Typography>
+                    <Typography className="font-bold">
+                      {displayData.invoiceId.selectedShipping === "provider"
+                        ? "توسط تامین‌کننده"
+                        : displayData.invoiceId.selectedShipping === "buyer"
+                        ? "توسط خریدار"
+                        : displayData.invoiceId.selectedShipping || "_"}
+                    </Typography>
+                  </div>
+                  {displayData.invoiceId.paymentType === "INSTALLMENTS" && (
+                    <div>
+                      <Typography className="text-sm text-gray-600">
+                        تعداد اقساط
+                      </Typography>
+                      <Typography className="font-bold">
+                        {displayData.installmentMonths} ماه
+                      </Typography>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Payment Information */}
+          <div>
+            <Typography className="text-lg font-bold mb-3">
+              اطلاعات پرداخت
+            </Typography>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Typography className="text-sm text-gray-600">
+                    نوع پرداخت
+                  </Typography>
+                  <Typography className="font-bold">
+                    {getPaymentTypeText(displayData.paymentType)}
+                  </Typography>
+                </div>
+                {displayData.paymentType === "INSTALLMENTS" && (
+                  <div>
+                    <Typography className="text-sm text-gray-600">
+                      تعداد اقساط
+                    </Typography>
+                    <Typography className="font-bold">
+                      {displayData.installmentMonths} ماه
+                    </Typography>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* User Information */}
+          <div>
+            <Typography className="text-lg font-bold mb-3">
+              اطلاعات کاربر
+            </Typography>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Typography className="text-sm text-gray-600">
+                    نام و نام خانوادگی
+                  </Typography>
+                  <Typography className="font-bold">
+                    {displayData.user?.firstName && displayData.user?.lastName
+                      ? `${displayData.user.firstName} ${displayData.user.lastName}`
+                      : "_"}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography className="text-sm text-gray-600">
+                    شماره موبایل
+                  </Typography>
+                  <Typography className="font-bold">
+                    {displayData.user?.mobile || "_"}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography className="text-sm text-gray-600">
+                    نوع کاربر
+                  </Typography>
+                  <Typography className="font-bold">
+                    {displayData.user?.usertype === "Buyer" ? "خریدار" : displayData.user?.usertype || "_"}
+                  </Typography>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Dates Information */}
+          <div>
+            <Typography className="text-lg font-bold mb-3">
+              اطلاعات تاریخ
+            </Typography>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Typography className="text-sm text-gray-600">
+                    تاریخ مورد انتظار
+                  </Typography>
+                  <Typography className="font-bold">
+                    {formatDate(displayData.expectedDate)}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography className="text-sm text-gray-600">
+                    تاریخ انقضا
+                  </Typography>
+                  <Typography className="font-bold">
+                    {formatDate(displayData.expireDate)}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography className="text-sm text-gray-600">
+                    آخرین بروزرسانی
+                  </Typography>
+                  <Typography className="font-bold">
+                    {formatDate(displayData.updatedAt)}
+                  </Typography>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Winner Information */}
+          {displayData.winner && (
+            <div>
+              <Typography className="text-lg font-bold mb-3">
+                تامین‌کننده برنده
+              </Typography>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Typography className="text-sm text-gray-600">
+                      شناسه تامین‌کننده
+                    </Typography>
+                    <Typography className="font-bold">
+                      {displayData.winner.id || "_"}
+                    </Typography>
+                  </div>
+                  <div>
+                    <Typography className="text-sm text-gray-600">
+                      شناسه درخواست
+                    </Typography>
+                    <Typography className="font-bold">
+                      {displayData.winner.requestId || "_"}
+                    </Typography>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Cheques Section */}
+          {displayData.invoiceId?.cheques && displayData.invoiceId.cheques.length > 0 && (
+            <div>
+              <Typography className="text-lg font-bold mb-3">چک‌ها</Typography>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {displayData.invoiceId.cheques.map((cheque: any, index: number) => (
+                  <div key={index} className="bg-gray-50 p-4 rounded-lg border">
+                    <div className="space-y-2">
+                      <div>
+                        <Typography className="text-sm text-gray-600">بانک</Typography>
+                        <Typography className="font-bold">{cheque.bank || "_"}</Typography>
+                      </div>
+                      <div>
+                        <Typography className="text-sm text-gray-600">شماره چک</Typography>
+                        <Typography className="font-bold">{cheque.no || "_"}</Typography>
+                      </div>
+                      <div>
+                        <Typography className="text-sm text-gray-600">شماره صیاد</Typography>
+                        <Typography className="font-bold">{cheque.sayyad || "_"}</Typography>
+                      </div>
+                      <div>
+                        <Typography className="text-sm text-gray-600">تاریخ</Typography>
+                        <Typography className="font-bold">{cheque.date || "_"}</Typography>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
-      </div>
+      )}
+
+
     </Modal>
   );
 };

@@ -25,51 +25,120 @@ import {
 import { GetProductRequestOfferAdminAction } from "../../../redux/actions/product-request-offer-admin/ProductRequestOfferAdminActions";
 
 interface ProductRequestItem {
-  id: string;
+  _id: string;
+  id?: string;
+  address: string;
+  amount: number;
+  amountType: string;
   category: {
+    _id: string;
     name: string;
     code: string;
-    parentId: string;
-    icon: string | null;
     image: string;
   };
-  cheques: Array<{
-    date: string;
-    bank: string;
-    no: string;
-    sayyad: string;
-  }>;
-  comments: string[];
+  catRoute: string;
+  categoryId: {
+    id: string;
+    name: string;
+    code: string;
+    isLast: boolean;
+    catRoute: string;
+    createdAt: number;
+    image: string;
+    parentId: string;
+    updatedAt: number;
+  };
+  city: string;
   createdAt: number;
-  deliveryTime: number;
   description: string;
+  expectedDate: number;
   expireDate: number;
-  finalPrice: number;
-  image: string | null;
   installmentMonths: number;
-  payingPrice: number;
+  invoiceId?: {
+    id: string;
+    offerId: string;
+    code: string;
+    cheques: Array<{
+      date: string;
+      bank: string;
+      no: string;
+      sayyad: string;
+    }>;
+    comments: string[];
+    createdAt: number;
+    finalPrice: number;
+    payingPrice: number;
+    paymentType: string;
+    price: number;
+    selectedShipping: string;
+    shippingPrice: number;
+    totalprice: number;
+    updatedAt: number;
+  };
   paymentType: string;
-  price: number;
-  provider: {
+  postalCode: string;
+  providerIds: Array<{
+    id: string;
     mobile: string;
-    profileImg: string | null;
-  };
-  providerId: string;
-  request: {
-    description: string;
-    categoryId: string;
-    amount: number;
-    amountType: string;
-    city: string;
-    province: string;
-  };
-  requestId: string;
-  shippingPrice: number;
-  shippings: string;
-  state: string;
+    phone?: string;
+    companyName?: string;
+    agentName?: string;
+    agentPhone?: string;
+    firstName?: string;
+    lastName?: string;
+  }>;
+  province: string;
+  requestType: string;
   status: string;
-  statusFa: string;
+  statusTitle: string;
   updatedAt: number;
+  user: {
+    id: string;
+    mobile: string;
+    firstName: string;
+    lastName: string;
+    authCode: string;
+    authCodeExpireTime: number;
+    createdAt: number;
+    extraImages: any[];
+    isWelcomeComplete: boolean;
+    lastLoginAt: number;
+    permissions: any[];
+    productCategories: string[];
+    roles: string[];
+    updatedAt: number;
+    updatedBy: string;
+    updatedFields: string;
+    userSort: string;
+    usertype: string;
+  };
+  userId: {
+    id: string;
+    mobile: string;
+    firstName: string;
+    lastName: string;
+    authCode: string;
+    authCodeExpireTime: number;
+    createdAt: number;
+    extraImages: any[];
+    isWelcomeComplete: boolean;
+    lastLoginAt: number;
+    permissions: any[];
+    productCategories: string[];
+    roles: string[];
+    updatedAt: number;
+    updatedBy: string;
+    updatedFields: string;
+    userSort: string;
+    usertype: string;
+  };
+  winner?: {
+    id: string;
+    requestId: string;
+    [key: string]: any;
+  };
+  winnerId?: string;
+  __v: number;
 }
 
 interface ProductRequestsTableProps {
@@ -157,12 +226,12 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
     let statusText;
     let statusValue;
 
-    if (row?.state) {
-      statusValue = row.state;
-      statusText = getOrderStatusText(statusValue);
-    } else if (row?.statusFa) {
+    if (row?.statusTitle) {
       statusValue = row.status || "";
-      statusText = row.statusFa;
+      statusText = row.statusTitle;
+    } else if (row?.status) {
+      statusValue = row.status;
+      statusText = getOrderStatusText(statusValue);
     } else {
       statusValue = "";
       statusText = "_";
@@ -221,27 +290,23 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
           {!loading ? (
             requestData?.data?.length > 0 ? (
               requestData?.data?.map((row: ProductRequestItem) => (
-                <TableRow key={row?.id}>
+                <TableRow key={row?._id || row?.id}>
                   <TableCell>{row?.description ?? "_"}</TableCell>
                   <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>
-                    {row?.request?.amount
-                      ? `${row.request.amount} ${getAmountTypeText(
-                          row?.request?.amountType
-                        )}`
+                    {row?.amount
+                      ? `${row.amount} ${getAmountTypeText(row?.amountType)}`
                       : "_"}
                   </TableCell>
                   <TableCell>{getPaymentTypeText(row?.paymentType)}</TableCell>
+                  <TableCell>{"_"}</TableCell>
+                  <TableCell>{"_"}</TableCell>
                   <TableCell>
-                    {row?.price ? row.price.toLocaleString() + " تومان" : "_"}
+                    {row?.user?.firstName && row?.user?.lastName
+                      ? `${row.user.firstName} ${row.user.lastName}`
+                      : row?.user?.mobile ?? "_"}
                   </TableCell>
-                  <TableCell>
-                    {row?.finalPrice
-                      ? row.finalPrice.toLocaleString() + " تومان"
-                      : "_"}
-                  </TableCell>
-                  <TableCell>{row?.provider?.mobile ?? "_"}</TableCell>
-                  <TableCell>{formatDate(row?.deliveryTime)}</TableCell>
+                  <TableCell>{formatDate(row?.expectedDate)}</TableCell>
                   <TableCell>
                     <span className={getStatusDisplay(row).className}>
                       {getStatusDisplay(row).text}
@@ -267,9 +332,7 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
                       >
                         مشاهده پیشنهاد
                       </Button>
-                      {(row?.state === "BUYER_WAITFORFINANCE" ||
-                        row?.status === "BUYER_WAITFORFINANCE" ||
-                        row?.state === "Paid" ||
+                      {(row?.status === "BUYER_WAITFORFINANCE" ||
                         row?.status === "Paid") &&
                         row?.paymentType?.toUpperCase() === "INSTALLMENTS" && (
                           <>
@@ -291,7 +354,7 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
                             </Button>
                           </>
                         )}
-                      {row?.state === "WAITING_UNLOADING" && (
+                      {row?.status === "WAITING_UNLOADING" && (
                         <Button
                           type="button"
                           size="sm"

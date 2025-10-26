@@ -5,6 +5,7 @@ import {
   EXPIRE_OFFER_POINT,
   GET_PRODUCT_REQUEST_OFFER_ADMIN_POINT,
   GET_PRODUCT_REQUEST_OFFER_ADMIN_BY_ID_POINT,
+  GET_PRODUCT_REQUEST_ADMIN_BY_ID_POINT,
   GET_PRODUCT_REQUEST_OFFERS_BY_REQUEST_ID_POINT,
   VERIFY_PAYMENT_POINT,
   MAKE_DELIVERED_POINT,
@@ -36,6 +37,12 @@ export const getProductRequestOfferAdminService = async (params: any) => {
 export const getProductRequestOfferAdminByIdService = async (offerId: string) => {
   return await HttpServises.get(
     `${BASE_URL}${GET_PRODUCT_REQUEST_OFFER_ADMIN_BY_ID_POINT}/${offerId}`
+  );
+};
+
+export const getProductRequestAdminByIdService = async (requestId: string) => {
+  return await HttpServises.get(
+    `${BASE_URL}${GET_PRODUCT_REQUEST_ADMIN_BY_ID_POINT}/${requestId}`
   );
 };
 
