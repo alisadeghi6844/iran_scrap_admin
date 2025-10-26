@@ -10,6 +10,7 @@ import {
   MakeDeliveredAction,
   SendOfferToBuyerAction,
   UpdateProductRequestOfferAdminAction,
+  UpdateProductRequestInvoiceAdminAction,
 } from "../../actions/product-request-offer-admin/ProductRequestOfferAdminActions";
 import { PRODUCT_REQUEST_OFFER_ADMIN } from "../../types/product-request-offer-admin/ProductRequestOfferAdminTypes";
 
@@ -53,6 +54,10 @@ interface ProductRequestOfferAdminState {
   updateProductRequestOfferAdminError: string | null;
   updateProductRequestOfferAdminLoading: boolean;
   updateProductRequestOfferAdminData: any;
+
+  updateProductRequestInvoiceAdminError: string | null;
+  updateProductRequestInvoiceAdminLoading: boolean;
+  updateProductRequestInvoiceAdminData: any;
 }
 
 const initialState: ProductRequestOfferAdminState = {
@@ -95,6 +100,10 @@ const initialState: ProductRequestOfferAdminState = {
   updateProductRequestOfferAdminError: null,
   updateProductRequestOfferAdminLoading: false,
   updateProductRequestOfferAdminData: null,
+
+  updateProductRequestInvoiceAdminError: null,
+  updateProductRequestInvoiceAdminLoading: false,
+  updateProductRequestInvoiceAdminData: null,
 };
 
 const productRequestOfferAdminSlice = createSlice({
@@ -331,6 +340,29 @@ const productRequestOfferAdminSlice = createSlice({
           state.updateProductRequestOfferAdminError = action.payload;
           state.updateProductRequestOfferAdminData = null;
         }
+      )
+
+      // Update Product Request Invoice Admin
+      .addCase(UpdateProductRequestInvoiceAdminAction.pending, (state) => {
+        state.updateProductRequestInvoiceAdminLoading = true;
+        state.updateProductRequestInvoiceAdminData = null;
+        state.updateProductRequestInvoiceAdminError = null;
+      })
+      .addCase(
+        UpdateProductRequestInvoiceAdminAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.updateProductRequestInvoiceAdminLoading = false;
+          state.updateProductRequestInvoiceAdminData = action.payload;
+          state.updateProductRequestInvoiceAdminError = null;
+        }
+      )
+      .addCase(
+        UpdateProductRequestInvoiceAdminAction.rejected,
+        (state, action: PayloadAction<any>) => {
+          state.updateProductRequestInvoiceAdminLoading = false;
+          state.updateProductRequestInvoiceAdminError = action.payload;
+          state.updateProductRequestInvoiceAdminData = null;
+        }
       );
   },
 });
@@ -414,5 +446,13 @@ export const selectUpdateProductRequestOfferAdminLoading = (state: any) =>
   state.productRequestOfferAdmin.updateProductRequestOfferAdminLoading;
 export const selectUpdateProductRequestOfferAdminData = (state: any) =>
   state.productRequestOfferAdmin.updateProductRequestOfferAdminData;
+
+// Selectors for Update Product Request Invoice Admin
+export const selectUpdateProductRequestInvoiceAdminError = (state: any) =>
+  state.productRequestOfferAdmin.updateProductRequestInvoiceAdminError;
+export const selectUpdateProductRequestInvoiceAdminLoading = (state: any) =>
+  state.productRequestOfferAdmin.updateProductRequestInvoiceAdminLoading;
+export const selectUpdateProductRequestInvoiceAdminData = (state: any) =>
+  state.productRequestOfferAdmin.updateProductRequestInvoiceAdminData;
 
 export default productRequestOfferAdminSlice.reducer;

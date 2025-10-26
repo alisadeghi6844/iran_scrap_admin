@@ -6,15 +6,15 @@ import Input from "../../../components/input";
 interface ProductRequestDeliveryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  orderId: string;
-  onDelivery: (orderId: string, unloadingDate: string) => void;
+  requestId: string;
+  onDelivery: (requestId: string, unloadingDate: string) => void;
   loading: boolean;
 }
 
 const ProductRequestDeliveryModal: React.FC<ProductRequestDeliveryModalProps> = ({
   isOpen,
   onClose,
-  orderId,
+  requestId,
   onDelivery,
   loading,
 }) => {
@@ -61,7 +61,7 @@ const ProductRequestDeliveryModal: React.FC<ProductRequestDeliveryModalProps> = 
 
     // Convert Persian date to ISO format before sending
     const isoDate = convertPersianToISO(unloadingDate);
-    onDelivery(orderId, isoDate);
+    onDelivery(requestId, isoDate);
   };
 
   const handleClose = () => {

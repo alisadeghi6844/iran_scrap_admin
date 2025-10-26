@@ -12,6 +12,7 @@ import {
   MAKE_DELIVERED,
   SEND_OFFER_TO_BUYER,
   UPDATE_PRODUCT_REQUEST_OFFER_ADMIN,
+  UPDATE_PRODUCT_REQUEST_INVOICE_ADMIN,
 } from "../../types/product-request-offer-admin/ProductRequestOfferAdminTypes";
 import {
   closeRequestService,
@@ -24,6 +25,7 @@ import {
   makeDeliveredService,
   sendOfferToBuyerService,
   updateProductRequestOfferAdminService,
+  updateProductRequestInvoiceAdminService,
 } from "../../service/product-request-offer-admin/ProductRequestOfferAdminServices";
 
 export const CloseRequestAction = createAsyncThunk(
@@ -176,11 +178,11 @@ export const VerifyPaymentAction = createAsyncThunk(
 export const MakeDeliveredAction = createAsyncThunk(
   `${PRODUCT_REQUEST_OFFER_ADMIN}/${MAKE_DELIVERED}`,
   async (
-    { orderId, unloadingDate }: { orderId: string; unloadingDate: string },
+    { requestId, unloadingDate }: { requestId: string; unloadingDate: string },
     { rejectWithValue }: any
   ) => {
     try {
-      const response = await makeDeliveredService({ orderId, unloadingDate });
+      const response = await makeDeliveredService({ requestId, unloadingDate });
       if (response?.status === 200 || response?.status === 201) {
         toast.success("سفارش با موفقیت به عنوان تحویل شده علامت‌گذاری شد");
         return response.data;
@@ -235,6 +237,32 @@ export const UpdateProductRequestOfferAdminAction = createAsyncThunk(
       }
     } catch (error: any) {
       toast.error("خطا در به‌روزرسانی اطلاعات");
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const UpdateProductRequestInvoiceAdminAction = createAsyncThunk(
+  `${PRODUCT_REQUEST_OFFER_ADMIN}/${UPDATE_PRODUCT_REQUEST_INVOICE_ADMIN}`,
+  async (
+    { requestId, data }: { requestId: string; data: any },
+    { rejectWithValue }: any
+  ) => {
+    try {
+      const response = await updateProductRequestInvoiceAdminService(
+        requestId,
+        data
+      );
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success("اطلاعات فاکتور با موفقیت به‌روزرسانی شد");
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      toast.error("خطا در به‌روزرسانی اطلاعات فاکتور");
       return rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }
       );

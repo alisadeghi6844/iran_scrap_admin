@@ -266,10 +266,10 @@ const ProductRequests = () => {
     );
   };
 
-  const handleDeliveryRequest = (orderId: string, unloadingDate: string) => {
+  const handleDeliveryRequest = (requestId: string, unloadingDate: string) => {
     dispatch(
       MakeDeliveredAction({
-        orderId,
+        requestId,
         unloadingDate,
       })
     );
@@ -411,14 +411,14 @@ const ProductRequests = () => {
           />
         </Suspense>
       )}
-
+{console.log("selectedRow",selectedRow)}
       {/* Render ProductRequestDeliveryModal separately outside CRUD */}
       {mode === "delivery" && (
         <Suspense>
           <ProductRequestDeliveryModal
             isOpen={true}
             onClose={handleCloseModal}
-            orderId={selectedRow?.id || ""}
+            requestId={selectedRow?.id || ""}
             onDelivery={handleDeliveryRequest}
             loading={makeDeliveredLoading}
           />

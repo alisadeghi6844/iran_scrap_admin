@@ -266,8 +266,7 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
             <TableHeadCell>دسته‌بندی</TableHeadCell>
             <TableHeadCell>مقدار</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
-            <TableHeadCell>قیمت به ازای هر کیلوگرم</TableHeadCell>
-            <TableHeadCell>قیمت نهایی</TableHeadCell>
+
             <TableHeadCell>تامین‌کننده</TableHeadCell>
             <TableHeadCell>تاریخ تحویل</TableHeadCell>
             <TableHeadCell className="min-w-[180px]">وضعیت</TableHeadCell>
@@ -281,8 +280,7 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
+
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
@@ -299,8 +297,7 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
                       : "_"}
                   </TableCell>
                   <TableCell>{getPaymentTypeText(row?.paymentType)}</TableCell>
-                  <TableCell>{"_"}</TableCell>
-                  <TableCell>{"_"}</TableCell>
+
                   <TableCell>
                     {row?.user?.firstName && row?.user?.lastName
                       ? `${row.user.firstName} ${row.user.lastName}`
@@ -324,16 +321,15 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
                       >
                         مشاهده بیشتر
                       </Button>
-                      <Button
+                      {/* <Button
                         type="button"
                         size="sm"
                         variant="success"
                         onClick={() => onRowClick?.("viewSuggestions", row)}
                       >
                         مشاهده پیشنهاد
-                      </Button>
-                      {(row?.status === "BUYER_WAITFORFINANCE" ||
-                        row?.status === "Paid") &&
+                      </Button> */}
+                      {row?.status === "BUYER_WAITFORFINANCE" &&
                         row?.paymentType?.toUpperCase() === "INSTALLMENTS" && (
                           <>
                             <Button
