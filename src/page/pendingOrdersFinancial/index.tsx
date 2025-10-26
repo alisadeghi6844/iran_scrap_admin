@@ -111,11 +111,11 @@ const PendingOrdersFinancial = () => {
     );
   };
 
-  const handleDeliveryOrder = (orderId: string, loadingDate: string) => {
+  const handleDeliveryOrder = (orderId: string, unloadingDate: string) => {
     dispatch(
       MakeDeliveredAction({
         orderId,
-        loadingDate,
+        unloadingDate,
         onSubmitForm: () => {
           setMode("content");
           setSelectedRow(null);

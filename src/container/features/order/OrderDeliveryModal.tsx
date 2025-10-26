@@ -12,7 +12,7 @@ interface OrderDeliveryModalProps {
     unloadingDate?: string;
     status: string;
   } | null;
-  onDelivery: (orderId: string, loadingDate: string) => void;
+  onDelivery: (orderId: string, unloadingDate: string) => void;
   loading: boolean;
 }
 
@@ -24,21 +24,29 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
   onDelivery,
   loading,
 }) => {
-  const [loadingDate, setLoadingDate] = useState("");
+  const [unloadingDate, setUnloadingDate] = useState("");
   const [dateError, setDateError] = useState("");
-  
+
   // Check if order status is delivered
   const isDelivered = order?.status?.toLowerCase() === "delivered";
 
-  // Initialize loadingDate from order if available
+  // Clear input when modal opens
   React.useEffect(() => {
-    if (order?.loadingDate) {
-      // Convert ISO date to Persian format for display
-      const date = new Date(order.loadingDate);
-      const persianDate = date.toLocaleDateString("fa-IR");
-      setLoadingDate(persianDate);
+    if (isOpen) {
+      setUnloadingDate("");
+      setDateError("");
     }
-  }, [order?.loadingDate]);
+  }, [isOpen]);
+
+  // Initialize unloadingDate from order if available (only for delivered orders)
+  React.useEffect(() => {
+    if (order?.unloadingDate && isDelivered) {
+      // Convert ISO date to Persian format for display
+      const date = new Date(order.unloadingDate);
+      const persianDate = date.toLocaleDateString("fa-IR");
+      setUnloadingDate(persianDate);
+    }
+  }, [order?.unloadingDate, isDelivered]);
 
   // Persian date validation
   const validatePersianDate = (date: string): boolean => {
@@ -49,22 +57,96 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
 
   // Convert Persian date to Gregorian ISO string
   const convertPersianToISO = (persianDate: string): string => {
-    const [year, month, day] = persianDate.split("/").map(Number);
+    const [jYear, jMonth, jDay] = persianDate.split("/").map(Number);
 
-    // Simple Persian to Gregorian conversion (approximate)
-    // This is a basic conversion - for production use a proper library like moment-jalaali
-    const gregorianYear = year - 621;
-    const gregorianMonth = month;
-    const gregorianDay = day;
+    // Persian to Gregorian conversion algorithm
+    const jalaliToGregorian = (jy: number, jm: number, jd: number) => {
+      const jy0 = jy <= 979 ? 1 : 0;
+      const jy1 = jy0 === 1 ? jy + 1595 : jy - 979;
+      const jp =
+        jy0 === 1
+          ? 0
+          : 365 * jy1 +
+            Math.floor(jy1 / 33) * 8 +
+            Math.floor(((jy1 % 33) + 3) / 4);
+
+      let jm0 = 0;
+      for (let i = 0; i < jm; ++i) {
+        jm0 += i < 6 ? 31 : 30;
+      }
+
+      const jd1 = jp + jm0 + jd - 1;
+
+      let gy = jy0 === 1 ? 621 : 1600;
+      gy += 400 * Math.floor(jd1 / 146097);
+      let jd2 = jd1 % 146097;
+
+      if (jd2 >= 36525) {
+        jd2--;
+        gy += 100 * Math.floor(jd2 / 36524);
+        jd2 %= 36524;
+        if (jd2 >= 365) jd2++;
+      }
+
+      gy += 4 * Math.floor(jd2 / 1461);
+      jd2 %= 1461;
+
+      if (jd2 >= 366) {
+        jd2--;
+        gy += Math.floor(jd2 / 365);
+        jd2 = jd2 % 365;
+      }
+
+      const gd = jd2 + 1;
+
+      const sal_a = [
+        0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365,
+      ];
+      let gm;
+
+      if (gd <= 79) {
+        const leap = (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 1 : 0;
+        const sal_b = [
+          0,
+          31,
+          29 + leap,
+          31,
+          30,
+          31,
+          30,
+          31,
+          31,
+          30,
+          31,
+          30,
+          31,
+        ];
+        for (gm = 0; gm < 13 && gd > sal_b[gm]; gm++) {
+          // empty
+        }
+        if (gm > 1) {
+          return [gy, gm, gd - sal_b[gm - 1]];
+        } else {
+          return [gy, gm, gd];
+        }
+      } else {
+        for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) {
+          // empty
+        }
+        return [gy, gm, gd - sal_a[gm - 1]];
+      }
+    };
+
+    const [gYear, gMonth, gDay] = jalaliToGregorian(jYear, jMonth - 1, jDay);
 
     // Create date object and return ISO string
-    const date = new Date(gregorianYear, gregorianMonth - 1, gregorianDay);
+    const date = new Date(gYear, gMonth - 1, gDay);
     return date.toISOString();
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setLoadingDate(value);
+    setUnloadingDate(value);
 
     if (value && !validatePersianDate(value)) {
       setDateError("فرمت تاریخ صحیح نیست. مثال: 1403/09/15");
@@ -74,17 +156,17 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
   };
 
   const handleSubmit = () => {
-    if (!loadingDate.trim() || !validatePersianDate(loadingDate)) {
+    if (!unloadingDate.trim() || !validatePersianDate(unloadingDate)) {
       return;
     }
 
     // Convert Persian date to ISO format before sending
-    const isoDate = convertPersianToISO(loadingDate);
+    const isoDate = convertPersianToISO(unloadingDate);
     onDelivery(orderId, isoDate);
   };
 
   const handleClose = () => {
-    setLoadingDate("");
+    setUnloadingDate("");
     setDateError("");
     onClose();
   };
@@ -114,15 +196,15 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
           <div className="text-lg font-medium text-gray-800 mb-4 border-b border-gray-200 pb-2">
             اطلاعات راننده
           </div>
-          
+
           <div className="mb-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                تاریخ بارگیری (شمسی) *
+                تاریخ تخلیه (شمسی) *
               </label>
               <Input
                 type="text"
-                value={loadingDate}
+                value={unloadingDate}
                 onChange={handleDateChange}
                 placeholder="مثال: 1403/09/15"
                 className={`w-full ${dateError ? "border-red-500" : ""}`}
@@ -154,7 +236,7 @@ const OrderDeliveryModal: React.FC<OrderDeliveryModalProps> = ({
               type="button"
               variant="primary"
               onClick={handleSubmit}
-              disabled={loading || !loadingDate.trim() || !!dateError}
+              disabled={loading || !unloadingDate.trim() || !!dateError}
               loading={loading}
               size="md"
             >
