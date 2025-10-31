@@ -8,7 +8,12 @@ import {
   UpdateProductAction,
   UpdateProductStatusAction,
   ChangeProductStatusAction,
+  EditProductAdminAction,
 } from "../../actions/product/ProductActions";
+import {
+  UploadProductImageAction,
+  DeleteProductImageAction,
+} from "../../actions/product/ProductImageActions";
 
 interface productState {
   getProductError: string | null;
@@ -38,6 +43,18 @@ interface productState {
   changeProductStatusError: string | null;
   changeProductStatusLoading: boolean;
   changeProductStatusData: any;
+
+  editProductAdminError: string | null;
+  editProductAdminLoading: boolean;
+  editProductAdminData: any;
+
+  uploadProductImageError: string | null;
+  uploadProductImageLoading: boolean;
+  uploadProductImageData: any;
+
+  deleteProductImageError: string | null;
+  deleteProductImageLoading: boolean;
+  deleteProductImageData: any;
 }
 
 const initialState: productState = {
@@ -68,6 +85,18 @@ const initialState: productState = {
   changeProductStatusError: null,
   changeProductStatusLoading: false,
   changeProductStatusData: [],
+
+  editProductAdminError: null,
+  editProductAdminLoading: false,
+  editProductAdminData: [],
+
+  uploadProductImageError: null,
+  uploadProductImageLoading: false,
+  uploadProductImageData: [],
+
+  deleteProductImageError: null,
+  deleteProductImageLoading: false,
+  deleteProductImageData: [],
 };
 
 const productSlice = createSlice({
@@ -199,6 +228,60 @@ const productSlice = createSlice({
         state.changeProductStatusLoading = false;
         state.changeProductStatusError = action.payload;
         state.changeProductStatusData = [];
+      })
+      // edit product admin
+      .addCase(EditProductAdminAction.pending, (state) => {
+        state.editProductAdminLoading = true;
+        state.editProductAdminData = [];
+        state.editProductAdminError = null;
+      })
+      .addCase(EditProductAdminAction.fulfilled, (state, action) => {
+        state.editProductAdminLoading = false;
+        state.editProductAdminData = action.payload;
+        state.editProductAdminError = null;
+      })
+      .addCase(EditProductAdminAction.rejected, (state, action) => {
+        state.editProductAdminLoading = false;
+        state.editProductAdminError = action.payload;
+        state.editProductAdminData = [];
+      })
+
+      // Upload product image
+      .addCase(UploadProductImageAction.pending, (state) => {
+        state.uploadProductImageLoading = true;
+        state.uploadProductImageError = null;
+      })
+      .addCase(
+        UploadProductImageAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.uploadProductImageLoading = false;
+          state.uploadProductImageData = action.payload;
+          state.uploadProductImageError = null;
+        }
+      )
+      .addCase(UploadProductImageAction.rejected, (state, action) => {
+        state.uploadProductImageLoading = false;
+        state.uploadProductImageError = action.payload;
+        state.uploadProductImageData = [];
+      })
+
+      // Delete product image
+      .addCase(DeleteProductImageAction.pending, (state) => {
+        state.deleteProductImageLoading = true;
+        state.deleteProductImageError = null;
+      })
+      .addCase(
+        DeleteProductImageAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.deleteProductImageLoading = false;
+          state.deleteProductImageData = action.payload;
+          state.deleteProductImageError = null;
+        }
+      )
+      .addCase(DeleteProductImageAction.rejected, (state, action) => {
+        state.deleteProductImageLoading = false;
+        state.deleteProductImageError = action.payload;
+        state.deleteProductImageData = [];
       });
   },
 });
@@ -250,5 +333,26 @@ export const selectChangeProductStatusLoading = (state: any) =>
   state.product.changeProductStatusLoading;
 export const selectChangeProductStatusData = (state: any) =>
   state.product.changeProductStatusData;
+
+export const selectEditProductAdminError = (state: any) =>
+  state.product.editProductAdminError;
+export const selectEditProductAdminLoading = (state: any) =>
+  state.product.editProductAdminLoading;
+export const selectEditProductAdminData = (state: any) =>
+  state.product.editProductAdminData;
+
+export const selectUploadProductImageError = (state: any) =>
+  state.product.uploadProductImageError;
+export const selectUploadProductImageLoading = (state: any) =>
+  state.product.uploadProductImageLoading;
+export const selectUploadProductImageData = (state: any) =>
+  state.product.uploadProductImageData;
+
+export const selectDeleteProductImageError = (state: any) =>
+  state.product.deleteProductImageError;
+export const selectDeleteProductImageLoading = (state: any) =>
+  state.product.deleteProductImageLoading;
+export const selectDeleteProductImageData = (state: any) =>
+  state.product.deleteProductImageData;
 
 export default productSlice.reducer;

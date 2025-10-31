@@ -9,6 +9,9 @@ import {
   UPDATE_PRODUCT_POINT,
   UPDATE_PRODUCT_STATUS_POINT,
   CHANGE_PRODUCT_STATUS_POINT,
+  EDIT_PRODUCT_ADMIN_POINT,
+  UPLOAD_PRODUCT_IMAGE_POINT,
+  DELETE_PRODUCT_IMAGE_POINT,
 } from "../../api/product/ProductApi";
 
 export const getProductService = async (query: any) => {
@@ -23,7 +26,7 @@ export const getProductService = async (query: any) => {
 
 export const getProductByIdService = async (items: any) => {
   return await HttpServises.get(
-    `${BASE_URL}${GET_PRODUCT_BY_ID_POINT}/${items.credentials?.credentials}`
+    `${BASE_URL}${GET_PRODUCT_BY_ID_POINT}/${items.credentials}`
   );
 };
 
@@ -53,5 +56,30 @@ export const changeProductStatusService = async (items: unknown) => {
   return await HttpServises.patch(
     `${BASE_URL}${CHANGE_PRODUCT_STATUS_POINT}/${items.productId}/change-status`,
     { status: items.status }
+  );
+};
+
+export const editProductAdminService = async (productId: string, items: any) => {
+  return await HttpServises.patch(
+    `${BASE_URL}${EDIT_PRODUCT_ADMIN_POINT}/${productId}`,
+    items
+  );
+};
+
+export const uploadProductImageService = async (productId: string, formData: FormData) => {
+  return await HttpServises.patch(
+    `${BASE_URL}${UPLOAD_PRODUCT_IMAGE_POINT}/${productId}/image`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+};
+
+export const deleteProductImageService = async (productId: string, imageId: string) => {
+  return await HttpServises.delete(
+    `${BASE_URL}${DELETE_PRODUCT_IMAGE_POINT}/${productId}/image/${imageId}`
   );
 };

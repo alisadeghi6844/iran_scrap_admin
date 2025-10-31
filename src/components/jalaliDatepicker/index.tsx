@@ -61,7 +61,7 @@ const JalaliDatepicker: React.FC<JalaliDatepickerTypes> = (props) => {
       <div className="relative z-0 w-full ">
         <DatePicker
           onOpenPickNewDate={onOpenPickNewDate}
-          portal
+          portal={false}
           minDate={
             minDate ? minDate : mode === "future" ? currentDate ?? null : null
           }
@@ -72,7 +72,7 @@ const JalaliDatepicker: React.FC<JalaliDatepickerTypes> = (props) => {
            focus:outline-none
            border-b-2 block py-4 px-2 text-sm text-gray-900
            bg-transparent border-0 border-b-2 border-gray-300 appearance-none
-           dark:text-white focus:ring-0 focus:border-primary-600 peer ${
+            focus:ring-0 focus:border-primary-600 peer ${
              inputClassName ? inputClassName : ""
            }`}
           editable={false}

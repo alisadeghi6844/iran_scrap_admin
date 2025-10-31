@@ -8,6 +8,7 @@ import {
   UPDATE_PRODUCT,
   UPDATE_PRODUCT_STATUS,
   CHANGE_PRODUCT_STATUS,
+  EDIT_PRODUCT_ADMIN,
 } from "../../types/product/ProductTypes";
 import {
   createProductService,
@@ -17,6 +18,7 @@ import {
   updateProductService,
   updateProductStatusService,
   changeProductStatusService,
+  editProductAdminService,
 } from "../../service/product/ProductServices";
 import { toast } from "react-toastify";
 
@@ -144,6 +146,25 @@ export const ChangeProductStatusAction = createAsyncThunk(
       }
       return response;
     } catch (error: unknown) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const EditProductAdminAction = createAsyncThunk(
+  `${PRODUCT}/${EDIT_PRODUCT_ADMIN}`,
+  async ({ productId, credentials, onSubmitForm, resetForm }: any, thunkAPI) => {
+    try {
+      const response = await editProductAdminService(productId, credentials);
+      if (response?.status == 200) {
+        toast.success("محصول با موفقیت ویرایش شد");
+        onSubmitForm && onSubmitForm();
+        resetForm && resetForm();
+      }
+      return response;
+    } catch (error: any) {
       return thunkAPI.rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }
       );

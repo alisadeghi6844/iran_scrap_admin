@@ -7,10 +7,10 @@ const ProductTable = lazy(
       /* webpackChunkName: "Product" */ "../../container/features/product/ProductTable"
     )
 );
-const ProductStatusModal = lazy(
+const ProductEditModal = lazy(
   () =>
     import(
-      /* webpackChunkName: "Product" */ "../../container/features/product/ProductStatusModal"
+      /* webpackChunkName: "Product" */ "../../container/features/product/ProductEditModal"
     )
 );
 
@@ -26,7 +26,7 @@ const ProductManagement = () => {
       }}
     >
       <CRUD
-        confirmModalSize="md"
+        formModalSize="xl"
         mode={mode}
         content={
           <Suspense>
@@ -40,11 +40,13 @@ const ProductManagement = () => {
             />
           </Suspense>
         }
-        confirmation={
+        form={
           <Suspense>
-            <ProductStatusModal
+            <ProductEditModal
+              id={selectedRow?._id ?? null}
               product={selectedRow ?? {}}
-              onSubmit={() => {
+              mode={mode}
+              onSubmitForm={() => {
                 setMode("content");
               }}
             />

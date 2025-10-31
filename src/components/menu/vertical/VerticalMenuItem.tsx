@@ -26,10 +26,18 @@ const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
   // بررسی می‌کنیم که آیا لینک کامپوننت با مسیر فعلی برابر است
   const isActive = link && location.pathname === link;
 
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsVisible((prevState) => !prevState);
+  };
+
+  const handleLinkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <>
       <li
-        onClick={() => setIsVisible((prevState) => !prevState)}
         className={`${
           isVisible ? "open-child" : null
         } ${
@@ -40,7 +48,8 @@ const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
         <Typography
           tag={link ? "a" : "span"}
           link={link ?? null}
-          className={`flex items-center text-sm justify-between cursor-pointer ${isActive ? "text-white" : ""}`}
+          onClick={children ? handleToggle : handleLinkClick}
+          className={`flex items-center text-sm justify-between ${children ? "cursor-pointer" : ""} ${isActive ? "text-white" : ""}`}
         >
           <div className="flex items-center gap-x-2">
             {icon ?? null}
@@ -74,7 +83,11 @@ const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
             </div>
           )}
         </Typography>
-        {children && children}
+        {children && (
+          <div className={`${isVisible ? "block" : "hidden"} mt-2 mr-4`}>
+            {children}
+          </div>
+        )}
       </li>
     </>
   );
