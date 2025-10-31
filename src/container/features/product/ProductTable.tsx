@@ -21,6 +21,7 @@ import {
   selectUpdateProductData,
   selectUpdateProductStatusData,
   selectChangeProductStatusData,
+  selectEditProductAdminData,
 } from "../../../redux/slice/product/ProductSlice";
 import {
   GetProductAction,
@@ -29,13 +30,20 @@ import {
 import SearchInputField from "../../../components/molcols/formik-fields/SearchInputField";
 import ProductCategoryFilter from "./ProductCategoryFilter";
 import RadioGroup from "../../../components/radio/RadioGroup";
+import Button from "../../../components/button";
+import { FaRegEdit } from "react-icons/fa";
 
 interface ProductItem {
   _id: string;
   name: string;
   images?: Array<{ url: string }>;
-  category?: { name: string };
-  provider?: { name: string };
+  category?: { name: string; _id: string };
+  provider?: {
+    name?: string;
+    firstName?: string;
+    lastName?: string;
+    agentName?: string;
+  };
   address?: { city: string };
   price?: number;
   inventory?: number;
@@ -66,6 +74,7 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
   const createData = useSelector(selectCreateProductData);
   const updateStatusData = useSelector(selectUpdateProductStatusData);
   const changeStatusData = useSelector(selectChangeProductStatusData);
+  const editProductAdminData = useSelector(selectEditProductAdminData);
 
   useEffect(() => {
     dispatch(GetProductAction({ page: 0, size: 20 }));
@@ -104,7 +113,8 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
       updateData?.status == 200 ||
       createData?.status == 201 ||
       updateStatusData?.status == 200 ||
-      changeStatusData?.status == 200
+      changeStatusData?.status == 200 ||
+      editProductAdminData?.status == 200
     ) {
       dispatch(
         GetProductAction({
@@ -113,7 +123,14 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
         })
       );
     }
-  }, [updateData, createData, updateStatusData, changeStatusData, dispatch]);
+  }, [
+    updateData,
+    createData,
+    updateStatusData,
+    changeStatusData,
+    editProductAdminData,
+    dispatch,
+  ]);
 
   const getInventoryUnit = (inventoryType: string) => {
     switch (inventoryType?.toUpperCase()) {
@@ -169,6 +186,7 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
             <TableHeadCell>قیمت</TableHeadCell>
             <TableHeadCell>موجودی</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
+            <TableHeadCell>عملیات</TableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -189,6 +207,7 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             productData?.data?.length > 0 ? (
@@ -198,8 +217,8 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
                     <Image
                       className="w-[60px] h-[60px] rounded-lg"
                       src={
-                        row?.images?.[0]?.url
-                          ? row?.images[0].url
+                        row?.images?.[0]?.path
+                          ? row?.images[0].path
                           : "/images/core/default-image.png"
                       }
                     />
@@ -218,7 +237,7 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
                   <TableCell>
                     {row?.inventory
                       ? `${row.inventory} ${getInventoryUnit(
-                          row?.inventoryType
+                          row?.inventoryType || ""
                         )}`
                       : "_"}
                   </TableCell>
@@ -233,18 +252,36 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
                       className="flex-row gap-1"
                     />
                   </TableCell>
+                  <TableCell
+                    onClick={(e: unknown) => {
+                      e.stopPropagation();
+                    }}
+                    className="justify-center gap-x-4"
+                  >
+                    <Button
+                      startIcon={<FaRegEdit className="text-xl" />}
+                      type="button"
+                      variant="outline-success"
+                      size="sm"
+                      onClick={() => {
+                        onRowClick && onRowClick("update", row);
+                      }}
+                    >
+                      ویرایش
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colspan="8" className="flex justify-center !py-4">
+                <TableCell colspan="9" className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="8" className="flex justify-center !py-4">
+              <TableCell colspan="9" className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

@@ -8,6 +8,7 @@ import {
   UpdateProductAction,
   UpdateProductStatusAction,
   ChangeProductStatusAction,
+  EditProductAdminAction,
 } from "../../actions/product/ProductActions";
 
 interface productState {
@@ -38,6 +39,10 @@ interface productState {
   changeProductStatusError: string | null;
   changeProductStatusLoading: boolean;
   changeProductStatusData: any;
+
+  editProductAdminError: string | null;
+  editProductAdminLoading: boolean;
+  editProductAdminData: any;
 }
 
 const initialState: productState = {
@@ -68,6 +73,10 @@ const initialState: productState = {
   changeProductStatusError: null,
   changeProductStatusLoading: false,
   changeProductStatusData: [],
+
+  editProductAdminError: null,
+  editProductAdminLoading: false,
+  editProductAdminData: [],
 };
 
 const productSlice = createSlice({
@@ -199,6 +208,22 @@ const productSlice = createSlice({
         state.changeProductStatusLoading = false;
         state.changeProductStatusError = action.payload;
         state.changeProductStatusData = [];
+      })
+      // edit product admin
+      .addCase(EditProductAdminAction.pending, (state) => {
+        state.editProductAdminLoading = true;
+        state.editProductAdminData = [];
+        state.editProductAdminError = null;
+      })
+      .addCase(EditProductAdminAction.fulfilled, (state, action) => {
+        state.editProductAdminLoading = false;
+        state.editProductAdminData = action.payload;
+        state.editProductAdminError = null;
+      })
+      .addCase(EditProductAdminAction.rejected, (state, action) => {
+        state.editProductAdminLoading = false;
+        state.editProductAdminError = action.payload;
+        state.editProductAdminData = [];
       });
   },
 });
@@ -250,5 +275,12 @@ export const selectChangeProductStatusLoading = (state: any) =>
   state.product.changeProductStatusLoading;
 export const selectChangeProductStatusData = (state: any) =>
   state.product.changeProductStatusData;
+
+export const selectEditProductAdminError = (state: any) =>
+  state.product.editProductAdminError;
+export const selectEditProductAdminLoading = (state: any) =>
+  state.product.editProductAdminLoading;
+export const selectEditProductAdminData = (state: any) =>
+  state.product.editProductAdminData;
 
 export default productSlice.reducer;
