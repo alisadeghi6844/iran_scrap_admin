@@ -11,7 +11,8 @@ import TableFilterCell from "../../../components/table/TableFilterCell";
 import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
-import { MdAccessibility } from "react-icons/md";
+import { MdAccessibility, MdEdit } from "react-icons/md";
+import UserEditModal from "./UserEditModal";
 
 import {
   selectGetUsersData,
@@ -47,6 +48,8 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
     direction: null,
   });
   const [currentFilter, setCurrentFilter] = useState<any>({});
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
 
   const filterDefaultInitialValues = {
     firstName: "",
@@ -138,6 +141,16 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
       return <FaSortDown className="inline ml-1" />;
     return <FaSort className="inline ml-1" />;
   };
+
+  const handleEditUser = (userId: string) => {
+    setSelectedUserId(userId);
+    setEditModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    // Refresh the users list after successful edit
+    fetchData(currentFilter, sortState);
+  };
   return (
     <>
       <CollectionControls
@@ -174,10 +187,16 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
                 تلفن همراه {getSortIcon("mobile")}
               </TableHeadCell>
               <TableHeadCell
+                onClick={() => handleSort("usertype")}
+                className="cursor-pointer"
+              >
+                نوع کاربر {getSortIcon("usertype")}
+              </TableHeadCell>
+              <TableHeadCell
                 onClick={() => handleSort("userSort")}
                 className="cursor-pointer"
               >
-                نوع کاربر {getSortIcon("userSort")}
+                نوع شخص {getSortIcon("userSort")}
               </TableHeadCell>
               <TableHeadCell />
             </TableRow>
@@ -193,6 +212,7 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
               <TableFilterCell>
                 <SearchInputField name="phoneNumber" />
               </TableFilterCell>
+              <TableFilterCell></TableFilterCell>
               <TableFilterCell></TableFilterCell>
               <TableFilterCell></TableFilterCell>
             </TableRow>
@@ -238,6 +258,22 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
                         transition: "background-color 0.2s",
                       }}
                     >
+                      {row?.usertype === "Buyer"
+                        ? "خریدار"
+                        : row?.usertype === "Provider"
+                        ? "تامین کننده"
+                        : row?.usertype === "Both"
+                        ? "هردو"
+                        : "نامشخص"}
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        backgroundColor: selectedUserIds.includes(row?.id)
+                          ? "#f0fdf4"
+                          : "transparent",
+                        transition: "background-color 0.2s",
+                      }}
+                    >
                       {row?.userSort === "Hagh"
                         ? "حقیقی"
                         : row?.userSort === "Hogh"
@@ -248,8 +284,17 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
                       onClick={(e: any) => {
                         e.stopPropagation();
                       }}
-                      className="justify-center gap-x-4"
+                      className="justify-center gap-x-2"
                     >
+                      <Button
+                        startIcon={<MdEdit className="text-xl" />}
+                        type="button"
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={() => handleEditUser(row?.id)}
+                      >
+                        ویرایش
+                      </Button>
                       <Button
                         startIcon={<MdAccessibility className="text-xl" />}
                         type="button"
@@ -261,21 +306,21 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
                           onRowClick && onRowClick("update", row);
                         }}
                       >
-                        دسترسی های کاربر
+                        دسترسی ها
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colspan="9" className="flex justify-center !py-4">
+                  <TableCell colspan="6" className="flex justify-center !py-4">
                     <EmptyImage />
                   </TableCell>
                 </TableRow>
               )
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colspan="6" className="flex justify-center !py-4">
                   <TableSkeleton />
                 </TableCell>
               </TableRow>
@@ -283,6 +328,13 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
           </TableBody>
         </Table>
       </CollectionControls>
+      
+      <UserEditModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        userId={selectedUserId}
+        onSuccess={handleEditSuccess}
+      />
     </>
   );
 };

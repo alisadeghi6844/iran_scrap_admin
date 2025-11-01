@@ -158,6 +158,12 @@ const ProductRequestEditModal = lazy(
       /* webpackChunkName: "ProductRequests" */ "../../container/features/productRequest/ProductRequestEditModal"
     )
 );
+const ProductRequestEditRequestModal = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "ProductRequests" */ "../../container/features/productRequest/ProductRequestEditRequestModal"
+    )
+);
 const ProductRequestProvidersModal = lazy(
   () =>
     import(
@@ -421,6 +427,17 @@ const ProductRequests = () => {
             requestId={selectedRow?.id || ""}
             onDelivery={handleDeliveryRequest}
             loading={makeDeliveredLoading}
+          />
+        </Suspense>
+      )}
+
+      {/* Render ProductRequestEditRequestModal separately outside CRUD */}
+      {mode === "editRequest" && (
+        <Suspense>
+          <ProductRequestEditRequestModal
+            isOpen={true}
+            onClose={handleCloseModal}
+            request={selectedRow}
           />
         </Suspense>
       )}

@@ -135,7 +135,7 @@ interface ProductRequestItem {
   winner?: {
     id: string;
     requestId: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   winnerId?: string;
   __v: number;
@@ -320,6 +320,16 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
                         }}
                       >
                         مشاهده بیشتر
+                      </Button>
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                          onRowClick?.("editRequest", row);
+                        }}
+                      >
+                        ویرایش درخواست
                       </Button>
                       {/* <Button
                         type="button"
