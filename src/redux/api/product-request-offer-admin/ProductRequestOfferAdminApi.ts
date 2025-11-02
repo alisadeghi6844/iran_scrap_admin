@@ -20,3 +20,5 @@ export const UPDATE_PRODUCT_REQUEST_OFFER_ADMIN_POINT =
   "product-request-offer-admin";
 export const UPDATE_PRODUCT_REQUEST_INVOICE_ADMIN_POINT =
   "product-request-invoice-admin";
+export const CHECK_PRODUCT_REQUEST_OFFER_ADMIN_POINT =
+  "product-request-offer-admin";

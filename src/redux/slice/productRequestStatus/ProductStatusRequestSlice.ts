@@ -82,7 +82,13 @@ const initialState: productRequestStatusState = {
 const productRequestStatusSlice = createSlice({
   name: PRODUCT_REQUEST_STATUS,
   initialState,
-  reducers: {},
+  reducers: {
+    clearUpdateProductRequestAdminData: (state) => {
+      state.updateProductRequestAdminData = null;
+      state.updateProductRequestAdminError = null;
+      state.updateProductRequestAdminLoading = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Get products request status
@@ -191,7 +197,7 @@ const productRequestStatusSlice = createSlice({
       .addCase(
         UpdateRequestProductAdminAction.fulfilled,
         (state, action: PayloadAction<any>) => {
-          console.log("action.payload",action.payload)
+          console.log("action.payload", action.payload);
           state.updateProductRequestAdminLoading = false;
           state.updateProductRequestAdminData = action.payload;
           state.updateProductRequestAdminError = null;
@@ -306,5 +312,9 @@ export const selectDeleteProductRequestAdminLoading = (state: any) =>
   state.productRequestStatus.deleteProductRequestAdminLoading;
 export const selectDeleteProductRequestAdminData = (state: any) =>
   state.productRequestStatus.deleteProductRequestAdminData;
+
+// Export actions
+export const { clearUpdateProductRequestAdminData } =
+  productRequestStatusSlice.actions;
 
 export default productRequestStatusSlice.reducer;

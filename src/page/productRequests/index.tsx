@@ -438,6 +438,9 @@ const ProductRequests = () => {
             isOpen={true}
             onClose={handleCloseModal}
             request={selectedRow}
+            onSuccess={() => {
+              setRefreshTable((prev) => prev + 1);
+            }}
           />
         </Suspense>
       )}

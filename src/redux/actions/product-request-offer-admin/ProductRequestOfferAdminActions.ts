@@ -13,6 +13,7 @@ import {
   SEND_OFFER_TO_BUYER,
   UPDATE_PRODUCT_REQUEST_OFFER_ADMIN,
   UPDATE_PRODUCT_REQUEST_INVOICE_ADMIN,
+  CHECK_PRODUCT_REQUEST_OFFER_ADMIN,
 } from "../../types/product-request-offer-admin/ProductRequestOfferAdminTypes";
 import {
   closeRequestService,
@@ -26,6 +27,7 @@ import {
   sendOfferToBuyerService,
   updateProductRequestOfferAdminService,
   updateProductRequestInvoiceAdminService,
+  checkProductRequestOfferAdminService,
 } from "../../service/product-request-offer-admin/ProductRequestOfferAdminServices";
 
 export const CloseRequestAction = createAsyncThunk(
@@ -263,6 +265,24 @@ export const UpdateProductRequestInvoiceAdminAction = createAsyncThunk(
       }
     } catch (error: any) {
       toast.error("خطا در به‌روزرسانی اطلاعات فاکتور");
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const CheckProductRequestOfferAdminAction = createAsyncThunk(
+  `${PRODUCT_REQUEST_OFFER_ADMIN}/${CHECK_PRODUCT_REQUEST_OFFER_ADMIN}`,
+  async ({ requestId }: { requestId: string }, { rejectWithValue }: any) => {
+    try {
+      const response = await checkProductRequestOfferAdminService(requestId);
+      if (response?.status === 200) {
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
       return rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }
       );
