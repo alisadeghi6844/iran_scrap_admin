@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { Formik } from "formik";
+import { toast } from "react-toastify";
 import { FormProps } from "../../../types/organism/Form";
 import {
   selectEditProductAdminLoading,
@@ -11,9 +12,9 @@ import {
   selectDeleteProductImageLoading,
 } from "../../../redux/slice/product/ProductSlice";
 import { EditProductAdminAction } from "../../../redux/actions/product/ProductActions";
-import { 
-  UploadProductImageAction, 
-  DeleteProductImageAction 
+import {
+  UploadProductImageAction,
+  DeleteProductImageAction,
 } from "../../../redux/actions/product/ProductImageActions";
 import FormSkeleton from "../../organism/skeleton/FormSkeleton";
 import Input from "../../../components/input";
@@ -45,7 +46,7 @@ interface ProductEditFormProps extends FormProps {
 const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
   const { mode = "update", onSubmitForm, id, product } = props;
 
-  const dispatch = useDispatch<any>();
+  const dispatch = useDispatch<unknown>();
 
   const getValue = useSelector(selectGetProductByIdData);
   const getLoading = useSelector(selectGetProductByIdLoading);
@@ -74,12 +75,21 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
   const [imageURLs, setImageURLs] = useState<string[]>([]);
   const [imageIds, setImageIds] = useState<string[]>([]);
 
+  const [uploadingImages, setUploadingImages] = useState<Set<string>>(
+    new Set()
+  );
+
+  // Debug log for imageURLs changes
+  React.useEffect(() => {
+    console.log('imageURLs changed:', imageURLs);
+  }, [imageURLs]);
+
   useEffect(() => {
     if (getValue?.data && mode === "update") {
       const productData = getValue.data;
       // Use installmentPrice as is with duration field
       const convertedinstallmentPrice =
-        productData?.installmentPrice?.map((item: any) => ({
+        productData?.installmentPrice?.map((item: unknown) => ({
           duration: item.duration,
           price: item.price,
         })) || [];
@@ -96,7 +106,8 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
         categoryId: productData?.category?._id || "",
         paymentType: productData?.paymentType || "CASH",
         installmentPrice: convertedinstallmentPrice,
-        images: productData?.images?.map((img: any) => img.url || img.path) || [],
+        images:
+          productData?.images?.map((img: any) => img.url || img.path) || [],
       });
     } else if (product && mode === "update") {
       // Use installmentPrice as is with duration field
@@ -128,35 +139,154 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
   useEffect(() => {
     if (getValue?.data?.images) {
       const urls = getValue.data.images.map((img: any) => img.url || img.path);
-      const ids = getValue.data.images.map((img: any) => img._id || img.id);
+      const ids = getValue.data.images.map((img: unknown) => img._id || img.id);
       setImageURLs(urls);
       setImageIds(ids);
     } else if (product?.images) {
-      const urls = product.images.map((img: any) => img.url || img.path);
-      const ids = product.images.map((img: any) => img._id || img.id);
+      const urls = product.images.map((img: unknown) => img.url || img.path);
+      const ids = product.images.map((img: unknown) => img._id || img.id);
       setImageURLs(urls);
       setImageIds(ids);
     }
   }, [getValue?.data?.images, product?.images]);
 
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      // Clean up any remaining uploading URLs
+      uploadingImages.forEach((url) => {
+        if (url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, [uploadingImages]);
+
   // Image management functions
   const uploadNewImage = async (file: File) => {
+    console.log("uploadNewImage called with file:", file.name); // Debug log
     const productId = id || product?._id;
-    if (!productId) return;
+    console.log("Product ID:", productId); // Debug log
+
+    if (!productId) {
+      toast.error("شناسه محصول یافت نشد. لطفا صفحه را رفرش کنید.");
+      return;
+    }
+
+    // Create preview URL for the file
+    const previewUrl = URL.createObjectURL(file);
+    console.log("Created preview URL:", previewUrl); // Debug log
+
+    // Store the index where we're adding this image
+    const newImageIndex = imageURLs.length;
+    console.log("New image will be at index:", newImageIndex);
+
+    // Add to image URLs immediately (hard-coded display)
+    setImageURLs((prev) => {
+      const updated = [...prev, previewUrl];
+      console.log("Added preview to imageURLs:", updated);
+      return updated;
+    });
+    setImageIds((prev) => [...prev, ""]); // Empty ID for uploading image
+    setUploadingImages((prev) => new Set([...prev, previewUrl]));
 
     dispatch(
       UploadProductImageAction({
         productId,
         imageFile: file,
         onSuccess: (response) => {
-          // Add new image to the list
+          console.log("Upload response full:", response); // Debug log
+          console.log("Response data:", response?.data); // Debug log
+
+          // Try multiple possible response structures
+          let newImageUrl: string | null = null;
+          let newImageId: string | null = null;
+
           if (response?.data?.image) {
-            setImageURLs(prev => [...prev, response.data.image.url || response.data.image.path]);
-            setImageIds(prev => [...prev, response.data.image._id || response.data.image.id]);
+            // Structure: { data: { image: { url, _id } } }
+            newImageUrl = response.data.image.url || response.data.image.path;
+            newImageId = response.data.image._id || response.data.image.id;
+          } else if (response?.data?.url || response?.data?.path) {
+            // Structure: { data: { url, _id } }
+            newImageUrl = response.data.url || response.data.path;
+            newImageId = response.data._id || response.data.id;
+          } else if (response?.image) {
+            // Structure: { image: { url, _id } }
+            newImageUrl = response.image.url || response.image.path;
+            newImageId = response.image._id || response.image.id;
+          } else if (response?.url || response?.path) {
+            // Structure: { url, _id }
+            newImageUrl = response.url || response.path;
+            newImageId = response._id || response.id;
+          }
+
+          console.log("Extracted image URL:", newImageUrl);
+          console.log("Extracted image ID:", newImageId);
+
+          if (newImageUrl) {
+            // Replace preview URL with actual URL at the specific index
+            setImageURLs((prevUrls) => {
+              const previewIndex = prevUrls.findIndex(url => url === previewUrl);
+              if (previewIndex !== -1) {
+                const updated = [...prevUrls];
+                updated[previewIndex] = newImageUrl;
+                console.log("Updated image URLs:", updated);
+                return updated;
+              }
+              return prevUrls;
+            });
+            
+            // Update the corresponding ID at the same index
+            setImageIds((prevIds) => {
+              const updated = [...prevIds];
+              updated[newImageIndex] = newImageId || "";
+              console.log("Updated image IDs:", updated);
+              return updated;
+            });
+
+            // Remove from uploading set
+            setUploadingImages((prev) => {
+              const updated = new Set(prev);
+              updated.delete(previewUrl);
+              return updated;
+            });
+
+            // Clean up the preview URL
+            URL.revokeObjectURL(previewUrl);
+
+            toast.success("تصویر با موفقیت آپلود شد");
+          } else {
+            console.error("Could not extract image URL from response");
+            toast.error(
+              "تصویر آپلود شد اما نمایش داده نشد. لطفا صفحه را رفرش کنید."
+            );
           }
         },
         onError: (error) => {
-          console.error('Error uploading image:', error);
+          console.error("Error uploading image:", error);
+          console.log("Removing failed upload:", previewUrl);
+
+          // Remove failed upload from all states
+          setImageURLs((prev) => {
+            const updated = prev.filter((url) => url !== previewUrl);
+            console.log("Removed from imageURLs:", updated);
+            return updated;
+          });
+          setImageIds((prev) => {
+            const updated = [...prev];
+            updated.splice(newImageIndex, 1); // Remove at the specific index
+            return updated;
+          });
+          setUploadingImages((prev) => {
+            const updated = new Set(prev);
+            updated.delete(previewUrl);
+            return updated;
+          });
+
+          // Clean up the preview URL
+          URL.revokeObjectURL(previewUrl);
+
+          toast.error("خطا در آپلود تصویر. لطفا دوباره تلاش کنید.");
         },
       })
     );
@@ -165,11 +295,16 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
   const removeImage = (index: number) => {
     const productId = id || product?._id;
     const imageId = imageIds[index];
-    
-    if (!productId || !imageId) {
+
+    if (!productId) {
+      toast.error("شناسه محصول یافت نشد. لطفا صفحه را رفرش کنید.");
+      return;
+    }
+
+    if (!imageId) {
       // If no imageId, just remove from local state (for newly uploaded images)
-      setImageURLs(prev => prev.filter((_, i) => i !== index));
-      setImageIds(prev => prev.filter((_, i) => i !== index));
+      setImageURLs((prev) => prev.filter((_, i) => i !== index));
+      setImageIds((prev) => prev.filter((_, i) => i !== index));
       return;
     }
 
@@ -179,11 +314,11 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
         imageId,
         onSuccess: () => {
           // Remove image from local state
-          setImageURLs(prev => prev.filter((_, i) => i !== index));
-          setImageIds(prev => prev.filter((_, i) => i !== index));
+          setImageURLs((prev) => prev.filter((_, i) => i !== index));
+          setImageIds((prev) => prev.filter((_, i) => i !== index));
         },
         onError: (error) => {
-          console.error('Error deleting image:', error);
+          console.error("Error deleting image:", error);
         },
       })
     );
@@ -434,6 +569,7 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
                 uploadNewImage={uploadNewImage}
                 imageActionLoading={uploadImageLoading || deleteImageLoading}
                 maxImages={5}
+                uploadingImages={uploadingImages}
               />
             </form>
           )}

@@ -3,6 +3,7 @@ import Button from "../../../components/button";
 import { FiTrash2 } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa";
 import Typography from "../../../components/typography/Typography";
+import { toast } from "react-toastify";
 
 interface ImageGalleryProps {
   imageURLs: string[];
@@ -10,6 +11,7 @@ interface ImageGalleryProps {
   uploadNewImage: (file: File) => void;
   imageActionLoading: boolean;
   maxImages?: number;
+  uploadingImages?: Set<string>;
 }
 
 const ImageGallery: React.FC<ImageGalleryProps> = ({
@@ -18,29 +20,96 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
   uploadNewImage,
   imageActionLoading,
   maxImages = 5,
+  uploadingImages = new Set(),
 }) => {
+  const [isDragOver, setIsDragOver] = React.useState(false);
+
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
+    console.log('Files selected:', files.length); // Debug log
+    console.log('Current image count:', imageURLs.length); // Debug log
+    console.log('Current imageURLs:', imageURLs); // Debug log
+    
+    let uploadedCount = 0;
     
     for (const file of files) {
-      // Validate file type
-      if (!file.type.match("image/jpeg") &&
-          !file.type.match("image/png") &&
-          !file.type.match("image/gif")) {
-        continue;
-      }
-
-      // Check if we haven't exceeded max images
-      if (imageURLs.length >= maxImages) {
+      // Check if we haven't exceeded max images (including files being uploaded in this batch)
+      if (imageURLs.length + uploadedCount >= maxImages) {
+        toast.warning(`حداکثر ${maxImages} تصویر می‌توانید آپلود کنید.`);
         break;
       }
 
+      // Validate file type
+      if (!file.type.match("image/jpeg") &&
+          !file.type.match("image/png") &&
+          !file.type.match("image/gif") &&
+          !file.type.match("image/webp")) {
+        toast.error(`فرمت فایل ${file.name} پشتیبانی نمی‌شود. لطفا فایل‌های JPG، PNG، GIF یا WebP انتخاب کنید.`);
+        continue;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`حجم فایل ${file.name} بیش از 5 مگابایت است.`);
+        continue;
+      }
+
+      console.log('About to upload image:', file.name); // Debug log
       // Upload image immediately
       uploadNewImage(file);
+      uploadedCount++;
     }
 
     // Clear the input
     event.target.value = '';
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(false);
+    
+    const files = Array.from(event.dataTransfer.files);
+    console.log('Files dropped:', files.length); // Debug log
+    
+    let uploadedCount = 0;
+    
+    for (const file of files) {
+      // Check if we haven't exceeded max images (including files being uploaded in this batch)
+      if (imageURLs.length + uploadedCount >= maxImages) {
+        toast.warning(`حداکثر ${maxImages} تصویر می‌توانید آپلود کنید.`);
+        break;
+      }
+
+      // Validate file type
+      if (!file.type.match("image/jpeg") &&
+          !file.type.match("image/png") &&
+          !file.type.match("image/gif") &&
+          !file.type.match("image/webp")) {
+        toast.error(`فرمت فایل ${file.name} پشتیبانی نمی‌شود. لطفا فایل‌های JPG، PNG، GIF یا WebP انتخاب کنید.`);
+        continue;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`حجم فایل ${file.name} بیش از 5 مگابایت است.`);
+        continue;
+      }
+
+      console.log('About to upload dropped image:', file.name); // Debug log
+      // Upload image immediately
+      uploadNewImage(file);
+      uploadedCount++;
+    }
   };
 
   return (
@@ -52,8 +121,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
       {/* Upload Area */}
       <div className="flex justify-center mb-4">
         <div
-          className="w-full max-w-md rounded-lg h-[200px] border-2 border-dashed border-[#CED4DA] bg-[#F8F9FA] flex flex-col justify-center items-center gap-y-2 cursor-pointer hover:bg-gray-50 transition-colors"
+          className={`w-full max-w-md rounded-lg h-[200px] border-2 border-dashed ${
+            isDragOver 
+              ? 'border-blue-400 bg-blue-50' 
+              : 'border-[#CED4DA] bg-[#F8F9FA]'
+          } flex flex-col justify-center items-center gap-y-2 cursor-pointer hover:bg-gray-50 transition-colors`}
           onClick={() => document.getElementById("fileInput")?.click()}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
         >
           <input
             id="fileInput"
@@ -88,30 +164,61 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
       {/* Image Grid */}
       {imageURLs.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {imageURLs.map((imagePath, index) => (
-            <div key={index} className="relative group">
-              <img
-                src={imagePath}
-                alt={`product-image-${index}`}
-                className="w-full h-[120px] object-cover rounded-lg border border-[#CED4DA] group-hover:opacity-75 transition-opacity"
-              />
-              <Button
-                type="button"
-                onClick={() => removeImage(index)}
-                size="sm"
-                variant="error"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                loading={imageActionLoading}
-              >
-                <FiTrash2 />
-              </Button>
-              {index === 0 && (
-                <div className="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                  تصویر اصلی
-                </div>
-              )}
-            </div>
-          ))}
+          {imageURLs.map((imagePath, index) => {
+            const isUploading = uploadingImages.has(imagePath);
+            console.log(`Image ${index}: ${imagePath}, isUploading: ${isUploading}`); // Debug log
+            return (
+              <div key={`image-${index}`} className="relative group">
+                <img
+                  src={imagePath}
+                  alt={`product-image-${index}`}
+                  className={`w-full h-[120px] object-cover rounded-lg border border-[#CED4DA] transition-opacity ${
+                    isUploading 
+                      ? 'opacity-50' 
+                      : 'group-hover:opacity-75'
+                  }`}
+                  onLoad={() => console.log(`Image loaded: ${imagePath}`)}
+                  onError={(e) => console.error(`Image failed to load: ${imagePath}`, e)}
+                />
+                
+                {/* Loading overlay for uploading images */}
+                {isUploading && (
+                  <div className="absolute inset-0 bg-black bg-opacity-30 rounded-lg flex items-center justify-center">
+                    <div className="text-white text-xs bg-black bg-opacity-50 px-2 py-1 rounded">
+                      در حال آپلود...
+                    </div>
+                  </div>
+                )}
+                
+                {/* Spinner for uploading images */}
+                {isUploading && (
+                  <div className="absolute top-2 left-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  </div>
+                )}
+                
+                {/* Delete button - only show for uploaded images */}
+                {!isUploading && (
+                  <Button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    size="sm"
+                    variant="error"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    loading={imageActionLoading}
+                  >
+                    <FiTrash2 />
+                  </Button>
+                )}
+                
+                {index === 0 && imageURLs.length > 0 && !isUploading && (
+                  <div className="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                    تصویر اصلی
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 

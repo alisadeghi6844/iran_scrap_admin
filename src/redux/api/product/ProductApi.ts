@@ -6,5 +6,5 @@ export const DELETE_PRODUCT_POINT = "product";
 export const UPDATE_PRODUCT_STATUS_POINT = "product/status";
 export const CHANGE_PRODUCT_STATUS_POINT = "product-admin";
 export const EDIT_PRODUCT_ADMIN_POINT = "product-admin";
-export const UPLOAD_PRODUCT_IMAGE_POINT = "product";
-export const DELETE_PRODUCT_IMAGE_POINT = "product";
+export const UPLOAD_PRODUCT_IMAGE_POINT = "product-admin";
+export const DELETE_PRODUCT_IMAGE_POINT = "product-admin";
