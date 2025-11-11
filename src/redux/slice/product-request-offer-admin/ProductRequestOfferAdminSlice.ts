@@ -11,6 +11,7 @@ import {
   SendOfferToBuyerAction,
   UpdateProductRequestOfferAdminAction,
   UpdateProductRequestInvoiceAdminAction,
+  CheckProductRequestOfferAdminAction,
 } from "../../actions/product-request-offer-admin/ProductRequestOfferAdminActions";
 import { PRODUCT_REQUEST_OFFER_ADMIN } from "../../types/product-request-offer-admin/ProductRequestOfferAdminTypes";
 
@@ -58,6 +59,10 @@ interface ProductRequestOfferAdminState {
   updateProductRequestInvoiceAdminError: string | null;
   updateProductRequestInvoiceAdminLoading: boolean;
   updateProductRequestInvoiceAdminData: any;
+
+  checkProductRequestOfferAdminError: string | null;
+  checkProductRequestOfferAdminLoading: boolean;
+  checkProductRequestOfferAdminData: any;
 }
 
 const initialState: ProductRequestOfferAdminState = {
@@ -104,12 +109,35 @@ const initialState: ProductRequestOfferAdminState = {
   updateProductRequestInvoiceAdminError: null,
   updateProductRequestInvoiceAdminLoading: false,
   updateProductRequestInvoiceAdminData: null,
+
+  checkProductRequestOfferAdminError: null,
+  checkProductRequestOfferAdminLoading: false,
+  checkProductRequestOfferAdminData: null,
 };
 
 const productRequestOfferAdminSlice = createSlice({
   name: PRODUCT_REQUEST_OFFER_ADMIN,
   initialState,
-  reducers: {},
+  reducers: {
+    clearGetProductRequestAdminByIdData: (state) => {
+      state.getProductRequestAdminByIdData = null;
+      state.getProductRequestAdminByIdError = null;
+      state.getProductRequestAdminByIdLoading = false;
+    },
+    clearCheckProductRequestOfferAdminData: (state) => {
+      state.checkProductRequestOfferAdminData = null;
+      state.checkProductRequestOfferAdminError = null;
+      state.checkProductRequestOfferAdminLoading = false;
+    },
+    clearAllProductRequestEditData: (state) => {
+      state.getProductRequestAdminByIdData = null;
+      state.getProductRequestAdminByIdError = null;
+      state.getProductRequestAdminByIdLoading = false;
+      state.checkProductRequestOfferAdminData = null;
+      state.checkProductRequestOfferAdminError = null;
+      state.checkProductRequestOfferAdminLoading = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Close Request
@@ -363,6 +391,29 @@ const productRequestOfferAdminSlice = createSlice({
           state.updateProductRequestInvoiceAdminError = action.payload;
           state.updateProductRequestInvoiceAdminData = null;
         }
+      )
+
+      // Check Product Request Offer Admin
+      .addCase(CheckProductRequestOfferAdminAction.pending, (state) => {
+        state.checkProductRequestOfferAdminLoading = true;
+        state.checkProductRequestOfferAdminData = null;
+        state.checkProductRequestOfferAdminError = null;
+      })
+      .addCase(
+        CheckProductRequestOfferAdminAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.checkProductRequestOfferAdminLoading = false;
+          state.checkProductRequestOfferAdminData = action.payload;
+          state.checkProductRequestOfferAdminError = null;
+        }
+      )
+      .addCase(
+        CheckProductRequestOfferAdminAction.rejected,
+        (state, action: PayloadAction<any>) => {
+          state.checkProductRequestOfferAdminLoading = false;
+          state.checkProductRequestOfferAdminError = action.payload;
+          state.checkProductRequestOfferAdminData = null;
+        }
       );
   },
 });
@@ -454,5 +505,20 @@ export const selectUpdateProductRequestInvoiceAdminLoading = (state: any) =>
   state.productRequestOfferAdmin.updateProductRequestInvoiceAdminLoading;
 export const selectUpdateProductRequestInvoiceAdminData = (state: any) =>
   state.productRequestOfferAdmin.updateProductRequestInvoiceAdminData;
+
+// Selectors for Check Product Request Offer Admin
+export const selectCheckProductRequestOfferAdminError = (state: any) =>
+  state.productRequestOfferAdmin.checkProductRequestOfferAdminError;
+export const selectCheckProductRequestOfferAdminLoading = (state: any) =>
+  state.productRequestOfferAdmin.checkProductRequestOfferAdminLoading;
+export const selectCheckProductRequestOfferAdminData = (state: any) =>
+  state.productRequestOfferAdmin.checkProductRequestOfferAdminData;
+
+// Export actions
+export const {
+  clearGetProductRequestAdminByIdData,
+  clearCheckProductRequestOfferAdminData,
+  clearAllProductRequestEditData,
+} = productRequestOfferAdminSlice.actions;
 
 export default productRequestOfferAdminSlice.reducer;

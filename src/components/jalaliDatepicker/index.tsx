@@ -10,7 +10,6 @@ import { IoClose } from "react-icons/io5";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { JalaliDatepickerTypes } from "../../types/components/JalaliDatepickerTypes";
 
-
 const JalaliDatepicker: React.FC<JalaliDatepickerTypes> = (props) => {
   const {
     className,
@@ -40,7 +39,7 @@ const JalaliDatepicker: React.FC<JalaliDatepickerTypes> = (props) => {
 
   const handleChangeDatePicker = (date: DateObject, format: string) => {
     let object = { date, format };
-    handleChangeInput&&handleChangeInput(date)
+    handleChangeInput && handleChangeInput(date);
     onChange && onChange(new DateObject(object).format());
   };
 
@@ -73,8 +72,8 @@ const JalaliDatepicker: React.FC<JalaliDatepickerTypes> = (props) => {
            border-b-2 block py-4 px-2 text-sm text-gray-900
            bg-transparent border-0 border-b-2 border-gray-300 appearance-none
             focus:ring-0 focus:border-primary-600 peer ${
-             inputClassName ? inputClassName : ""
-           }`}
+              inputClassName ? inputClassName : ""
+            }`}
           editable={false}
           value={value && value}
           range={range && range}

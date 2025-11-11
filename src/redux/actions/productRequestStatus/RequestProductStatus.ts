@@ -126,7 +126,7 @@ export const UpdateRequestProductAdminAction = createAsyncThunk(
   ) => {
     try {
       const response = await updateProductRequestAdminService(credentials, item);
-      console.log("response",response)
+      
       if (response?.status === 200) {
         onSuccess();
         toast.success("عملیات با موفقیت انجام شد");
