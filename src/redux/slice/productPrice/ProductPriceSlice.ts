@@ -4,6 +4,7 @@ import {
   CreateProductPriceAction,
   DeleteProductPriceAction,
   GetProductPriceAction,
+  GetProductPriceByIdAction,
   UpdateProductPriceAction,
 } from "../../actions/productPrice/ProductPriceActions";
 
@@ -11,6 +12,10 @@ interface productPriceState {
   getProductPriceError: string | null;
   getProductPriceLoading: boolean;
   getProductPriceData: any;
+
+  getProductPriceByIdError: string | null;
+  getProductPriceByIdLoading: boolean;
+  getProductPriceByIdData: any;
 
   createProductPriceError: any;
   createProductPriceLoading: any;
@@ -29,6 +34,10 @@ const initialState: productPriceState = {
   getProductPriceError: null,
   getProductPriceLoading: false,
   getProductPriceData: [],
+
+  getProductPriceByIdError: null,
+  getProductPriceByIdLoading: false,
+  getProductPriceByIdData: [],
 
   createProductPriceError: null,
   createProductPriceLoading: false,
@@ -66,6 +75,28 @@ const productPriceSlice = createSlice({
           state.getProductPriceLoading = false;
           state.getProductPriceError = action.payload;
           state.getProductPriceData = [];
+        }
+      )
+      // Get productPrice by id
+      .addCase(GetProductPriceByIdAction.pending, (state) => {
+        state.getProductPriceByIdLoading = true;
+        state.getProductPriceByIdData = [];
+        state.getProductPriceByIdError = null;
+      })
+      .addCase(
+        GetProductPriceByIdAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.getProductPriceByIdLoading = false;
+          state.getProductPriceByIdData = action.payload;
+          state.getProductPriceByIdError = null;
+        }
+      )
+      .addCase(
+        GetProductPriceByIdAction.rejected,
+        (state, action: PayloadAction<string>) => {
+          state.getProductPriceByIdLoading = false;
+          state.getProductPriceByIdError = action.payload;
+          state.getProductPriceByIdData = [];
         }
       )
       // create productPrice

@@ -132,6 +132,34 @@ const routes = [
     layout: "admin",
     role: ["admin", "client", "reservation"],
   },
+  {
+    path: "/pb-product-admin-management",
+    breadCrumb: "تعریف کالا",
+    component: lazy(() => import("../page/pbProductAdminManagement")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
+  {
+    path: "/pb-brand-admin-management",
+    breadCrumb: "مدیریت برند",
+    component: lazy(() => import("../page/pbBrandAdminManagement")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
+  {
+    path: "/pb-provider-admin-management",
+    breadCrumb: "تعریف تامین کنندگان",
+    component: lazy(() => import("../page/pbProviderAdminManagement")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
+  {
+    path: "/pb-port-admin-management",
+    breadCrumb: "تعریف محل بارگیری",
+    component: lazy(() => import("../page/pbPortAdminManagement")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
 ];
 
 export const privateRoutes = [

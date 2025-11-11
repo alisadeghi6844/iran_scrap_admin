@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../../../redux/store";
 import { HandleFilterParams } from "../../../types/FilterParams";
 import CollectionControls from "../../organism/CollectionControls";
 import Table from "../../../components/table";
@@ -9,40 +10,64 @@ import TableRow from "../../../components/table/TableRow";
 import TableBody from "../../../components/table/TableBody";
 import TableFilterCell from "../../../components/table/TableFilterCell";
 import TableCell from "../../../components/table/TableCell";
-import Button from "../../../components/button";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 
-import { FaRegEdit } from "react-icons/fa";
 import {
   selectCreateProductPriceData,
-  selectDeleteProductPriceData,
   selectGetProductPriceData,
   selectGetProductPriceLoading,
   selectUpdateProductPriceData,
+  selectDeleteProductPriceData,
 } from "../../../redux/slice/productPrice/ProductPriceSlice";
 import { GetProductPriceAction } from "../../../redux/actions/productPrice/ProductPriceActions";
-import { formatNumber } from "../../../utils/NumberFormated";
-import PriceStatus from "../../../components/PriceStatus";
-import { BiTrashAlt } from "react-icons/bi";
 import SearchInputField from "../../../components/molcols/formik-fields/SearchInputField";
+import Button from "../../../components/button";
+import { FaRegEdit } from "react-icons/fa";
+import { BiTrash } from "react-icons/bi";
+import { formatNumber } from "../../../utils/NumberFormated";
+
+interface ProductPriceItem {
+  _id?: string;
+  id?: string;
+  productId: {
+    id: string;
+    name: string;
+  };
+  brandId: {
+    id: string;
+    name: string;
+  };
+  providerId: {
+    id: string;
+    name: string;
+  };
+  portId: {
+    id: string;
+    name: string;
+  };
+  paymentType: string;
+  showInApp: boolean;
+  showInPanel: boolean;
+  buyPrice: number;
+  constant: number;
+  sellPrice: number;
+  createdAt: number;
+  updatedAt: number;
+}
 
 interface ProductPriceTypes {
-  onRowClick?: any;
+  onRowClick?: (action: string, row: ProductPriceItem) => void;
 }
 
 const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
   const { onRowClick } = props;
 
-  const dispatch: any = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const filterDefaultInitialValues = {
-    FoodName: "",
-    ProductPrice: null,
-    Restaurant: null,
+    ProductName: "",
   };
-
-  const [inputName, setInputName] = useState("");
 
   const loading = useSelector(selectGetProductPriceLoading);
   const productPriceData = useSelector(selectGetProductPriceData);
@@ -51,29 +76,34 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
   const deleteData = useSelector(selectDeleteProductPriceData);
 
   useEffect(() => {
-    if(inputName?.length > 0){
-      dispatch(GetProductPriceAction({ page: 0, size: 20, name: inputName }));
-    }else{
-      dispatch(GetProductPriceAction({ page: 0, size: 20 }));
-    } 
-  }, [inputName]);
-
+    dispatch(
+      GetProductPriceAction({
+        page: 0,
+        size: 10,
+        include: ["brand", "provider", "product", "port"],
+      })
+    );
+  }, [dispatch]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     dispatch(
       GetProductPriceAction({
         filter,
         page: page ?? 0,
-        size: pageSize ?? 20,
+        size: pageSize ?? 10,
+        include: ["brand", "provider", "product", "port"],
       })
     );
   };
 
-  const handleFilterParameters = (data: any) => {
-    // const { FoodName, ProductPrice, Restaurant } = data;
-    // let queryParam = "";
-    // if (FoodName) queryParam += "title=" + FoodName + ",";
-    // return queryParam.substring(0, queryParam.length - 1);
+  const handleFilterParameters = (data: unknown) => {
+    const { ProductName } = data as {
+      ProductName?: string;
+    };
+    let queryParam = "";
+    if (ProductName) queryParam += "productName=" + ProductName + ",";
+
+    return queryParam.substring(0, queryParam.length - 1);
   };
 
   useEffect(() => {
@@ -85,75 +115,126 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
       dispatch(
         GetProductPriceAction({
           page: 0,
-          size: 20,
+          size: 10,
+          include: ["brand", "provider", "product", "port"],
         })
       );
     }
-  }, [updateData, createData, deleteData]);
+  }, [updateData, createData, deleteData, dispatch]);
 
-  useEffect(() => {
-    console.log("productPriceData", productPriceData);
-  }, [productPriceData]);
+  const getPaymentTypeLabel = (type: string) => {
+    const types: { [key: string]: string } = {
+      CASH: "نقدی",
+      INSTALLMENT1: "1 ماهه",
+      INSTALLMENT2: "2 ماهه",
+      INSTALLMENT3: "3 ماهه",
+      INSTALLMENT4: "4 ماهه",
+      INSTALLMENT5: "5 ماهه",
+      INSTALLMENT6: "6 ماهه",
+    };
+    return types[type] || type;
+  };
+
+  const calculateStatus = (sellPrice: number, constant: number) => {
+    // فرمول: S = (قیمت ثابت) / (قیمت فروش)
+    const S = sellPrice > 0 ? constant / sellPrice : 0;
+
+    if (S >= 0.12)
+      return { label: "سوپر الماسی", color: "text-purple-600 bg-purple-100" };
+    if (S >= 0.08)
+      return { label: "الماسی", color: "text-blue-600 bg-blue-100" };
+    if (S >= 0.05)
+      return { label: "طلایی", color: "text-yellow-600 bg-yellow-100" };
+    if (S >= 0.03)
+      return { label: "نقره‌ای", color: "text-gray-600 bg-gray-100" };
+    return { label: "برنزی", color: "text-orange-600 bg-orange-100" };
+  };
 
   return (
     <CollectionControls
       buttons={["create"]}
-      createTitle="ساخت محصول جدید"
+      createTitle="ساخت قیمت گذاری جدید"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
       onFilter={handleFilterParameters}
       data={productPriceData}
       onMetaChange={handleFilter}
       onButtonClick={(button) => {
-        if (!!onRowClick) {
-          button === "create" && onRowClick("create");
+        if (onRowClick) {
+          if (button === "create") {
+            onRowClick("create", {} as ProductPriceItem);
+          }
         }
       }}
     >
       <Table className="w-full" isLoading={false} shadow={false}>
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
-            <TableHeadCell>نام محصول </TableHeadCell>
-            <TableHeadCell>آخرین قیمت </TableHeadCell>
-            <TableHeadCell>تغییر قیمت </TableHeadCell>
-            <TableHeadCell />
+            <TableHeadCell>کالا</TableHeadCell>
+            <TableHeadCell>برند</TableHeadCell>
+            <TableHeadCell>تامین کننده</TableHeadCell>
+            <TableHeadCell>محل بارگیری</TableHeadCell>
+            <TableHeadCell>نوع پرداخت</TableHeadCell>
+            <TableHeadCell>قیمت خرید</TableHeadCell>
+            <TableHeadCell>قیمت فروش</TableHeadCell>
+            <TableHeadCell>وضعیت</TableHeadCell>
+            <TableHeadCell>عملیات</TableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
             <TableFilterCell>
-              <SearchInputField onChange={(e: any) => setInputName(e.target.value)} name="Name" noBorder />
+              <SearchInputField
+                name="ProductName"
+                noBorder
+                placeholder="جستجوی نام کالا..."
+              />
             </TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             productPriceData?.data?.length > 0 ? (
-              productPriceData?.data?.map((row: any) => (
-                <TableRow key={row?._id}>
-                  <TableCell>{row?.name ?? "_"}</TableCell>
+              productPriceData?.data?.map((row: ProductPriceItem) => (
+                <TableRow key={row?._id || row?.id}>
+                  <TableCell>{row?.productId?.name ?? "_"}</TableCell>
+                  <TableCell>{row?.brandId?.name ?? "_"}</TableCell>
+                  <TableCell>{row?.providerId?.name ?? "_"}</TableCell>
+                  <TableCell>{row?.portId?.name ?? "_"}</TableCell>
                   <TableCell>
-                    {row?.lastPrice
-                      ? `هر کیلوگرم ${formatNumber(row?.lastPrice)} تومان`
-                      : "_"}{" "}
+                    {getPaymentTypeLabel(row?.paymentType) ?? "_"}
+                  </TableCell>
+                  <TableCell>
+                    {row?.buyPrice
+                      ? formatNumber(row?.buyPrice) + " تومان"
+                      : "_"}
+                  </TableCell>
+                  <TableCell>
+                    {row?.sellPrice
+                      ? formatNumber(row?.sellPrice) + " تومان"
+                      : "_"}
+                  </TableCell>
+                  <TableCell>
+                    {row?.sellPrice && row?.constant ? (
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          calculateStatus(row.sellPrice, row.constant).color
+                        }`}
+                      >
+                        {calculateStatus(row.sellPrice, row.constant).label}
+                      </span>
+                    ) : (
+                      "_"
+                    )}
                   </TableCell>
                   <TableCell
-                    start={true}
-                    className={"w-[200px] justify-center"}
-                  >
-                    <PriceStatus
-                      status={
-                        row?.changePercent > 0
-                          ? "up"
-                          : row?.changePercent < 0
-                          ? "down"
-                          : "dontChange"
-                      }
-                      number={row?.changePercent}
-                    />
-                  </TableCell>
-                  <TableCell
-                    onClick={(e: any) => {
+                    onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                     }}
                     className="justify-center gap-x-4"
@@ -164,19 +245,22 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
                       variant="outline-success"
                       size="sm"
                       onClick={() => {
-                        onRowClick && onRowClick("update", row);
+                        if (onRowClick) {
+                          onRowClick("update", row);
+                        }
                       }}
                     >
                       ویرایش
                     </Button>
-
                     <Button
-                      startIcon={<BiTrashAlt className="text-xl" />}
+                      startIcon={<BiTrash className="text-xl" />}
                       type="button"
                       variant="outline-error"
                       size="sm"
                       onClick={() => {
-                        onRowClick && onRowClick("delete", row);
+                        if (onRowClick) {
+                          onRowClick("delete", row);
+                        }
                       }}
                     >
                       حذف
@@ -203,4 +287,5 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
     </CollectionControls>
   );
 };
+
 export default ProductPriceTable;

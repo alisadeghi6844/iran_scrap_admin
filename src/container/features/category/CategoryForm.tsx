@@ -102,7 +102,8 @@ const CategoryForm: React.FC<FormProps> = (props) => {
 
       // اضافه کردن فایل‌ها به FormData
       if (data?.Image && data.Image.length > 0) {
-        data.Image.forEach((file: any) => {
+        data.Image.forEach((file: unknown) => {
+          console.log("File type being sent:", file.type, file.name);
           formData.append("image", file); // فرض بر این است که data.Image شامل فایل‌ها است
         });
       }

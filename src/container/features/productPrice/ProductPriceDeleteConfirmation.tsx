@@ -1,27 +1,24 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-
-import { PublicDictionary } from "../../../utils/dictionary";
-import Typography from "../../../components/typography/Typography";
+import { DeleteProductPriceAction } from "../../../redux/actions/productPrice/ProductPriceActions";
 import ConfirmationCard from "../../organism/ConfirmationCard";
 import Image from "../../../components/image";
-import { DeleteProductPriceAction } from "../../../redux/actions/productPrice/ProductPriceActions";
+import Typography from "../../../components/typography/Typography";
 
 interface ProductPriceDeleteConfirmationProps {
   onSubmit: () => void;
   value: any;
-  [key: string]: any; // برای سایر props
+  [key: string]: any;
 }
 
 const ProductPriceDeleteConfirmation: React.FC<ProductPriceDeleteConfirmationProps> = (
   props
 ) => {
-  const { onSubmit, id, ...rest } = props;
-  const dispatch: any = useDispatch();
+  const { onSubmit, value, ...rest } = props;
+  const dispatch = useDispatch();
 
   const handleDelete = () => {
-    dispatch(DeleteProductPriceAction({credentials:id}));
-    onSubmit();
+    dispatch(DeleteProductPriceAction({id: value?._id || value?.id, onSubmitForm: onSubmit}));
   };
 
   return (
@@ -36,7 +33,7 @@ const ProductPriceDeleteConfirmation: React.FC<ProductPriceDeleteConfirmationPro
         <Image src="/images/core/trash.svg" className="w-[90px] h-[90px]" />
       </div>
       <Typography tag="h4 font-bold text-lg">
-        آیا از حذف این {PublicDictionary.productPrice} اطمینان دارید؟
+        آیا از حذف این قیمت گذاری اطمینان دارید؟
       </Typography>
     </ConfirmationCard>
   );

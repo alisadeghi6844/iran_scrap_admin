@@ -40,7 +40,7 @@ const FileUploader: React.FC<FileUploaderTypes> = ({
 
   useEffect(() => {
     if (editImageFile && editImageFile.length > 0) {
-      console.log("editImageFile",editImageFile)
+      console.log("editImageFile", editImageFile);
       const newFiles = editImageFile.map((item: any) => {
         if (typeof item.file === "string") {
           // اگر فایل base64 است، آن را به File تبدیل کنید
@@ -69,7 +69,7 @@ const FileUploader: React.FC<FileUploaderTypes> = ({
   }, [clear]);
 
   const handleUpdateFiles = useCallback((items: any[]) => {
-    setFiles(items.map((data: any) => data.file));
+    setFiles(items.map((data: unknown) => data.file));
   }, []);
 
   return (
@@ -78,9 +78,10 @@ const FileUploader: React.FC<FileUploaderTypes> = ({
       maxFiles={8}
       allowRecorder
       files={files}
-      allowImageEditor
-      imageEditorAllowEdit
-      imageEditorWriteImage
+      // حذف Image Editor برای حفظ شفافیت PNG
+      // allowImageEditor
+      // imageEditorAllowEdit
+      // imageEditorWriteImage
       imageValidateSizeMaxWidth={imageValidateSizeMaxWidth}
       imageValidateSizeMinWidth={imageValidateSizeMinWidth}
       imageValidateSizeMaxHeight={imageValidateSizeMaxHeight}
@@ -100,11 +101,17 @@ const FileUploader: React.FC<FileUploaderTypes> = ({
       allowImageValidateSize
       labelInvalidField={errorLabel}
       imagePreviewHeight={170}
-      imageCropAspectRation="1:1"
+      // حذف crop برای حفظ شفافیت
+      // imageCropAspectRation="1:1"
       styleLoadIndicatorPosition="center bottom"
       styleProgressIndicatorPosition="right bottom"
       styleButtonProcessItemPosition="right bottom"
       onreorderfiles={onreorderfiles}
+      // اضافه کردن تنظیمات برای حفظ شفافیت PNG
+      imageTransformOutputQuality={100}
+      imageTransformOutputMimeType="image/png"
+      // غیرفعال کردن تبدیل خودکار تصاویر
+      allowImageTransform={false}
       {...rest}
     />
   );

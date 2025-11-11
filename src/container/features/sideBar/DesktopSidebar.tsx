@@ -17,11 +17,12 @@ import { LuTicketPercent } from "react-icons/lu";
 import { FiUsers } from "react-icons/fi";
 import { MdPoll } from "react-icons/md";
 import { MdLocalShipping } from "react-icons/md";
+import { HiOutlineOfficeBuilding } from "react-icons/hi";
 
 import { MdProductionQuantityLimits } from "react-icons/md";
 
 const DesktopSidebar = () => {
-  const menuData: any = [
+  const menuData: unknown = [
     {
       id: 1,
       isNew: false,
@@ -243,6 +244,46 @@ const DesktopSidebar = () => {
           title: "محاسبه کرایه ناوگان",
           icon: <MdLocalShipping className="text-2xl" />,
           id: 250183,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+        {
+          path: "/pb-product-admin-management",
+          title: "تعریف کالا",
+          icon: <BsBoxSeam className="text-2xl" />,
+          id: 250184,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+        {
+          path: "/pb-brand-admin-management",
+          title: "مدیریت برند",
+          icon: <BsBoxSeam className="text-2xl" />,
+          id: 250185,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+        {
+          path: "/pb-provider-admin-management",
+          title: "تعریف تامین کنندگان",
+          icon: <HiOutlineOfficeBuilding className="text-2xl" />,
+          id: 250186,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+        {
+          path: "/pb-port-admin-management",
+          title: "تعریف محل بارگیری",
+          icon: <MdLocalShipping className="text-2xl" />,
+          id: 250187,
           isNew: false,
           subRoutes: [],
           notif: "",

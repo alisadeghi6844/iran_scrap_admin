@@ -59,8 +59,7 @@ const ProductPriceManagement = () => {
         confirmation={
           <Suspense>
             <ProductPriceDeleteConfirmation
-              id={selectedRow?._id ?? null}
-              mode={mode}
+              value={selectedRow ?? null}
               onSubmit={() => {
                 setMode("content");
               }}

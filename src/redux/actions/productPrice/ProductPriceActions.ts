@@ -4,12 +4,14 @@ import {
   CREATE_PRODUCT_PRICE,
   DELETE_PRODUCT_PRICE,
   GET_PRODUCT_PRICE,
+  GET_PRODUCT_PRICE_BY_ID,
   UPDATE_PRODUCT_PRICE,
 } from "../../types/productPrice/ProductPriceTypes";
 import {
   createProductPriceService,
   deleteProductPriceService,
   getProductPriceService,
+  getProductPriceByIdService,
   updateProductPriceService,
 } from "../../service/productPrice/ProductPriceServices";
 import { toast } from "react-toastify";
@@ -23,9 +25,27 @@ export const GetProductPriceAction = createAsyncThunk(
     try {
       const response = await getProductPriceService(query);
       if (response?.status === 200) {
-        return response.data; // به درستی داده‌های کاربر را برمی‌گرداند
+        return response.data;
       } else {
-        return rejectWithValue(response.data); // در صورت خطای غیر 200
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const GetProductPriceByIdAction = createAsyncThunk(
+  `${PRODUCT_PRICE}/${GET_PRODUCT_PRICE_BY_ID}`,
+  async (credentials: any, { rejectWithValue }: any) => {
+    try {
+      const response = await getProductPriceByIdService({ credentials });
+      if (response?.status === 200) {
+        return response.data;
+      } else {
+        return rejectWithValue(response.data);
       }
     } catch (error: any) {
       return rejectWithValue(
@@ -56,9 +76,9 @@ export const CreateProductPriceAction = createAsyncThunk(
 
 export const UpdateProductPriceAction = createAsyncThunk(
   `${PRODUCT_PRICE}/${UPDATE_PRODUCT_PRICE}`,
-  async ({ id,credentials, onSubmitForm, resetForm }: any, thunkAPI) => {
+  async ({ id, credentials, onSubmitForm, resetForm }: any, thunkAPI) => {
     try {
-      const response = await updateProductPriceService(credentials,id);
+      const response = await updateProductPriceService(credentials, id);
       if (response?.status == 200) {
         toast.success("قیمت محصول با موفقیت ویرایش شد");
         onSubmitForm && onSubmitForm();
@@ -75,13 +95,12 @@ export const UpdateProductPriceAction = createAsyncThunk(
 
 export const DeleteProductPriceAction = createAsyncThunk(
   `${PRODUCT_PRICE}/${DELETE_PRODUCT_PRICE}`,
-  async ({credentials, onSubmitForm, resetForm }: any, thunkAPI) => {
+  async ({ id, onSubmitForm }: any, thunkAPI) => {
     try {
-      const response = await deleteProductPriceService(credentials);
+      const response = await deleteProductPriceService(id);
       if (response?.status == 200) {
         toast.success("قیمت محصول با موفقیت حذف شد");
         onSubmitForm && onSubmitForm();
-        resetForm && resetForm();
       }
       return response;
     } catch (error: any) {

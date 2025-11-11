@@ -5,6 +5,7 @@ import {
   CREATE_PRODUCT_PRICE_POINT,
   DELETE_PRODUCT_PRICE_POINT,
   GET_PRODUCT_PRICE_POINT,
+  GET_PRODUCT_PRICE_BY_ID_POINT,
   UPDATE_PRODUCT_PRICE_POINT,
 } from "../../api/productPrice/ProductPriceApi";
 
@@ -15,6 +16,12 @@ export const getProductPriceService = async (query: any) => {
   }
   return await HttpServises.get(
     `${BASE_URL}${GET_PRODUCT_PRICE_POINT}?${queryText ? queryText : null}`
+  );
+};
+
+export const getProductPriceByIdService = async (items: any) => {
+  return await HttpServises.get(
+    `${BASE_URL}${GET_PRODUCT_PRICE_BY_ID_POINT}/${items.credentials}`
   );
 };
 

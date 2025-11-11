@@ -8,7 +8,7 @@ export const AxiosQueryCustom = (query: any): string => {
       if (Array.isArray(query[key])) {
         // اگر مقدار آرایه باشد، هر عنصر را به عنوان یک پارامتر اضافه کن
         query[key].forEach(value => {
-          params.push(`${key}[]=${value}`);
+          params.push(`${key}=${value}`);
         });
       } else {
         // اگر مقدار یک رشته باشد، آن را به صورت عادی اضافه کن

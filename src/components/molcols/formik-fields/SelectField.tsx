@@ -28,7 +28,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
       label={label}
       value={selectedOption}
       onChange={(selectedOption: any) => {
-        helpers.setValue(selectedOption || null);
+        helpers.setValue(selectedOption?.value || "");
       }}
       options={options}
       errorMessage={meta.touched && meta.error ? meta.error : false}
