@@ -33,6 +33,7 @@ const JalaliDatepicker: React.FC<JalaliDatepickerTypes> = (props) => {
     helperText,
     darkMode,
     inputClassName,
+    portal = false,
     onOpenPickNewDate = false,
     ...rest
   } = props;
@@ -60,7 +61,7 @@ const JalaliDatepicker: React.FC<JalaliDatepickerTypes> = (props) => {
       <div className="relative z-0 w-full ">
         <DatePicker
           onOpenPickNewDate={onOpenPickNewDate}
-          portal={false}
+          portal={portal}
           minDate={
             minDate ? minDate : mode === "future" ? currentDate ?? null : null
           }

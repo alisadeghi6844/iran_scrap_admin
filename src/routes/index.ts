@@ -70,6 +70,20 @@ const routes = [
     role: ["admin", "client", "reservation"],
   },
   {
+    path: "/purchase-price-management",
+    breadCrumb: "مدیریت قیمت خرید",
+    component: lazy(() => import("../page/purchasePriceManagement")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
+  {
+    path: "/view-pricing-management",
+    breadCrumb: "مشاهده قیمت گذاری",
+    component: lazy(() => import("../page/viewPricingManagement")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
+  {
     path: "/pages-management",
     breadCrumb: "مدیریت صفحات",
     component: lazy(() => import("../page/generalSetting")),

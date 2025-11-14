@@ -14,21 +14,14 @@ import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 
 import {
-  selectCreateProductPriceData,
   selectGetProductPriceData,
   selectGetProductPriceLoading,
-  selectUpdateProductPriceData,
-  selectDeleteProductPriceData,
 } from "../../../redux/slice/productPrice/ProductPriceSlice";
 import { GetProductPriceAction } from "../../../redux/actions/productPrice/ProductPriceActions";
 
-import Button from "../../../components/button";
-import { FaRegEdit } from "react-icons/fa";
-import { BiTrash } from "react-icons/bi";
 import { formatNumber } from "../../../utils/NumberFormated";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
 import { convertToJalali } from "../../../utils/MomentConvertor";
-
 import moment from "jalali-moment";
 
 // Import filter components
@@ -39,7 +32,7 @@ import PortFilterSelect from "./filters/PortFilterSelect";
 import PaymentTypeFilterSelect from "./filters/PaymentTypeFilterSelect";
 import StatusFilterSelect from "./filters/StatusFilterSelect";
 
-interface ProductPriceItem {
+interface ViewPricingItem {
   _id?: string;
   id?: string;
   productId: {
@@ -68,13 +61,9 @@ interface ProductPriceItem {
   updatedAt: number;
 }
 
-interface ProductPriceTypes {
-  onRowClick?: (action: string, row: ProductPriceItem) => void;
-}
+type ViewPricingTypes = object;
 
-const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
-  const { onRowClick } = props;
-
+const ViewPricingTable: React.FC<ViewPricingTypes> = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   // Filter states
@@ -108,9 +97,6 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
 
   const loading = useSelector(selectGetProductPriceLoading);
   const productPriceData = useSelector(selectGetProductPriceData);
-  const updateData = useSelector(selectUpdateProductPriceData);
-  const createData = useSelector(selectCreateProductPriceData);
-  const deleteData = useSelector(selectDeleteProductPriceData);
 
   useEffect(() => {
     const dateRange = getLast10DaysRange();
@@ -208,7 +194,7 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
 
     // Filter by status if selected
     if (statusFilter?.value) {
-      filteredData = filteredData.filter((item: ProductPriceItem) => {
+      filteredData = filteredData.filter((item: ViewPricingItem) => {
         if (item.sellPrice && item.constant) {
           const status = calculateStatus(item.sellPrice, item.constant);
           return status.value === statusFilter.value;
@@ -219,27 +205,6 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
 
     return filteredData;
   };
-
-  useEffect(() => {
-    if (
-      updateData?.status == 200 ||
-      createData?.status == 201 ||
-      deleteData?.status == 200
-    ) {
-      const dateRange = getLast10DaysRange();
-      dispatch(
-        GetProductPriceAction({
-          page: 0,
-          size: 10,
-          include: ["brand", "provider", "product", "port"],
-          sortBy: sortBy,
-          sortOrder: sortOrder,
-          datef: dateRange.datef,
-          datet: dateRange.datet,
-        })
-      );
-    }
-  }, [updateData, createData, deleteData, dispatch]);
 
   const getPaymentTypeLabel = (type: string) => {
     const types: { [key: string]: string } = {
@@ -254,8 +219,8 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
     return types[type] || type;
   };
 
+  // Calculate status based on sellPrice and constant
   const calculateStatus = (sellPrice: number, constant: number) => {
-    // فرمول: S = (قیمت ثابت) / (قیمت فروش)
     const S = sellPrice > 0 ? constant / sellPrice : 0;
 
     if (S >= 0.12)
@@ -330,24 +295,14 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
     };
   };
 
-
-
   return (
     <CollectionControls
-      buttons={["create"]}
-      createTitle="ساخت قیمت گذاری جدید"
+      buttons={[]}
       hasBox={false}
       filterInitialValues={getFilterInitialValues()}
       onFilter={handleFilterParameters}
       data={productPriceData}
       onMetaChange={handleFilter}
-      onButtonClick={(button) => {
-        if (onRowClick) {
-          if (button === "create") {
-            onRowClick("create", {} as ProductPriceItem);
-          }
-        }
-      }}
     >
       <Table className="w-full" isLoading={false} shadow={false}>
         <TableHead className="w-full" isLoading={false} shadow={false}>
@@ -358,12 +313,10 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
             <TableHeadCell>تامین کننده</TableHeadCell>
             <TableHeadCell>محل بارگیری</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
-            <TableHeadCell>قیمت ثابت</TableHeadCell>
-            <TableHeadCell>قیمت خرید</TableHeadCell>
             <TableHeadCell>قیمت فروش</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
             <TableHeadCell>تاریخ ایجاد</TableHeadCell>
-            <TableHeadCell>عملیات</TableHeadCell>
+            <TableHeadCell>تاریخ درج قیمت</TableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -410,7 +363,6 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
               />
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
             <TableFilterCell>
               <StatusFilterSelect
                 name="Status"
@@ -421,40 +373,37 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             getFilteredData().length > 0 ? (
-              getFilteredData().map((row: ProductPriceItem, index: number) => {
+              getFilteredData().map((row: ViewPricingItem, index: number) => {
+                const rowId = row._id || row.id || "";
                 const statusInfo =
                   row?.sellPrice && row?.constant
                     ? calculateStatus(row.sellPrice, row.constant)
                     : null;
 
                 return (
-                  <TableRow
-                    key={row?._id || row?.id}
-                    className={statusInfo ? statusInfo.textColor : ""}
-                  >
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{row?.productId?.name ?? "_"}</TableCell>
-                    <TableCell>{row?.brandId?.name ?? "_"}</TableCell>
-                    <TableCell>{row?.providerId?.name ?? "_"}</TableCell>
-                    <TableCell>{row?.portId?.name ?? "_"}</TableCell>
-                    <TableCell>
+                  <TableRow key={rowId}>
+                    <TableCell className={statusInfo?.textColor}>
+                      {index + 1}
+                    </TableCell>
+                    <TableCell className={statusInfo?.textColor}>
+                      {row?.productId?.name ?? "_"}
+                    </TableCell>
+                    <TableCell className={statusInfo?.textColor}>
+                      {row?.brandId?.name ?? "_"}
+                    </TableCell>
+                    <TableCell className={statusInfo?.textColor}>
+                      {row?.providerId?.name ?? "_"}
+                    </TableCell>
+                    <TableCell className={statusInfo?.textColor}>
+                      {row?.portId?.name ?? "_"}
+                    </TableCell>
+                    <TableCell className={statusInfo?.textColor}>
                       {getPaymentTypeLabel(row?.paymentType) ?? "_"}
                     </TableCell>
-                    <TableCell>
-                      {row?.constant
-                        ? formatNumber(row?.constant) + " تومان"
-                        : "_"}
-                    </TableCell>
-                    <TableCell>
-                      {row?.buyPrice
-                        ? formatNumber(row?.buyPrice) + " تومان"
-                        : "_"}
-                    </TableCell>
-                    <TableCell>
+                    <TableCell className={statusInfo?.textColor}>
                       {row?.sellPrice
                         ? formatNumber(row?.sellPrice) + " تومان"
                         : "_"}
@@ -470,55 +419,25 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
                         "_"
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className={statusInfo?.textColor}>
                       {row?.createdAt ? convertToJalali(row.createdAt) : "_"}
                     </TableCell>
-                    <TableCell
-                      onClick={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                      }}
-                      className="justify-center gap-x-4"
-                    >
-                      <Button
-                        startIcon={<FaRegEdit className="text-xl" />}
-                        type="button"
-                        variant="outline-success"
-                        size="sm"
-                        onClick={() => {
-                          if (onRowClick) {
-                            onRowClick("update", row);
-                          }
-                        }}
-                      >
-                        ویرایش
-                      </Button>
-                      <Button
-                        startIcon={<BiTrash className="text-xl" />}
-                        type="button"
-                        variant="outline-error"
-                        size="sm"
-                        onClick={() => {
-                          if (onRowClick) {
-                            onRowClick("delete", row);
-                          }
-                        }}
-                      >
-                        حذف
-                      </Button>
+                    <TableCell className={statusInfo?.textColor}>
+                      {row?.updatedAt ? convertToJalali(row.updatedAt) : "_"}
                     </TableCell>
                   </TableRow>
                 );
               })
             ) : (
               <TableRow>
-                <TableCell colspan="11" className="flex justify-center !py-4">
+                <TableCell colspan="10" className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="11" className="flex justify-center !py-4">
+              <TableCell colspan="10" className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>
@@ -529,4 +448,4 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
   );
 };
 
-export default ProductPriceTable;
+export default ViewPricingTable;

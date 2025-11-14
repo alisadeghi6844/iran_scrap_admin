@@ -26,10 +26,14 @@ export const getProductPriceByIdService = async (items: any) => {
 };
 
 export const createProductPriceService = async (items: any) => {
-  return await HttpServises.post(`${BASE_URL}${CREATE_PRODUCT_PRICE_POINT}`, items);
+  return await HttpServises.post(
+    `${BASE_URL}${CREATE_PRODUCT_PRICE_POINT}`,
+    items
+  );
 };
 
 export const updateProductPriceService = async (items: any, id: any) => {
+  console.log("item", items);
   return await HttpServises.patch(
     `${BASE_URL}${UPDATE_PRODUCT_PRICE_POINT}/${id}`,
     items

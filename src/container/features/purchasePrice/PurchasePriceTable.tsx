@@ -14,22 +14,21 @@ import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 
 import {
-  selectCreateProductPriceData,
   selectGetProductPriceData,
   selectGetProductPriceLoading,
   selectUpdateProductPriceData,
-  selectDeleteProductPriceData,
 } from "../../../redux/slice/productPrice/ProductPriceSlice";
-import { GetProductPriceAction } from "../../../redux/actions/productPrice/ProductPriceActions";
+import {
+  GetProductPriceAction,
+  UpdateProductPriceAction,
+} from "../../../redux/actions/productPrice/ProductPriceActions";
 
-import Button from "../../../components/button";
-import { FaRegEdit } from "react-icons/fa";
-import { BiTrash } from "react-icons/bi";
 import { formatNumber } from "../../../utils/NumberFormated";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
 import { convertToJalali } from "../../../utils/MomentConvertor";
 
 import moment from "jalali-moment";
+import Input from "../../../components/input";
 
 // Import filter components
 import ProductFilterSelect from "./filters/ProductFilterSelect";
@@ -38,8 +37,9 @@ import ProviderFilterSelect from "./filters/ProviderFilterSelect";
 import PortFilterSelect from "./filters/PortFilterSelect";
 import PaymentTypeFilterSelect from "./filters/PaymentTypeFilterSelect";
 import StatusFilterSelect from "./filters/StatusFilterSelect";
+import { FaCheck, FaTimes } from "react-icons/fa";
 
-interface ProductPriceItem {
+interface PurchasePriceItem {
   _id?: string;
   id?: string;
   productId: {
@@ -68,13 +68,9 @@ interface ProductPriceItem {
   updatedAt: number;
 }
 
-interface ProductPriceTypes {
-  onRowClick?: (action: string, row: ProductPriceItem) => void;
-}
+type PurchasePriceTypes = object;
 
-const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
-  const { onRowClick } = props;
-
+const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   // Filter states
@@ -92,6 +88,14 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
   const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(
     null
   );
+  // State for buy price editing
+  const [buyPrices, setBuyPrices] = useState<{ [key: string]: string }>({});
+  const [editingRows, setEditingRows] = useState<{ [key: string]: boolean }>(
+    {}
+  );
+  const [originalPrices, setOriginalPrices] = useState<{
+    [key: string]: string;
+  }>({});
 
   // Default sort: newest first
   const sortBy = "createdAt";
@@ -109,8 +113,6 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
   const loading = useSelector(selectGetProductPriceLoading);
   const productPriceData = useSelector(selectGetProductPriceData);
   const updateData = useSelector(selectUpdateProductPriceData);
-  const createData = useSelector(selectCreateProductPriceData);
-  const deleteData = useSelector(selectDeleteProductPriceData);
 
   useEffect(() => {
     const dateRange = getLast10DaysRange();
@@ -208,7 +210,7 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
 
     // Filter by status if selected
     if (statusFilter?.value) {
-      filteredData = filteredData.filter((item: ProductPriceItem) => {
+      filteredData = filteredData.filter((item: PurchasePriceItem) => {
         if (item.sellPrice && item.constant) {
           const status = calculateStatus(item.sellPrice, item.constant);
           return status.value === statusFilter.value;
@@ -221,11 +223,7 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
   };
 
   useEffect(() => {
-    if (
-      updateData?.status == 200 ||
-      createData?.status == 201 ||
-      deleteData?.status == 200
-    ) {
+    if (updateData?.status == 200) {
       const dateRange = getLast10DaysRange();
       dispatch(
         GetProductPriceAction({
@@ -239,7 +237,23 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
         })
       );
     }
-  }, [updateData, createData, deleteData, dispatch]);
+  }, [updateData, dispatch]);
+
+  // Initialize buy prices when data loads
+  useEffect(() => {
+    if (productPriceData?.data) {
+      const initialPrices: { [key: string]: string } = {};
+      const initialOriginalPrices: { [key: string]: string } = {};
+      productPriceData.data.forEach((item: PurchasePriceItem) => {
+        const id = item._id || item.id || "";
+        const priceStr = item.buyPrice?.toString() || "";
+        initialPrices[id] = priceStr;
+        initialOriginalPrices[id] = priceStr;
+      });
+      setBuyPrices(initialPrices);
+      setOriginalPrices(initialOriginalPrices);
+    }
+  }, [productPriceData]);
 
   const getPaymentTypeLabel = (type: string) => {
     const types: { [key: string]: string } = {
@@ -254,8 +268,8 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
     return types[type] || type;
   };
 
+  // Calculate status based on sellPrice and constant
   const calculateStatus = (sellPrice: number, constant: number) => {
-    // فرمول: S = (قیمت ثابت) / (قیمت فروش)
     const S = sellPrice > 0 ? constant / sellPrice : 0;
 
     if (S >= 0.12)
@@ -294,6 +308,62 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
     };
   };
 
+  // Handle buy price change
+  const handleBuyPriceChange = (rowId: string, value: string) => {
+    setBuyPrices((prev) => ({
+      ...prev,
+      [rowId]: value,
+    }));
+
+    // Set editing state when user starts typing
+    setEditingRows((prev) => ({
+      ...prev,
+      [rowId]: true,
+    }));
+  };
+
+  // Handle save (check button)
+  const handleSavePrice = (row: PurchasePriceItem) => {
+    const rowId = row._id || row.id || "";
+    const newPrice = parseFloat(buyPrices[rowId] || "0");
+
+    if (!isNaN(newPrice) && newPrice >= 0) {
+      console.log("new price", newPrice);
+      dispatch(
+        UpdateProductPriceAction({
+          id: rowId,
+          credentials: { buyPrice: newPrice },
+        })
+      );
+
+      // Update original price and clear editing state
+      setOriginalPrices((prev) => ({
+        ...prev,
+        [rowId]: newPrice.toString(),
+      }));
+
+      setEditingRows((prev) => ({
+        ...prev,
+        [rowId]: false,
+      }));
+    }
+  };
+
+  // Handle cancel (X button)
+  const handleCancelPrice = (rowId: string) => {
+    // Restore original price
+    setBuyPrices((prev) => ({
+      ...prev,
+      [rowId]: originalPrices[rowId] || "",
+    }));
+
+    // Clear editing state
+    setEditingRows((prev) => ({
+      ...prev,
+      [rowId]: false,
+    }));
+  };
+
   // Handle filter changes
   const handleProductFilterChange = (value: SelectOptionTypes | null) => {
     setProductFilter(value);
@@ -330,24 +400,14 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
     };
   };
 
-
-
   return (
     <CollectionControls
-      buttons={["create"]}
-      createTitle="ساخت قیمت گذاری جدید"
+      buttons={[]}
       hasBox={false}
       filterInitialValues={getFilterInitialValues()}
       onFilter={handleFilterParameters}
       data={productPriceData}
       onMetaChange={handleFilter}
-      onButtonClick={(button) => {
-        if (onRowClick) {
-          if (button === "create") {
-            onRowClick("create", {} as ProductPriceItem);
-          }
-        }
-      }}
     >
       <Table className="w-full" isLoading={false} shadow={false}>
         <TableHead className="w-full" isLoading={false} shadow={false}>
@@ -358,12 +418,11 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
             <TableHeadCell>تامین کننده</TableHeadCell>
             <TableHeadCell>محل بارگیری</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
-            <TableHeadCell>قیمت ثابت</TableHeadCell>
             <TableHeadCell>قیمت خرید</TableHeadCell>
             <TableHeadCell>قیمت فروش</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
             <TableHeadCell>تاریخ ایجاد</TableHeadCell>
-            <TableHeadCell>عملیات</TableHeadCell>
+            <TableHeadCell>تاریخ درج قیمت</TableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -421,19 +480,21 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             getFilteredData().length > 0 ? (
-              getFilteredData().map((row: ProductPriceItem, index: number) => {
+              getFilteredData().map((row: PurchasePriceItem, index: number) => {
+                const rowId = row._id || row.id || "";
                 const statusInfo =
                   row?.sellPrice && row?.constant
                     ? calculateStatus(row.sellPrice, row.constant)
                     : null;
 
+                const isEditing = editingRows[rowId] || false;
+
                 return (
                   <TableRow
-                    key={row?._id || row?.id}
+                    key={rowId}
                     className={statusInfo ? statusInfo.textColor : ""}
                   >
                     <TableCell>{index + 1}</TableCell>
@@ -445,14 +506,35 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
                       {getPaymentTypeLabel(row?.paymentType) ?? "_"}
                     </TableCell>
                     <TableCell>
-                      {row?.constant
-                        ? formatNumber(row?.constant) + " تومان"
-                        : "_"}
-                    </TableCell>
-                    <TableCell>
-                      {row?.buyPrice
-                        ? formatNumber(row?.buyPrice) + " تومان"
-                        : "_"}
+                      <div className="flex items-center gap-2 w-[200px]">
+                        <Input
+                          type="number"
+                          value={buyPrices[rowId] || ""}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            handleBuyPriceChange(rowId, e.target.value)
+                          }
+                          placeholder="قیمت خرید"
+                          className="w-32"
+                        />
+                        {isEditing && (
+                          <>
+                            <button
+                              onClick={() => handleSavePrice(row)}
+                              className="text-green-600 hover:text-green-800 p-1"
+                              title="ذخیره"
+                            >
+                              <FaCheck />
+                            </button>
+                            <button
+                              onClick={() => handleCancelPrice(rowId)}
+                              className="text-red-600 hover:text-red-800 p-1"
+                              title="لغو"
+                            >
+                              <FaTimes />
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {row?.sellPrice
@@ -473,38 +555,8 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
                     <TableCell>
                       {row?.createdAt ? convertToJalali(row.createdAt) : "_"}
                     </TableCell>
-                    <TableCell
-                      onClick={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                      }}
-                      className="justify-center gap-x-4"
-                    >
-                      <Button
-                        startIcon={<FaRegEdit className="text-xl" />}
-                        type="button"
-                        variant="outline-success"
-                        size="sm"
-                        onClick={() => {
-                          if (onRowClick) {
-                            onRowClick("update", row);
-                          }
-                        }}
-                      >
-                        ویرایش
-                      </Button>
-                      <Button
-                        startIcon={<BiTrash className="text-xl" />}
-                        type="button"
-                        variant="outline-error"
-                        size="sm"
-                        onClick={() => {
-                          if (onRowClick) {
-                            onRowClick("delete", row);
-                          }
-                        }}
-                      >
-                        حذف
-                      </Button>
+                    <TableCell>
+                      {row?.updatedAt ? convertToJalali(row.updatedAt) : "_"}
                     </TableCell>
                   </TableRow>
                 );
@@ -529,4 +581,4 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
   );
 };
 
-export default ProductPriceTable;
+export default PurchasePriceTable;
