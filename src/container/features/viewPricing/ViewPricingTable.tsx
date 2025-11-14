@@ -315,7 +315,6 @@ const ViewPricingTable: React.FC<ViewPricingTypes> = () => {
             <TableHeadCell>نوع پرداخت</TableHeadCell>
             <TableHeadCell>قیمت فروش</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
-            <TableHeadCell>تاریخ ایجاد</TableHeadCell>
             <TableHeadCell>تاریخ درج قیمت</TableHeadCell>
           </TableRow>
         </TableHead>
@@ -372,7 +371,6 @@ const ViewPricingTable: React.FC<ViewPricingTypes> = () => {
               />
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             getFilteredData().length > 0 ? (
@@ -420,9 +418,6 @@ const ViewPricingTable: React.FC<ViewPricingTypes> = () => {
                       )}
                     </TableCell>
                     <TableCell className={statusInfo?.textColor}>
-                      {row?.createdAt ? convertToJalali(row.createdAt) : "_"}
-                    </TableCell>
-                    <TableCell className={statusInfo?.textColor}>
                       {row?.updatedAt ? convertToJalali(row.updatedAt) : "_"}
                     </TableCell>
                   </TableRow>
@@ -430,14 +425,14 @@ const ViewPricingTable: React.FC<ViewPricingTypes> = () => {
               })
             ) : (
               <TableRow>
-                <TableCell colspan="10" className="flex justify-center !py-4">
+                <TableCell colspan="9" className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="10" className="flex justify-center !py-4">
+              <TableCell colspan="9" className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

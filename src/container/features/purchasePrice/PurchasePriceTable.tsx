@@ -421,7 +421,6 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
             <TableHeadCell>قیمت خرید</TableHeadCell>
             <TableHeadCell>قیمت فروش</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
-            <TableHeadCell>تاریخ ایجاد</TableHeadCell>
             <TableHeadCell>تاریخ درج قیمت</TableHeadCell>
           </TableRow>
         </TableHead>
@@ -478,7 +477,6 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
                 placeholder="انتخاب وضعیت..."
               />
             </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
@@ -553,9 +551,6 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      {row?.createdAt ? convertToJalali(row.createdAt) : "_"}
-                    </TableCell>
-                    <TableCell>
                       {row?.updatedAt ? convertToJalali(row.updatedAt) : "_"}
                     </TableCell>
                   </TableRow>
@@ -563,14 +558,14 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
               })
             ) : (
               <TableRow>
-                <TableCell colspan="11" className="flex justify-center !py-4">
+                <TableCell colspan="10" className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="11" className="flex justify-center !py-4">
+              <TableCell colspan="10" className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>
