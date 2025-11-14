@@ -40,6 +40,7 @@ interface ProductEditFormProps extends FormProps {
     paymentType?: string;
     installmentPrice?: Array<{ duration: number; price: number }>;
     images?: Array<{ url: string; path: string }>;
+    tags?: string[];
   };
 }
 
@@ -67,6 +68,7 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
       paymentType: "CASH",
       installmentPrice: [] as Array<{ duration: number; price: number }>,
       images: [] as string[],
+      isSpecialOffer: false,
     }),
     []
   );
@@ -108,6 +110,7 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
         installmentPrice: convertedinstallmentPrice,
         images:
           productData?.images?.map((img: any) => img.url || img.path) || [],
+        isSpecialOffer: productData?.tags?.includes("special") || false,
       });
     } else if (product && mode === "update") {
       // Use installmentPrice as is with duration field
@@ -129,6 +132,7 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
         paymentType: product?.paymentType || "CASH",
         installmentPrice: convertedinstallmentPrice,
         images: product?.images?.map((img: any) => img.url || img.path) || [],
+        isSpecialOffer: product?.tags?.includes("special") || false,
       });
     } else {
       setInitialValues(initialData);
@@ -368,6 +372,7 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
       categoryId: values.categoryId,
       paymentType: values.paymentType,
       images: imageURLs,
+      tags: values.isSpecialOffer ? ["special"] : [],
       ...(values.paymentType !== "CASH" && {
         installmentPrice: values.installmentPrice,
       }),
@@ -488,7 +493,7 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
                   <Typography className="text-[14px] text-[#272B30] pb-4">
                     نوع پرداخت
                   </Typography>
-                  <div className="flex gap-6">
+                  <div className="flex flex-wrap gap-6">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
@@ -523,6 +528,16 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
                       <span className="text-sm text-gray-700">
                         نقدی و اقساطی
                       </span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="isSpecialOffer"
+                        checked={values.isSpecialOffer}
+                        onChange={handleChange}
+                        className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 focus:ring-primary-500 rounded"
+                      />
+                      <span className="text-sm text-gray-700">پیشنهاد ویژه</span>
                     </label>
                   </div>
                   {errors.paymentType && (
