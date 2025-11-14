@@ -72,7 +72,7 @@ const RoleManagementManagement = () => {
             {mode === "detail" && (
         
               <RoleManagementDetail
-                value={selectedRow?.name ?? {}}
+                value={selectedRow?.id ?? null}
                 mode={mode}
                 onSubmit={() => {
                   setMode("content");

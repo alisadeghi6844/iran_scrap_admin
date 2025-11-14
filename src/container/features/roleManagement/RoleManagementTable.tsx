@@ -27,6 +27,36 @@ import {
 import { GetRoleManagementAction } from "../../../redux/actions/roleManagement/RoleManagementActions";
 import { BiTrashAlt } from "react-icons/bi";
 
+// Helper function to get menu label by value
+const getMenuLabel = (value: string): string => {
+  const menuMap: { [key: string]: string } = {
+    "/": "همه درخواست ها",
+    "/product-request-status": "مدیریت وضعیت درخواست ها",
+    "/pending-orders-financial": "سفارشات در انتظار تایید مالی",
+    "/product-requests": "مدیریت درخواست‌های محصول",
+    "/role-management": "مدیریت نقش",
+    "/users-management": "مدیریت کاربران",
+    "/buyer-management": "مدیریت خریداران",
+    "/pages-management": "مدیریت متن صفحات",
+    "/faq-management": "مدیریت سوالات متداول",
+    "/blog-management": "مدیریت مقالات",
+    "/blog-category-management": "مدیریت دسته بندی مقالات",
+    "/category-management": "مدیریت دسته بندی",
+    "/ticket-management": "مدیریت تیکت ها",
+    "/survey-management": "مدیریت نظرسنجی ها",
+    "/product-management": "مدیریت محصولات",
+    "/product-price-management": "مدیریت قیمت گذاری محصولات",
+    "/purchase-price-management": "مدیریت قیمت خرید",
+    "/view-pricing-management": "مشاهده قیمت گذاری",
+    "/shipment-management": "محاسبه کرایه ناوگان",
+    "/pb-product-admin-management": "تعریف کالا",
+    "/pb-brand-admin-management": "مدیریت برند",
+    "/pb-provider-admin-management": "تعریف تامین کنندگان",
+    "/pb-port-admin-management": "تعریف محل بارگیری",
+  };
+  return menuMap[value] || value;
+};
+
 interface RoleManagementTypes {
   onRowClick?: any;
 }
@@ -114,11 +144,13 @@ const RoleManagementTable: React.FC<RoleManagementTypes> = (props) => {
           <TableRow>
             <TableHeadCell>نام دسترسی </TableHeadCell>
             <TableHeadCell>مجوز ها </TableHeadCell>
+            <TableHeadCell>منوهای قابل دسترسی </TableHeadCell>
             <TableHeadCell />
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
@@ -143,6 +175,11 @@ const RoleManagementTable: React.FC<RoleManagementTypes> = (props) => {
                           })
                           .filter(Boolean) // Filter out any null values
                           .join(", ")
+                      : "_"}
+                  </TableCell>
+                  <TableCell>
+                    {row?.accessMenus?.length
+                      ? row.accessMenus.map((menu: string) => getMenuLabel(menu)).join(", ")
                       : "_"}
                   </TableCell>
                   <TableCell
@@ -191,14 +228,14 @@ const RoleManagementTable: React.FC<RoleManagementTypes> = (props) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colspan="10" className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="9" className="flex justify-center !py-4">
+              <TableCell colspan="10" className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

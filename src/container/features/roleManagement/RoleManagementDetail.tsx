@@ -119,7 +119,6 @@ const RoleManagementDetail: React.FC<RoleManagementTypes> = (props) => {
   };
 
   const handleButtonClick = () => {
-    console.log("selectedUsers");
     dispatch(
       AssignRoleManagementAction({
         credentials: {
@@ -204,7 +203,7 @@ const RoleManagementDetail: React.FC<RoleManagementTypes> = (props) => {
                   <TableCell>{row?.mobile ?? "_"}</TableCell>
                   <TableCell>
                     {row?.roles?.length > 0
-                      ? row?.roles?.map((item: any) => item).join(",")
+                      ? row?.roles?.map((item: unknown) => item).join(",")
                       : "_"}
                   </TableCell>
                   <TableCell>

@@ -21,6 +21,38 @@ import InputField from "../../../components/molcols/formik-fields/InputField";
 import { SelectValidation } from "../../../utils/SelectValidation";
 import IsActiveSelect from "../isActive/IsActiveSelect";
 import PermissionSelect from "./PermissionSelect";
+import MenuSelect from "./MenuSelect";
+
+// Helper function to get menu label by value
+const getMenuLabel = (value: string): string => {
+  const menuMap: { [key: string]: string } = {
+    "/": "همه درخواست ها",
+    "/product-request-status": "مدیریت وضعیت درخواست ها",
+    "/pending-orders-financial": "سفارشات در انتظار تایید مالی",
+    "/product-requests": "مدیریت درخواست‌های محصول",
+    "/role-management": "مدیریت نقش",
+    "/users-management": "مدیریت کاربران",
+    "/buyer-management": "مدیریت خریداران",
+    "/pages-management": "مدیریت متن صفحات",
+    "/faq-management": "مدیریت سوالات متداول",
+    "/blog-management": "مدیریت مقالات",
+    "/blog-category-management": "مدیریت دسته بندی مقالات",
+    "/category-management": "مدیریت دسته بندی",
+    "/ticket-management": "مدیریت تیکت ها",
+    "/survey-management": "مدیریت نظرسنجی ها",
+    "/product-management": "مدیریت محصولات",
+    "/product-price-management": "مدیریت قیمت گذاری محصولات",
+    "/purchase-price-management": "مدیریت قیمت خرید",
+    "/view-pricing-management": "مشاهده قیمت گذاری",
+    "/shipment-management": "محاسبه کرایه ناوگان",
+    "/pb-product-admin-management": "تعریف کالا",
+    "/pb-brand-admin-management": "مدیریت برند",
+    "/pb-provider-admin-management": "تعریف تامین کنندگان",
+    "/pb-port-admin-management": "تعریف محل بارگیری",
+  };
+  return menuMap[value] || value;
+};
+
 const RoleManagementForm: React.FC<FormProps> = (props) => {
   const { mode = "create", onSubmitForm, id, ...rest } = props;
 
@@ -36,6 +68,7 @@ const RoleManagementForm: React.FC<FormProps> = (props) => {
     Title: "",
     Name: "",
     Permissions: [],
+    AccessMenus: [],
     IsActive: null,
   };
 
@@ -62,7 +95,11 @@ const RoleManagementForm: React.FC<FormProps> = (props) => {
           value: permission,
           label: persissionsData?.find((per: any) => per?.id === permission)?.title || ""
         })) || [],
-        IsActive: getValue?.isActive || "",
+        AccessMenus: getValue?.accessMenus?.map((menu: string) => ({
+          value: menu,
+          label: getMenuLabel(menu)
+        })) || [],
+        IsActive: getValue?.isAdmin ? { value: true, label: "بله" } : { value: false, label: "خیر" },
       });
     } else {
       setInitialValues(initialData);
@@ -74,6 +111,7 @@ const RoleManagementForm: React.FC<FormProps> = (props) => {
       Name: Yup.string().required("پر کردن نام دسترسی الزامی است"),
       Title: Yup.string().required("پر کردن عنوان فارسی دسترسی الزامی است"), 
        Permissions: Yup.array().min(1, "انتخاب حداقل یک مجوز الزامی است").required("انتخاب مجوز الزامی است"),
+      AccessMenus: Yup.array().min(1, "انتخاب حداقل یک منو الزامی است").required("انتخاب منو الزامی است"),
       IsActive: SelectValidation(Yup),
     });
 
@@ -83,6 +121,7 @@ const RoleManagementForm: React.FC<FormProps> = (props) => {
         title: data?.Title,
         name: data?.Name,
         permissions: data?.Permissions?.map((item: any) => item.value),
+        accessMenus: data?.AccessMenus?.map((item: any) => item.value),
         isAdmin: data?.IsActive?.value
       };
 
@@ -147,6 +186,18 @@ const RoleManagementForm: React.FC<FormProps> = (props) => {
                 <div className="col-span-6">
                   <PermissionSelect
                     name="Permissions"
+                    isMulti
+                    required
+                  />
+                </div>
+              ),
+            },
+            {
+              component: (
+                <div className="col-span-6">
+                  <MenuSelect
+                    name="AccessMenus"
+                    label="منوهای قابل دسترسی"
                     isMulti
                     required
                   />
