@@ -6,14 +6,18 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectIsAuthenticated } from "../redux/slice/account/AccountSlice";
+import {
+  selectIsAuthenticated,
+  selectGetUserProfileData,
+} from "../redux/slice/account/AccountSlice";
 import EventEmitter from "../api/EventEmitter";
+import { hasMenuAccess } from "../utils/menuAccess";
 
-interface PermissionRouteProps extends RouteProps {
+interface PermissionRouteProps {
   element: React.ReactElement;
   permission: string | null;
-  role?: any;
-  userId: any;
+  role?: string[];
+  userId?: string;
 }
 
 const PermissionRoute: React.FC<PermissionRouteProps> = ({
@@ -23,13 +27,21 @@ const PermissionRoute: React.FC<PermissionRouteProps> = ({
   userId,
 }) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const userProfile = useSelector(selectGetUserProfileData);
   const location = useLocation();
   const navigate = useNavigate();
   const [redirect, setRedirect] = useState(false);
   const [isChangePasswordActive, setIsChangePasswordActive] = useState(false);
 
+  // Function to check if user has access to the current route
+  const hasCurrentRouteAccess = (): boolean => {
+    const userAccessMenus = userProfile?.accessMenus || [];
+    const currentPath = location.pathname;
+    return hasMenuAccess(userAccessMenus, currentPath);
+  };
+
   useEffect(() => {
-    console.log("isAuthenticated",isAuthenticated)
+    console.log("isAuthenticated", isAuthenticated);
     if (!isAuthenticated) {
       setRedirect(true);
     }
@@ -46,7 +58,7 @@ const PermissionRoute: React.FC<PermissionRouteProps> = ({
     return () => {
       EventEmitter.off("changePassword", handleChangePassword); // استفاده از متد off
     };
-  }, []);
+  }, [handleChangePassword]);
 
   useEffect(() => {
     if (!isChangePasswordActive && isAuthenticated) {
@@ -62,6 +74,11 @@ const PermissionRoute: React.FC<PermissionRouteProps> = ({
 
   if (userId && permission && !role?.includes(permission)) {
     return <Navigate to="/not-found" replace />;
+  }
+
+  // Check menu access permissions
+  if (isAuthenticated && !hasCurrentRouteAccess()) {
+    return <Navigate to="/" replace />;
   }
 
   return element;

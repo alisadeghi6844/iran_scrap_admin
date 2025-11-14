@@ -1,10 +1,10 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { selectIsAuthenticated } from "../redux/slice/account/AccountSlice";
-import {Outlet, Navigate, useLocation, RouteProps} from "react-router-dom";
+import {Navigate, useLocation} from "react-router-dom";
 
-interface ContentRouteProps extends RouteProps {
+interface ContentRouteProps {
     element: React.ComponentType;
 }
 const Content: React.FC<ContentRouteProps> = ({element: Component}) => {

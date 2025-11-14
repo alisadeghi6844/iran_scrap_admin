@@ -18,11 +18,19 @@ import { FiUsers } from "react-icons/fi";
 import { MdPoll } from "react-icons/md";
 import { MdLocalShipping } from "react-icons/md";
 import { HiOutlineOfficeBuilding } from "react-icons/hi";
-
 import { MdProductionQuantityLimits } from "react-icons/md";
+import { useSelector } from "react-redux";
+import { selectGetUserProfileData } from "../../../redux/slice/account/AccountSlice";
+import { useMemo } from "react";
+import { hasMenuAccess, filterMenuGroups } from "../../../utils/menuAccess";
 
 const DesktopSidebar = () => {
-  const menuData: unknown = [
+  const userProfile = useSelector(selectGetUserProfileData);
+  const userAccessMenus = userProfile?.accessMenus || [];
+
+
+
+  const allMenuData: unknown = [
     {
       id: 1,
       isNew: false,
@@ -324,6 +332,12 @@ const DesktopSidebar = () => {
       ],
     },
   ];
+
+  // Filter menu data based on user access
+  const filteredMenuData = useMemo(() => {
+    return filterMenuGroups(allMenuData as any[], userAccessMenus);
+  }, [userAccessMenus]);
+
   return (
     <div className="fixed right-0 z-40 bg-white border-l-2 border-dashed border-gray-300 top-0 min-h-screen w-full max-w-[15.5%]">
       <Link to="/" className="pb-8 pt-6 px-2 flex items-center gap-x-2">
@@ -337,7 +351,7 @@ const DesktopSidebar = () => {
         </Typography>
       </Link>
       <div className="scroll-container max-h-[89vh]">
-        <DynamicMenu className="sidebar" data={menuData} />
+        <DynamicMenu className="sidebar" data={filteredMenuData} />
       </div>
     </div>
   );
