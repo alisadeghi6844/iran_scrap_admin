@@ -1,15 +1,14 @@
-import React from "react";
 import { ImageTypes } from '../../types/components/ImageTypes';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 
-const Image:React.FC<ImageTypes> = (props) => {
+const Image: React.FC<ImageTypes> = (props) => {
   const {
     alt,
     className,
     height,
     notImage = "/images/core/placeholder.png",
     src,
-    base64=false,
+    base64 = false,
     width,
     ...rest
   } = props;

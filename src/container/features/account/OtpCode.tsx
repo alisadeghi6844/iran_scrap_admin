@@ -28,14 +28,16 @@ const OtpCode = (props: any) => {
   }, [otp]);
 
   return (
-    <>
-      <div>
-        کد فعالسازی 5 رقمی به شماره همراه{" "}
-        <span className="text-primary-500 font-bold">{phoneNumber}</span> ارسال
-        شد.
-      </div>
+    <div className="space-y-6">
+      {phoneNumber && (
+        <div className="text-center lg:text-right text-gray-600 text-sm lg:text-base">
+          کد فعالسازی 5 رقمی به شماره همراه{" "}
+          <span className="text-primary-500 font-bold">{phoneNumber}</span> ارسال شد.
+        </div>
+      )}
+      
       <div
-        className="w-full h-full flex justify-center items-center pt-12"
+        className="w-full flex justify-center items-center py-8"
         style={{ direction: "ltr" }}
       >
         <OtpInput
@@ -44,41 +46,59 @@ const OtpCode = (props: any) => {
           numInputs={5}
           shouldAutoFocus
           containerStyle={{
-            width: "full",
+            width: "100%",
             display: "flex",
-            gap: "22px",
+            gap: window.innerWidth < 768 ? "8px" : "16px",
             justifyContent: "center",
             alignItems: "center",
           }}
           inputStyle={{
-            fontSize: "24px",
+            fontSize: window.innerWidth < 768 ? "18px" : "24px",
             outline: "none",
-            border: "1px solid #BDBDBD",
-            borderRadius: "8px",
-            width: "66px",
-            height: "66px",
+            border: "2px solid #E5E7EB",
+            borderRadius: "12px",
+            width: window.innerWidth < 768 ? "48px" : "66px",
+            height: window.innerWidth < 768 ? "48px" : "66px",
+            textAlign: "center",
+            transition: "all 0.2s ease",
+            backgroundColor: "#FAFAFA",
           }}
-          renderSeparator={<span>-</span>}
+          focusStyle={{
+            border: "2px solid #3B82F6",
+            backgroundColor: "#FFFFFF",
+            boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
+          }}
           renderInput={(props) => (
-            <>
-              <input {...props} />
-            </>
+            <input 
+              {...props} 
+              className="focus:border-primary-500 focus:bg-white focus:shadow-lg transition-all duration-200"
+            />
           )}
         />
       </div>
-      <div className="flex justify-center">
+      
+      <div className="space-y-4">
         <Button
           loading={verifyOtpLoading ?? false}
           onClick={() => {
             handleOtpClick && handleOtpClick();
           }}
           disable={timeLeft !== "00:00"}
-          className="mt-12 h-[52px] text-xl w-[100%]"
+          className="w-full py-4 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-[1.02]"
+          variant={timeLeft !== "00:00" ? "outline" : "primary"}
         >
-          {timeLeft !== "00:00" ? timeLeft : "ارسال مجدد"}
+          {timeLeft !== "00:00" ? `ارسال مجدد (${timeLeft})` : "ارسال مجدد کد"}
         </Button>
+        
+        {timeLeft !== "00:00" && (
+          <div className="text-center">
+            <p className="text-xs text-gray-500">
+              کد را دریافت نکردید؟ لطفاً {timeLeft} صبر کنید
+            </p>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 

@@ -5,12 +5,16 @@ import {
   GET_TICKET,
   GET_TICKET_BY_ID,
   UPDATE_TICKET,
+  ANSWER_TICKET,
+  CLOSE_TICKET,
 } from "../../types/ticket/TicketTypes";
 import {
   createTicketService,
   getTicketByIdService,
   getTicketService,
   updateTicketService,
+  answerTicketService,
+  closeTicketService,
 } from "../../service/ticket/TicketServices";
 import { toast } from "react-toastify";
 
@@ -23,9 +27,9 @@ export const GetTicketAction = createAsyncThunk(
     try {
       const response = await getTicketService(query);
       if (response?.status === 200) {
-        return response.data; // به درستی داده‌های کاربر را برمی‌گرداند
+        return response.data;
       } else {
-        return rejectWithValue(response.data); // در صورت خطای غیر 200
+        return rejectWithValue(response.data);
       }
     } catch (error: any) {
       return rejectWithValue(
@@ -37,13 +41,13 @@ export const GetTicketAction = createAsyncThunk(
 
 export const GetTicketByIdAction = createAsyncThunk(
   `${TICKET}/${GET_TICKET_BY_ID}`,
-  async (credentials: any, { rejectWithValue }: any) => {
+  async (ticketId: any, { rejectWithValue }: any) => {
     try {
-      const response = await getTicketByIdService({ credentials });
+      const response = await getTicketByIdService(ticketId);
       if (response?.status === 200) {
-        return response.data; // به درستی داده‌های کاربر را برمی‌گرداند
+        return response.data;
       } else {
-        return rejectWithValue(response.data); // در صورت خطای غیر 200
+        return rejectWithValue(response.data);
       }
     } catch (error: any) {
       return rejectWithValue(
@@ -84,6 +88,44 @@ export const UpdateTicketAction = createAsyncThunk(
       }
       return response;
     } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const AnswerTicketAction = createAsyncThunk(
+  `${TICKET}/${ANSWER_TICKET}`,
+  async ({ ticketId, message, onSuccess }: any, thunkAPI) => {
+    try {
+      const response = await answerTicketService(ticketId, message);
+      if (response?.status === 200 || response?.status === 201) {
+        toast.success("پاسخ با موفقیت ارسال شد");
+        onSuccess && onSuccess();
+      }
+      return response;
+    } catch (error: any) {
+      toast.error("خطا در ارسال پاسخ");
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const CloseTicketAction = createAsyncThunk(
+  `${TICKET}/${CLOSE_TICKET}`,
+  async ({ ticketId, onSuccess }: any, thunkAPI) => {
+    try {
+      const response = await closeTicketService(ticketId);
+      if (response?.status === 200) {
+        toast.success("تیکت با موفقیت بسته شد");
+        onSuccess && onSuccess();
+      }
+      return response;
+    } catch (error: any) {
+      toast.error("خطا در بستن تیکت");
       return thunkAPI.rejectWithValue(
         error.response?.data || { message: "خطای ناشناخته" }
       );

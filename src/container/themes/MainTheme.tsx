@@ -22,19 +22,38 @@ const MainTheme: React.FC<AdminThemeTypes> = (props) => {
       // }
   }, [getUserData, navigate]);
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div className="flex min-h-screen w-full" {...rest}>
-      {/* <PageHeader /> */}
-      <div>{/*<MobileSidebar sidebarstatus={sidebarstatus} />*/}</div>
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
       <div className="w-full">
-        {/*<AdminHeader crumb={crumb} title={title} />*/}
-        <div className="grid grid-cols-7 w-full">
-          <div className="col-span-1">
+        <div className="lg:grid lg:grid-cols-7 w-full">
+          {/* Desktop Sidebar */}
+          <div className="hidden lg:block lg:col-span-1">
             <DesktopSidebar />
           </div>
-          <div className="col-span-6">
-            <Header />
-            <div className="mt-[85px]">{children}</div>
+          
+          {/* Mobile Sidebar */}
+          <div className={`fixed top-0 right-0 h-full w-80 bg-white z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
+            sidebarOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}>
+            <DesktopSidebar isMobile={true} onClose={() => setSidebarOpen(false)} />
+          </div>
+          
+          <div className="lg:col-span-6 w-full">
+            <Header 
+              onMenuClick={() => setSidebarOpen(!sidebarOpen)} 
+              sidebarOpen={sidebarOpen}
+            />
+            <div className="mt-[85px] px-4 lg:px-0">{children}</div>
           </div>
         </div>
       </div>

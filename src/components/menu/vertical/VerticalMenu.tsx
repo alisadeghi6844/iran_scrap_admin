@@ -15,7 +15,7 @@ const VerticalMenu: React.FC<VerticalMenuTypes> = (props) => {
         } px-2 mb-8 flex flex-col gap-y-1`}
         {...rest}
       >
-        <Typography className="font-bold text-gray-500 pb-2 px-2">
+        <Typography className="font-bold text-gray-500 pb-2 px-2 text-sm lg:text-base">
           {title}
         </Typography>
 

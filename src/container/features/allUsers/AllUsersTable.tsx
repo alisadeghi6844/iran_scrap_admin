@@ -295,7 +295,7 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
                       >
                         ویرایش
                       </Button>
-                      <Button
+                      {/* <Button
                         startIcon={<MdAccessibility className="text-xl" />}
                         type="button"
                         variant="outline-success"
@@ -307,7 +307,7 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
                         }}
                       >
                         دسترسی ها
-                      </Button>
+                      </Button> */}
                     </TableCell>
                   </TableRow>
                 ))

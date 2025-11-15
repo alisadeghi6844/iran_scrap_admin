@@ -19,11 +19,15 @@ interface MenuGroup {
     menus: MenuItem[];
 }
 
-const DynamicMenu: React.FC<DynamicMenuTypes> = ({ data, liClassName }) => {
-    const renderMenuItems = (items: MenuItem[]) => {
+interface DynamicMenuProps extends DynamicMenuTypes {
+    onItemClick?: () => void;
+}
+
+const DynamicMenu: React.FC<DynamicMenuProps> = ({ data, liClassName, onItemClick }) => {
+    const renderMenuItems = (items: MenuItem[], isSubMenu = false) => {
         return items.map((menu) => (
             <VerticalMenuItem
-                className={liClassName}
+                className={`${liClassName} ${isSubMenu ? 'submenu-item' : ''}`}
                 key={menu.id}
                 title={menu.title}
                 isNew={menu.isNew}
@@ -31,8 +35,9 @@ const DynamicMenu: React.FC<DynamicMenuTypes> = ({ data, liClassName }) => {
                 icon={menu.icon}
                 role={menu.role}
                 link={menu.subRoutes?.length ? undefined : menu.path}
+                onItemClick={onItemClick}
             >
-                {menu.subRoutes?.length ? renderMenuItems(menu.subRoutes) : null}
+                {menu.subRoutes?.length ? renderMenuItems(menu.subRoutes, true) : null}
             </VerticalMenuItem>
         ));
     };

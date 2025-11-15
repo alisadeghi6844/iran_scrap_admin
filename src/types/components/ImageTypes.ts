@@ -1,4 +1,4 @@
-export interface ImageTypes extends React.HTMLProps<HTMLElement>{
+export interface ImageTypes extends React.ImgHTMLAttributes<HTMLImageElement>{
     alt?:string,
     className?:string,
     height?:string|number,

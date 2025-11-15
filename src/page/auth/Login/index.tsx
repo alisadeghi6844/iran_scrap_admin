@@ -92,10 +92,28 @@ const Login = () => {
 
   return (
     <AuthLayout>
-      <div className="bg-white w-full mt-12 p-8 pl-[200px]  rounded-[30px]">
-        <div className="flex items-center gap-x-4 mt-32 mb-8">
-          <div className="font-bold text-3xl text-primary-500">
-            ورود به دیجی فارم
+      <div className="w-full h-full flex flex-col justify-center p-6 lg:p-8 lg:pl-[200px]">
+        {/* Mobile Logo and Header */}
+        <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-12">
+          {/* Logo - visible on mobile */}
+          <div className="flex justify-center mb-6 lg:hidden">
+            <div className="relative">
+              <img
+                className="w-24 h-24 object-contain drop-shadow-lg"
+                src="/images/core/logo.png"
+                alt="دیجی فارم"
+              />
+            </div>
+          </div>
+
+          {/* Welcome Text */}
+          <div className="text-center lg:text-right">
+            <h1 className="font-bold text-2xl lg:text-3xl text-primary-500 mb-2">
+              ورود به پنل ادمین دیجی فارم
+            </h1>
+            <p className="text-gray-600 text-sm lg:text-base">
+              لطفاً شماره تلفن خود را وارد کنید
+            </p>
           </div>
         </div>
 
@@ -115,44 +133,68 @@ const Login = () => {
                 setFieldTouched,
               }) => (
                 <form onSubmit={handleSubmit}>
-                  <div className="flex flex-col mt-12 gap-y-10">
-                    <div>
+                  <div className="space-y-6">
+                    <div className="relative">
                       <Input
                         onInput={() => setFieldTouched("PhoneNumber")}
                         errorMessage={
                           touched?.PhoneNumber && errors?.PhoneNumber
                         }
-                        label="شماره تلفن"
                         name="PhoneNumber"
                         type="text"
+                        placeholder="09xxxxxxxxx"
                         value={values?.PhoneNumber}
                         onChange={(e: any) => {
                           handleChange(e);
                           onInputChange(e);
                         }}
                         ref={(el) => el && setInputWidth(el.offsetWidth)}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all duration-200"
                       />
                     </div>
                   </div>
-                  <div className="mt-20">
+
+                  <div className="mt-8">
                     <Button
                       type="submit"
                       loading={loginLoading ?? false}
                       size="full"
-                      className="text-xl"
+                      className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
                     >
-                      ورود
+                      {loginLoading ? "در حال ورود..." : "ورود به سامانه"}
                     </Button>
                   </div>
+
+                  {/* Additional Info */}
                 </form>
               )}
             </Formik>
           </>
         ) : (
-          <OtpCode
-            handleOtpClick={handleResendOtp}
-            handleSendOtp={(e: any) => handleLogin(e)}
-          />
+          <div className="space-y-6">
+            <div className="text-center lg:text-right">
+              <h2 className="font-bold text-xl lg:text-2xl text-primary-500 mb-2">
+                تایید شماره تلفن
+              </h2>
+              <p className="text-gray-600 text-sm lg:text-base">
+                کد تایید به شماره {inputValues?.PhoneNumber} ارسال شد
+              </p>
+            </div>
+
+            <OtpCode
+              handleOtpClick={handleResendOtp}
+              handleSendOtp={(e: any) => handleLogin(e)}
+            />
+
+            <div className="text-center">
+              <button
+                onClick={() => setIsSendOtp(false)}
+                className="text-primary-500 text-sm hover:text-primary-600 transition-colors"
+              >
+                تغییر شماره تلفن
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </AuthLayout>

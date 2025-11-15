@@ -5,6 +5,8 @@ import {
   GetTicketAction,
   GetTicketByIdAction,
   UpdateTicketAction,
+  AnswerTicketAction,
+  CloseTicketAction,
 } from "../../actions/ticket/TicketActions";
 
 interface ticketState {
@@ -23,6 +25,14 @@ interface ticketState {
   updateTicketError: string | null;
   updateTicketLoading: boolean;
   updateTicketData: any;
+
+  answerTicketError: string | null;
+  answerTicketLoading: boolean;
+  answerTicketData: any;
+
+  closeTicketError: string | null;
+  closeTicketLoading: boolean;
+  closeTicketData: any;
 }
 
 const initialState: ticketState = {
@@ -41,6 +51,14 @@ const initialState: ticketState = {
   updateTicketError: null,
   updateTicketLoading: false,
   updateTicketData: [],
+
+  answerTicketError: null,
+  answerTicketLoading: false,
+  answerTicketData: [],
+
+  closeTicketError: null,
+  closeTicketLoading: false,
+  closeTicketData: [],
 };
 
 const ticketSlice = createSlice({
@@ -125,6 +143,40 @@ const ticketSlice = createSlice({
         state.updateTicketLoading = false;
         state.updateTicketError = action.payload;
         state.updateTicketData = [];
+      })
+
+      // answer ticket
+      .addCase(AnswerTicketAction.pending, (state) => {
+        state.answerTicketLoading = true;
+        state.answerTicketData = [];
+        state.answerTicketError = null;
+      })
+      .addCase(AnswerTicketAction.fulfilled, (state, action) => {
+        state.answerTicketLoading = false;
+        state.answerTicketData = action.payload;
+        state.answerTicketError = null;
+      })
+      .addCase(AnswerTicketAction.rejected, (state, action) => {
+        state.answerTicketLoading = false;
+        state.answerTicketError = action.payload;
+        state.answerTicketData = [];
+      })
+
+      // close ticket
+      .addCase(CloseTicketAction.pending, (state) => {
+        state.closeTicketLoading = true;
+        state.closeTicketData = [];
+        state.closeTicketError = null;
+      })
+      .addCase(CloseTicketAction.fulfilled, (state, action) => {
+        state.closeTicketLoading = false;
+        state.closeTicketData = action.payload;
+        state.closeTicketError = null;
+      })
+      .addCase(CloseTicketAction.rejected, (state, action) => {
+        state.closeTicketLoading = false;
+        state.closeTicketError = action.payload;
+        state.closeTicketData = [];
       });
   },
 });
@@ -154,5 +206,19 @@ export const selectUpdateTicketLoading = (state: any) =>
   state.ticket.updateTicketLoading;
 export const selectUpdateTicketData = (state: any) =>
   state.ticket.updateTicketData;
+
+export const selectAnswerTicketError = (state: any) =>
+  state.ticket.answerTicketError;
+export const selectAnswerTicketLoading = (state: any) =>
+  state.ticket.answerTicketLoading;
+export const selectAnswerTicketData = (state: any) =>
+  state.ticket.answerTicketData;
+
+export const selectCloseTicketError = (state: any) =>
+  state.ticket.closeTicketError;
+export const selectCloseTicketLoading = (state: any) =>
+  state.ticket.closeTicketLoading;
+export const selectCloseTicketData = (state: any) =>
+  state.ticket.closeTicketData;
 
 export default ticketSlice.reducer;

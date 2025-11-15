@@ -7,12 +7,34 @@ const TicketTable = lazy(
       /* webpackChunkName: "Ticket" */ "../../container/features/ticket/TicketTable"
     )
 );
-// const TicketForm = lazy(
-//   () =>
-//     import(
-//       /* webpackChunkName: "Ticket" */ "../../container/features/ticket/TicketForm"
-//     )
-// );
+
+const TicketDetail = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "TicketDetail" */ "../../container/features/ticket/TicketDetail"
+    )
+);
+
+const TicketAnswerForm = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "TicketAnswer" */ "../../container/features/ticket/TicketAnswerForm"
+    )
+);
+
+const TicketCloseConfirm = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "TicketClose" */ "../../container/features/ticket/TicketCloseConfirm"
+    )
+);
+
+const TicketForm = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "TicketForm" */ "../../container/features/ticket/TicketForm"
+    )
+);
 
 const Ticket = () => {
   const [mode, setMode] = useState<string>("content");
@@ -26,15 +48,22 @@ const Ticket = () => {
       }}
     >
       <CRUD
-        formModalSize="xl"
-        confirmModalSize="xl"
+        confirmModalSize="lg"
+        detailModalSize="xl"
+        formModalSize="lg"
         mode={mode}
+        modalHeaders={{
+          view: "مشاهده تیکت",
+          answer: "پاسخ به تیکت", 
+          close: "بستن تیکت",
+          create: "ایجاد تیکت جدید",
+          update: "ویرایش تیکت"
+        }}
         content={
           <Suspense>
             <TicketTable
               onRowClick={(name: string, row: any) => {
                 setMode(name);
-
                 if (row) {
                   setSelectedRow(row);
                 }
@@ -42,40 +71,53 @@ const Ticket = () => {
             />
           </Suspense>
         }
-        // form={
-        //   <Suspense>
-        //     <TicketForm
-        //       id={selectedRow?._id ?? null}
-        //       mode={mode}
-        //       onSubmitForm={() => {
-        //         setMode("content");
-        //       }}
-        //     />
-        //   </Suspense>
-        // }
-        // confirmation={
-        //   <Suspense>
-        //     <TicketAttributeForm
-        //       id={selectedRow?._id ?? null}
-        //       mode={mode}
-        //       onSubmitForm={() => {
-        //         setMode("content");
-        //       }}
-        //     />
-        //   </Suspense>
-        // }
-        //  detail={
-        //    <Suspense>
-        //      <ShowAttributes
-        //        value={selectedRow ?? {}}
-        //        onSubmit={() => {
-        //          setMode("content");
-        //        }}
-        //      />
-        //    </Suspense>
-        //  }
-        onModalClose={() => {
-          setMode("content");
+        detail={
+          <Suspense>
+            <TicketDetail
+              ticket={selectedRow ?? {}}
+              onSubmit={() => {
+                setMode("content");
+              }}
+            />
+          </Suspense>
+        }
+        form={
+          mode === "answer" ? (
+            <Suspense>
+              <TicketAnswerForm
+                ticket={selectedRow ?? {}}
+                onSubmitForm={() => {
+                  setMode("content");
+                }}
+              />
+            </Suspense>
+          ) : (mode === "create" || mode === "update") ? (
+            <Suspense>
+              <TicketForm
+                id={selectedRow?._id ?? null}
+                mode={mode}
+                ticket={selectedRow}
+                onSubmitForm={() => {
+                  setMode("content");
+                }}
+              />
+            </Suspense>
+          ) : null
+        }
+        confirmation={
+          mode === "close" ? (
+            <Suspense>
+              <TicketCloseConfirm
+                ticket={selectedRow ?? {}}
+                onSubmitForm={() => {
+                  setMode("content");
+                }}
+              />
+            </Suspense>
+          ) : null
+        }
+        onModalClose={(fallbackMode: string) => {
+          setMode(fallbackMode || "content");
         }}
       />
     </div>

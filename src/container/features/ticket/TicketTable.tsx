@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../../../redux/store";
 import { HandleFilterParams } from "../../../types/FilterParams";
 import CollectionControls from "../../organism/CollectionControls";
 import Table from "../../../components/table";
@@ -11,270 +12,305 @@ import TableFilterCell from "../../../components/table/TableFilterCell";
 import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
-import SearchInputField from "../../../components/molcols/formik-fields/SearchInputField";
 import Checkbox from "../../../components/checkbox";
 import Button from "../../../components/button";
-import { UpdateRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
-import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
-import { debounce } from "lodash";
+import SearchInputField from "../../../components/molcols/formik-fields/SearchInputField";
+import TicketDetailModal from "./TicketDetailModal";
+import TicketAnswerModal from "./TicketAnswerModal";
+import TicketCloseModal from "./TicketCloseModal";
+import { getSubjectLabel, getPriorityLabel, getStatusLabel } from "../../../utils/ticketHelpers";
 import {
   selectGetTicketData,
   selectGetTicketLoading,
+  selectCreateTicketData,
+  selectUpdateTicketData,
+  selectAnswerTicketData,
+  selectCloseTicketData,
 } from "../../../redux/slice/ticket/TicketSlice";
-import { GetTicketAction } from "../../../redux/actions/ticket/TicketActions";
+import {
+  GetTicketAction,
+} from "../../../redux/actions/ticket/TicketActions";
 
 interface TicketTableTypes {
   onRowClick?: any;
-  id?: any;
-  setCloseModal?: any;
 }
 
-interface SortState {
-  field: string;
-  direction: "ASC" | "DESC" | null;
-}
+const TicketTable: React.FC<TicketTableTypes> = () => {
 
-const TicketTable: React.FC<TicketTableTypes> = (props) => {
-  const { onRowClick, id, setCloseModal } = props;
-
-  const dispatch: any = useDispatch();
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-  const [sortState, setSortState] = useState<SortState>({
-    field: "",
-    direction: null,
-  });
-  const [currentFilter, setCurrentFilter] = useState<any>({});
+  const dispatch = useDispatch<AppDispatch>();
+  const [selectedTicketIds, setSelectedTicketIds] = useState<string[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showAnswerModal, setShowAnswerModal] = useState(false);
+  const [showCloseModal, setShowCloseModal] = useState(false);
 
   const filterDefaultInitialValues = {
-    firstName: "",
-    lastName: null,
-    phoneNumber: null,
+    Title: "",
+    Subject: null,
+    Priority: null,
+    Status: null,
   };
 
   const loading = useSelector(selectGetTicketLoading);
   const ticketData = useSelector(selectGetTicketData);
-
-  // ایجاد تابع fetchData برای ترکیب منطق فیلتر و مرتب‌سازی
-  const fetchData = useCallback(
-    (filter = {}, sort = sortState) => {
-      dispatch(
-        GetTicketAction({
-          credentials: {
-            ...filter,
-            page: 0,
-            size: 20,
-            ...(sort.field && sort.direction
-              ? {
-                  orderBy: sort.field,
-                  order: sort.direction,
-                }
-              : {}),
-          },
-        })
-      );
-    },
-    [dispatch]
-  );
-
-  // ایجاد نسخه debounce شده از fetchData
-  const debouncedFetchData = useCallback(
-    debounce((filter, sort) => fetchData(filter, sort), 500),
-    [fetchData]
-  );
+  const createData = useSelector(selectCreateTicketData);
+  const updateData = useSelector(selectUpdateTicketData);
+  const answerData = useSelector(selectAnswerTicketData);
+  const closeData = useSelector(selectCloseTicketData);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    dispatch(GetTicketAction({ page: 0, size: 20 }));
+  }, [dispatch]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
-    const newFilter = {
-      filter,
-      page: page ?? 0,
-      size: pageSize ?? 20,
-      firstName: filter.firstName,
-      lastName: filter.lastName,
-      mobile: filter.phoneNumber,
-    };
-    setCurrentFilter(newFilter);
-    debouncedFetchData(newFilter, sortState);
-  };
-
-  const handleFilterParameters = (data: any) => {
-    const { firstName, lastName, phoneNumber } = data;
-    const queryParams: { [key: string]: string | null } = {};
-
-    if (firstName) queryParams.firstName = firstName;
-    if (lastName) queryParams.lastName = lastName;
-    if (phoneNumber) queryParams.phoneNumber = phoneNumber;
-
-    return queryParams;
-  };
-
-  const handleCheckboxChange = (userId: string) => {
-    setSelectedUserIds(
-      (prevSelected) =>
-        prevSelected.includes(userId)
-          ? prevSelected.filter((id) => id !== userId) // اگر کاربر قبلاً انتخاب شده بود، آن را حذف کن
-          : [...prevSelected, userId] // در غیر این صورت، آن را اضافه کن
+    dispatch(
+      GetTicketAction({
+        filter,
+        page: page ?? 0,
+        size: pageSize ?? 20,
+      })
     );
   };
 
-  const handleSort = (field: string) => {
-    const newSortState = {
-      field,
-      direction:
-        sortState.field === field
-          ? sortState.direction === "ASC"
-            ? "DESC"
-            : sortState.direction === "DESC"
-            ? null
-            : "ASC"
-          : "ASC",
+  const handleFilterParameters = (data: unknown) => {
+    const { Title, Subject, Priority, Status } = data as {
+      Title?: string;
+      Subject?: { label: string; value: string };
+      Priority?: { label: string; value: string };
+      Status?: { label: string; value: string };
     };
-    setSortState(newSortState);
-    debouncedFetchData(currentFilter, newSortState);
+    let queryParam = "";
+    if (Title) queryParam += "title=" + Title + ",";
+    if (Subject?.label) queryParam += "subject=" + Subject?.value + ",";
+    if (Priority?.label) queryParam += "priority=" + Priority?.value + ",";
+    if (Status?.label) queryParam += "status=" + Status?.value + ",";
+
+    return queryParam.substring(0, queryParam.length - 1);
   };
 
-  const getSortIcon = (field: string) => {
-    if (sortState.field !== field) return <FaSort className="inline ml-1" />;
-    if (sortState.direction === "ASC")
-      return <FaSortUp className="inline ml-1" />;
-    if (sortState.direction === "DESC")
-      return <FaSortDown className="inline ml-1" />;
-    return <FaSort className="inline ml-1" />;
+  useEffect(() => {
+    if (
+      createData?.status == 201 || 
+      updateData?.status == 200 || 
+      answerData?.status == 200 || 
+      answerData?.status == 201 ||
+      closeData?.status == 200
+    ) {
+      dispatch(GetTicketAction({ page: 0, size: 20 }));
+    }
+  }, [createData, updateData, answerData, closeData, dispatch]);
+
+  const handleCheckboxChange = (ticketId: string) => {
+    setSelectedTicketIds((prevSelected) =>
+      prevSelected.includes(ticketId)
+        ? prevSelected.filter((id) => id !== ticketId)
+        : [...prevSelected, ticketId]
+    );
   };
-  console.log("ticketData", ticketData);
   return (
     <>
       <CollectionControls
+        buttons={[]}
         hasBox={false}
         filterInitialValues={filterDefaultInitialValues}
         onFilter={handleFilterParameters}
-        data={ticketData?.data}
+        data={ticketData}
         onMetaChange={handleFilter}
-        onButtonClick={(button) => {
-          if (!!onRowClick) {
-            button === "create" && onRowClick("create");
-          }
-        }}
       >
         <Table className="w-full" isLoading={false} shadow={false}>
           <TableHead className="w-full" isLoading={false} shadow={false}>
             <TableRow>
               <TableHeadCell>انتخاب</TableHeadCell>
-              <TableHeadCell
-                onClick={() => handleSort("firstName")}
-                className="cursor-pointer"
-              >
-                نام {getSortIcon("firstName")}
-              </TableHeadCell>
-              <TableHeadCell
-                onClick={() => handleSort("lastName")}
-                className="cursor-pointer"
-              >
-                نام خانوادگی {getSortIcon("lastName")}
-              </TableHeadCell>
-              <TableHeadCell
-                onClick={() => handleSort("mobile")}
-                className="cursor-pointer"
-              >
-                تلفن همراه {getSortIcon("mobile")}
-              </TableHeadCell>
-              <TableHeadCell
-                onClick={() => handleSort("userSort")}
-                className="cursor-pointer"
-              >
-                نوع کاربر {getSortIcon("userSort")}
-              </TableHeadCell>
+              <TableHeadCell>عنوان</TableHeadCell>
+              <TableHeadCell>موضوع</TableHeadCell>
+              <TableHeadCell>اولویت</TableHeadCell>
+              <TableHeadCell>وضعیت</TableHeadCell>
+              <TableHeadCell>کاربر</TableHeadCell>
+              <TableHeadCell>تاریخ ایجاد</TableHeadCell>
+              <TableHeadCell>عملیات</TableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody>
             <TableRow>
-              <TableFilterCell />
+              <TableFilterCell></TableFilterCell>
               <TableFilterCell>
-                <SearchInputField name="firstName" />
+                <SearchInputField
+                  name="Title"
+                  noBorder
+                  placeholder="جستجوی عنوان..."
+                />
               </TableFilterCell>
-              <TableFilterCell>
-                <SearchInputField name="lastName" />
-              </TableFilterCell>
-              <TableFilterCell>
-                <SearchInputField name="phoneNumber" />
-              </TableFilterCell>
+              <TableFilterCell></TableFilterCell>
+              <TableFilterCell></TableFilterCell>
+              <TableFilterCell></TableFilterCell>
+              <TableFilterCell></TableFilterCell>
+              <TableFilterCell></TableFilterCell>
               <TableFilterCell></TableFilterCell>
             </TableRow>
             {!loading ? (
-              ticketData?.data?.data?.length > 0 ? (
-                ticketData?.data?.data?.map((row: any) => (
-                  <TableRow key={row?.id}>
+              ticketData?.data?.length > 0 ? (
+                ticketData?.data?.map((row: any) => (
+                  <TableRow key={row?._id}>
                     <TableCell
                       style={{
-                        backgroundColor: selectedUserIds.includes(row?.id)
+                        backgroundColor: selectedTicketIds.includes(row?._id)
                           ? "#f0fdf4"
                           : "transparent",
                         transition: "background-color 0.2s",
                       }}
                     >
                       <Checkbox
-                        checked={selectedUserIds.includes(row?.id)}
-                        onChange={() => handleCheckboxChange(row?.id)}
+                        checked={selectedTicketIds.includes(row?._id)}
+                        onChange={() => handleCheckboxChange(row?._id)}
                       />
                     </TableCell>
                     <TableCell
                       style={{
-                        backgroundColor: selectedUserIds.includes(row?.id)
+                        backgroundColor: selectedTicketIds.includes(row?._id)
                           ? "#f0fdf4"
                           : "transparent",
                         transition: "background-color 0.2s",
                       }}
                     >
-                      {row?.firstName ?? "_"}
+                      {row?.title ?? "_"}
                     </TableCell>
                     <TableCell
                       style={{
-                        backgroundColor: selectedUserIds.includes(row?.id)
+                        backgroundColor: selectedTicketIds.includes(row?._id)
                           ? "#f0fdf4"
                           : "transparent",
                         transition: "background-color 0.2s",
                       }}
                     >
-                      {row?.lastName ?? "_"}
+                      {getSubjectLabel(row?.subject)}
                     </TableCell>
                     <TableCell
                       style={{
-                        backgroundColor: selectedUserIds.includes(row?.id)
+                        backgroundColor: selectedTicketIds.includes(row?._id)
                           ? "#f0fdf4"
                           : "transparent",
                         transition: "background-color 0.2s",
                       }}
                     >
-                      {row?.mobile ?? "_"}
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          row?.priority === "HIGH"
+                            ? "bg-red-100 text-red-800"
+                            : row?.priority === "MEDIUM"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : row?.priority === "LOW"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {getPriorityLabel(row?.priority)}
+                      </span>
                     </TableCell>
                     <TableCell
                       style={{
-                        backgroundColor: selectedUserIds.includes(row?.id)
+                        backgroundColor: selectedTicketIds.includes(row?._id)
                           ? "#f0fdf4"
                           : "transparent",
                         transition: "background-color 0.2s",
                       }}
                     >
-                      {row?.userSort === "Hagh"
-                        ? "حقیقی"
-                        : row?.userSort === "Hogh"
-                        ? "حقوقی"
-                        : "نامشخص"}
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          row?.status === "WAIT_FOR_ANSWER"
+                            ? "bg-orange-100 text-orange-800"
+                            : row?.status === "ANSWERED"
+                            ? "bg-blue-100 text-blue-800"
+                            : row?.status === "CLOSED"
+                            ? "bg-gray-100 text-gray-800"
+                            : row?.status === "OPEN"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {getStatusLabel(row?.status)}
+                      </span>
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        backgroundColor: selectedTicketIds.includes(row?._id)
+                          ? "#f0fdf4"
+                          : "transparent",
+                        transition: "background-color 0.2s",
+                      }}
+                    >
+                      {row?.user
+                        ? `${row.user.firstName} ${row.user.lastName}`
+                        : "_"}
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        backgroundColor: selectedTicketIds.includes(row?._id)
+                          ? "#f0fdf4"
+                          : "transparent",
+                        transition: "background-color 0.2s",
+                      }}
+                    >
+                      {row?.createdAt
+                        ? new Date(row.createdAt).toLocaleDateString("fa-IR")
+                        : "_"}
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        backgroundColor: selectedTicketIds.includes(row?._id)
+                          ? "#f0fdf4"
+                          : "transparent",
+                        transition: "background-color 0.2s",
+                      }}
+                    >
+                      <div className="flex gap-2 flex-wrap">
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          onClick={() => {
+                            setSelectedTicket(row);
+                            setShowDetailModal(true);
+                          }}
+                        >
+                          مشاهده
+                        </Button>
+                        {row?.status !== "CLOSED" && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="success"
+                              onClick={() => {
+                                setSelectedTicket(row);
+                                setShowAnswerModal(true);
+                              }}
+                            >
+                              پاسخ
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="error"
+                              onClick={() => {
+                                setSelectedTicket(row);
+                                setShowCloseModal(true);
+                              }}
+                            >
+                              بستن
+                            </Button>
+                          </>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colspan="9" className="flex justify-center !py-4">
+                  <TableCell colspan="8" className="flex justify-center !py-4">
                     <EmptyImage />
                   </TableCell>
                 </TableRow>
               )
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colspan="8" className="flex justify-center !py-4">
                   <TableSkeleton />
                 </TableCell>
               </TableRow>
@@ -282,6 +318,42 @@ const TicketTable: React.FC<TicketTableTypes> = (props) => {
           </TableBody>
         </Table>
       </CollectionControls>
+
+      {/* مودال جزئیات تیکت */}
+      <TicketDetailModal
+        ticket={selectedTicket}
+        open={showDetailModal}
+        onClose={() => {
+          setShowDetailModal(false);
+          setSelectedTicket(null);
+        }}
+      />
+
+      {/* مودال پاسخ به تیکت */}
+      <TicketAnswerModal
+        ticket={selectedTicket}
+        open={showAnswerModal}
+        onClose={() => {
+          setShowAnswerModal(false);
+          setSelectedTicket(null);
+        }}
+        onSuccess={() => {
+          // تیکت‌ها به‌روزرسانی می‌شوند از طریق useEffect
+        }}
+      />
+
+      {/* مودال بستن تیکت */}
+      <TicketCloseModal
+        ticket={selectedTicket}
+        open={showCloseModal}
+        onClose={() => {
+          setShowCloseModal(false);
+          setSelectedTicket(null);
+        }}
+        onSuccess={() => {
+          // تیکت‌ها به‌روزرسانی می‌شوند از طریق useEffect
+        }}
+      />
     </>
   );
 };

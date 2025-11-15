@@ -8,23 +8,42 @@ import UsersIcon from "../../components/icon/custom/UsersIcon";
 import BellIcon from "../../components/icon/custom/BellIcon";
 import Badge from "../../components/badge/Badge";
 import { BsSearch } from "react-icons/bs";
+import { HiMenuAlt3 } from "react-icons/hi";
+import { IoClose } from "react-icons/io5";
 import { Link } from "react-router-dom";
 
 interface HeaderProps {
   chatHeader?: boolean;
+  onMenuClick?: () => void;
+  sidebarOpen?: boolean;
 }
 const Header: React.FC<HeaderProps> = (props) => {
-  const { chatHeader = false } = props;
+  const { chatHeader = false, onMenuClick, sidebarOpen = false } = props;
   return (
     <div
       className={`fixed top-0 left-0 ${
         chatHeader
-          ? "w-[75%] border-b-2 border-gray-200"
-          : "w-[84.3%] shadow-lg"
-      } h-[80px] px-[40px] py-5 bg-white z-50`}
+          ? "w-full lg:w-[75%] border-b-2 border-gray-200"
+          : "w-full lg:w-[84.3%] shadow-lg"
+      } h-[80px] px-4 lg:px-[40px] py-5 bg-white z-50`}
     >
       <div className="flex w-full h-full items-center justify-between">
         <div className="flex items-center gap-x-5 z-50">
+          {/* Mobile Menu Button */}
+          <button
+            onClick={onMenuClick}
+            className={`lg:hidden p-2 rounded-md transition-all duration-300 ${
+              sidebarOpen 
+                ? "bg-primary-100 text-primary-600 rotate-180" 
+                : "hover:bg-gray-100 text-gray-600"
+            }`}
+          >
+            {sidebarOpen ? (
+              <IoClose className="text-2xl" />
+            ) : (
+              <HiMenuAlt3 className="text-2xl" />
+            )}
+          </button>
           <ProfileIcon />
           {chatHeader ? (
             <div className="mr-6 flex gap-x-6 flex-row items-center">

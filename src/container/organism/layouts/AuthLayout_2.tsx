@@ -18,10 +18,10 @@ const AuthLayout_2: React.FC<AuthLayoutProps> = (props) => {
 
   return (
     <div
-      className="w-full overflow-hidden flex flex-row items-start justify-center lg:py-0"
+      className="w-full overflow-hidden flex flex-col lg:flex-row items-start justify-center lg:py-0"
       {...rest}
     >
-      <span style={shapeStyle} className="w-[60%] h-full absolute">
+      <span style={shapeStyle} className="hidden lg:block lg:w-[60%] h-full absolute">
         <div className="flex flex-col items-center justify-between gap-28 py-8">
           <div>
             <div
@@ -33,10 +33,10 @@ const AuthLayout_2: React.FC<AuthLayoutProps> = (props) => {
                 backgroundPosition: "center",
               }}
             />
-            <Typography className="font-bold text-white text-3xl tracking-wider">
+            <Typography className="font-bold text-white text-2xl lg:text-3xl tracking-wider">
               سـامــــانه مدیریت کارکنان
             </Typography>
-            <Typography className="font-bold text-white text-2xl text-center mt-4">
+            <Typography className="font-bold text-white text-xl lg:text-2xl text-center mt-4">
               ویرا
             </Typography>
           </div>
@@ -51,8 +51,8 @@ const AuthLayout_2: React.FC<AuthLayoutProps> = (props) => {
           />
         </div>
       </span>
-      <div className="w-full h-screen flex flex-col py-8">
-        <div className="w-[40%] flex flex-col items-center justify-center my-auto">
+      <div className="w-full h-screen flex flex-col py-4 lg:py-8">
+        <div className="w-full lg:w-[40%] flex flex-col items-center justify-center my-auto px-4 lg:px-0">
           {children}
         </div>
       </div>

@@ -6,7 +6,11 @@ import { VerticalMenuItemTypes } from "../../../types/components/VerticalMenuIte
 import Badge from "../../badge/Badge";
 import SmallBellIcon from "../../icon/custom/SmallBellIcon";
 
-const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
+interface VerticalMenuItemProps extends VerticalMenuItemTypes {
+  onItemClick?: () => void;
+}
+
+const VerticalMenuItem: React.FC<VerticalMenuItemProps> = (props) => {
   const {
     children,
     className,
@@ -16,6 +20,7 @@ const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
     icon,
     notif,
     isNew,
+    onItemClick,
     ...rest
   } = props;
   const [isVisible, setIsVisible] = useState(false);
@@ -33,6 +38,9 @@ const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
 
   const handleLinkClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (link && onItemClick) {
+      onItemClick();
+    }
   };
 
   return (
@@ -42,14 +50,14 @@ const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
           isVisible ? "open-child" : null
         } ${
           isActive ? "bg-primary-500" : "text-gray-600 hover:bg-primary-100"
-        } px-2 py-3 font-semibold rounded-lg transition-all menu-item-custom`}
+        } px-2 py-3 lg:py-3 font-semibold rounded-lg transition-all menu-item-custom min-h-[48px] ${children ? "flex flex-col" : "flex items-center"}`}
         {...rest}
       >
         <Typography
           tag={link ? "a" : "span"}
           link={link ?? null}
           onClick={children ? handleToggle : handleLinkClick}
-          className={`flex items-center text-sm justify-between ${children ? "cursor-pointer" : ""} ${isActive ? "text-white" : ""}`}
+          className={`flex items-center text-sm lg:text-sm justify-between w-full ${children ? "cursor-pointer" : ""} ${isActive ? "text-white" : ""}`}
         >
           <div className="flex items-center gap-x-2">
             {icon ?? null}
@@ -84,7 +92,7 @@ const VerticalMenuItem: React.FC<VerticalMenuItemTypes> = (props) => {
           )}
         </Typography>
         {children && (
-          <div className={`${isVisible ? "block" : "hidden"} mt-2 mr-4`}>
+          <div className={`${isVisible ? "block" : "hidden"} mt-3 ml-6 space-y-1`}>
             {children}
           </div>
         )}
