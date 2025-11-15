@@ -32,8 +32,8 @@ const MenuSelect: React.FC<MenuSelectProps> = ({
     { value: "/product-request-status", label: "مدیریت وضعیت درخواست ها (مسیر)" },
     { value: "pending-orders-financial", label: "سفارشات در انتظار تایید مالی" },
     { value: "/pending-orders-financial", label: "سفارشات در انتظار تایید مالی (مسیر)" },
-    { value: "product-requests", label: "مدیریت درخواست‌های محصول" },
-    { value: "/product-requests", label: "مدیریت درخواست‌های محصول (مسیر)" },
+    { value: "product-requests", label: "تاریخچه درخواست های مناقصه" },
+    { value: "/product-requests", label: "تاریخچه درخواست های مناقصه (مسیر)" },
     
     // فرم های پایه - مدیریت کاربران
     { value: "role-management", label: "مدیریت نقش" },

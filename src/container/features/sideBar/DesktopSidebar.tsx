@@ -69,7 +69,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ isMobile = false, onClo
         },
         {
           path: "/product-requests",
-          title: "مدیریت درخواست‌های محصول",
+          title: "تاریخچه درخواست های مناقصه",
           icon: <LuGitPullRequest className="text-2xl" />,
           id: 241,
           isNew: false,

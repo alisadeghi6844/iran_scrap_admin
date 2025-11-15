@@ -120,7 +120,7 @@ const routes = [
   },
   {
     path: "/product-requests",
-    breadCrumb: "مدیریت درخواست‌های محصول",
+    breadCrumb: "تاریخچه درخواست های مناقصه",
     component: lazy(() => import("../page/productRequests")),
     layout: "admin",
     role: ["admin", "client", "reservation"],

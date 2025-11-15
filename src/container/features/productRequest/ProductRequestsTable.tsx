@@ -17,6 +17,7 @@ import {
   getOrderStatusText,
   getOrderStatusColor,
 } from "../../../types/OrderStatus";
+import SelectField from "../../../components/molcols/formik-fields/SelectField";
 
 import {
   selectGetProductRequestOfferAdminData,
@@ -153,6 +154,9 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
 
   const filterDefaultInitialValues = {
     Status: null,
+    Category: null,
+    PaymentType: null,
+    Provider: null,
   };
 
   const loading = useSelector(selectGetProductRequestOfferAdminLoading);
@@ -173,11 +177,17 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
   };
 
   const handleFilterParameters = (data: unknown) => {
-    const { Status } = data as {
+    const { Status, Category, PaymentType, Provider } = data as {
       Status?: { label: string; value: string };
+      Category?: { label: string; value: string };
+      PaymentType?: { label: string; value: string };
+      Provider?: { label: string; value: string };
     };
     let queryParam = "";
     if (Status?.value) queryParam += "status=" + Status?.value + ",";
+    if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
+    if (PaymentType?.value) queryParam += "paymentType=" + PaymentType?.value + ",";
+    if (Provider?.value) queryParam += "providerId=" + Provider?.value + ",";
 
     return queryParam.substring(0, queryParam.length - 1);
   };
@@ -221,6 +231,54 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
         return amountType || "_";
     }
   };
+
+  // Options for filters
+  const statusOptions = [
+    { value: "PENDING", label: "در انتظار" },
+    { value: "APPROVED", label: "تایید شده" },
+    { value: "REJECTED", label: "رد شده" },
+    { value: "COMPLETED", label: "تکمیل شده" },
+    { value: "BUYER_WAITFORFINANCE", label: "در انتظار تایید مالی" },
+    { value: "WAITING_UNLOADING", label: "در انتظار تخلیه" },
+  ];
+
+  const paymentTypeOptions = [
+    { value: "CASH", label: "نقدی" },
+    { value: "INSTALLMENTS", label: "مدت دار" },
+    { value: "CREDIT", label: "اعتباری" },
+  ];
+
+  // Extract unique categories from data for filter options
+  const categoryOptions = React.useMemo(() => {
+    if (!requestData?.data) return [];
+    const uniqueCategories = Array.from(
+      new Set(
+        requestData.data
+          .filter((item: ProductRequestItem) => item.category?.name)
+          .map((item: ProductRequestItem) => item.category.name)
+      )
+    );
+    return uniqueCategories.map((name) => ({
+      value: name,
+      label: name,
+    }));
+  }, [requestData?.data]);
+
+  // Extract unique providers from data for filter options
+  const providerOptions = React.useMemo(() => {
+    if (!requestData?.data) return [];
+    const uniqueProviders = Array.from(
+      new Set(
+        requestData.data
+          .filter((item: ProductRequestItem) => item.user?.firstName && item.user?.lastName)
+          .map((item: ProductRequestItem) => `${item.user.firstName} ${item.user.lastName}`)
+      )
+    );
+    return uniqueProviders.map((name) => ({
+      value: name,
+      label: name,
+    }));
+  }, [requestData?.data]);
 
   const getStatusDisplay = (row: ProductRequestItem) => {
     let statusText;
@@ -276,13 +334,36 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
         <TableBody>
           <TableRow>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <SelectField
+                name="Category"
+                placeholder="انتخاب دسته‌بندی..."
+                options={categoryOptions}
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <SelectField
+                name="PaymentType"
+                placeholder="انتخاب نوع پرداخت..."
+                options={paymentTypeOptions}
+              />
+            </TableFilterCell>
+            <TableFilterCell>
+              <SelectField
+                name="Provider"
+                placeholder="انتخاب تامین‌کننده..."
+                options={providerOptions}
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <SelectField
+                name="Status"
+                placeholder="انتخاب وضعیت..."
+                options={statusOptions}
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
