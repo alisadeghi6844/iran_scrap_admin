@@ -125,6 +125,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableHeadCell>توضیحات</TableHeadCell>
             <TableHeadCell>دسته بندی</TableHeadCell>
             <TableHeadCell> مقدار</TableHeadCell>
+            <TableHeadCell> تامین کننده</TableHeadCell>
             <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
             <TableHeadCell>تاریخ تحویل</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
@@ -150,6 +151,11 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                   <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>
                     {row?.amount ? `${row?.amount} (کیلوگرم)` : "_"}
+                  </TableCell>
+                  <TableCell>
+                  {row?.user?.firstName && row?.user?.lastName
+                      ? `${row.user.firstName} ${row.user.lastName}`
+                      : row?.user?.mobile ?? "_"}
                   </TableCell>
                   <TableCell>
                     {row?.createdAt ? convertToJalali(row?.createdAt) : "_"}
