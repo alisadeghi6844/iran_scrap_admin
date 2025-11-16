@@ -3,11 +3,12 @@ import Modal from "../../../components/modal";
 import Button from "../../../components/button";
 import TextArea from "../../../components/textarea";
 import { convertToJalali } from "../../../utils/MomentConvertor";
+import { OrderItem } from "../../../types/OrderItem";
 
 interface FinancialApprovalModalProps {
   isOpen: boolean;
   onClose: () => void;
-  order: any;
+  order: OrderItem | null;
   onSuccess: () => void;
 }
 
@@ -68,9 +69,9 @@ const FinancialApprovalModal: React.FC<FinancialApprovalModalProps> = ({
 
   return (
     <Modal
-      isOpen={isOpen}
+      open={isOpen}
       onClose={onClose}
-      title="تائید مالی سفارش"
+      headerTitle="تائید مالی سفارش"
       size="lg"
     >
       <div className="space-y-6">

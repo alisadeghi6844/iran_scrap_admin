@@ -160,6 +160,8 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
         return "نقدی";
       case "INSTALLMENTS":
         return "مدت دار";
+      case "CASH_AND_INSTALLMENTS":
+        return "نقدی و مدت دار";
       case "CREDIT":
         return "اعتباری";
       default:
@@ -303,7 +305,7 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
                         type="button"
                         variant="primary"
                         onClick={() => {
-                          onRowClick?.("viewOrder", row);
+                          onRowClick?.("viewMore", row);
                         }}
                       >
                         مشاهده سفارش

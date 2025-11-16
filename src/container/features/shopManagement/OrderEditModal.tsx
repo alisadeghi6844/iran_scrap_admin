@@ -4,11 +4,12 @@ import Button from "../../../components/button";
 import Input from "../../../components/input";
 import TextArea from "../../../components/textarea";
 import SingleSelect from "../../../components/select/SingleSelect";
+import { OrderItem } from "../../../types/OrderItem";
 
 interface OrderEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  order: any;
+  order: OrderItem | null;
   onSuccess: () => void;
 }
 
@@ -43,8 +44,8 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
 
   const paymentTypeOptions = [
     { value: "CASH", label: "نقدی" },
-    { value: "INSTALLMENT", label: "اقساطی" },
-    { value: "CHEQUE", label: "چکی" },
+    { value: "INSTALLMENTS", label: "مدت دار" },
+    { value: "CASH_AND_INSTALLMENTS", label: "نقدی و مدت دار" },
   ];
 
   const categoryOptions = [
@@ -81,9 +82,9 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
 
   return (
     <Modal
-      isOpen={isOpen}
+      open={isOpen}
       onClose={onClose}
-      title="ویرایش سفارش"
+      headerTitle="ویرایش سفارش"
       size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-6">

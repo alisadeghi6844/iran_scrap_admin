@@ -182,7 +182,7 @@ const ShopManagement = () => {
       />
 
       {/* Order Details Modal */}
-      {mode === "viewOrder" && (
+      {mode === "viewMore" && (
         <Suspense>
           <OrderDetailsModal
             isOpen={true}

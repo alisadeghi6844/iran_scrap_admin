@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import Modal from "../../../components/modal";
 import Button from "../../../components/button";
 import Input from "../../../components/input";
+import { OrderItem } from "../../../types/OrderItem";
 
 interface DriverEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  order: any;
+  order: OrderItem | null;
   onSuccess: () => void;
 }
 
@@ -66,9 +67,9 @@ const DriverEditModal: React.FC<DriverEditModalProps> = ({
 
   return (
     <Modal
-      isOpen={isOpen}
+      open={isOpen}
       onClose={onClose}
-      title="ویرایش اطلاعات راننده"
+      headerTitle="ویرایش اطلاعات راننده"
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
