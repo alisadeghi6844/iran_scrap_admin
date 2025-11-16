@@ -140,6 +140,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableHeadCell>دسته بندی</TableHeadCell>
             <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
             <TableHeadCell>توضیحات</TableHeadCell>
+            <TableHeadCell> تامین کننده</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
             <TableHeadCell>مقدار درخواست</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
@@ -149,6 +150,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         </TableHead>
         <TableBody>
           <TableRow>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
@@ -172,6 +174,11 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                   <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>{row?.user?.mobile ?? "_"}</TableCell>
                   <TableCell>{row?.description ?? "_"}</TableCell>
+                  <TableCell>
+                    {row?.user?.firstName && row?.user?.lastName
+                      ? `${row.user.firstName} ${row.user.lastName}`
+                      : row?.user?.mobile ?? "_"}
+                  </TableCell>
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>
                     {row?.amount ? `${row?.amount} (کیلوگرم)` : "_"}
@@ -218,14 +225,14 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={9} className="flex justify-center !py-4">
+                <TableCell colSpan={10} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colSpan={9} className="flex justify-center !py-4">
+              <TableCell colSpan={10} className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

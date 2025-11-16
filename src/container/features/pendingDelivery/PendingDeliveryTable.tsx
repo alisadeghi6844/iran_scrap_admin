@@ -100,6 +100,7 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
             <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
             <TableHeadCell>دسته بندی</TableHeadCell>
             <TableHeadCell>توضیحات</TableHeadCell>
+            <TableHeadCell> تامین کننده</TableHeadCell>
             <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
@@ -110,6 +111,7 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
         </TableHead>
         <TableBody>
           <TableRow>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
@@ -133,6 +135,11 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
                   <TableCell>{row?.user?.mobile ?? "_"}</TableCell>
                   <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>{row?.description ?? "_"}</TableCell>
+                  <TableCell>
+                    {row?.user?.firstName && row?.user?.lastName
+                      ? `${row.user.firstName} ${row.user.lastName}`
+                      : row?.user?.mobile ?? "_"}
+                  </TableCell>
                   <TableCell>
                     {row?.createdAt ? convertToJalali(row?.createdAt) : "_"}
                   </TableCell>
@@ -165,14 +172,14 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={10} className="flex justify-center !py-4">
+                <TableCell colSpan={11} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colSpan={10} className="flex justify-center !py-4">
+              <TableCell colSpan={11} className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

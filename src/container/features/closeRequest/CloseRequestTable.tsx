@@ -108,6 +108,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
             <TableHeadCell>دسته بندی</TableHeadCell>
             <TableHeadCell>توضیحات</TableHeadCell>
+            <TableHeadCell> تامین کننده</TableHeadCell>
             <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
@@ -118,6 +119,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         </TableHead>
         <TableBody>
           <TableRow>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
@@ -151,6 +153,11 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                   <TableCell>{row?.user?.mobile ?? "_"}</TableCell>
                   <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>{row?.description ?? "_"}</TableCell>
+                  <TableCell>
+                    {row?.user?.firstName && row?.user?.lastName
+                      ? `${row.user.firstName} ${row.user.lastName}`
+                      : row?.user?.mobile ?? "_"}
+                  </TableCell>
                   <TableCell>
                     {row?.createdAt ? convertToJalali(row?.createdAt) : "_"}
                   </TableCell>
@@ -216,14 +223,14 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={12} className="flex justify-center !py-4">
+                <TableCell colSpan={13} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colSpan={12} className="flex justify-center !py-4">
+              <TableCell colSpan={13} className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>
