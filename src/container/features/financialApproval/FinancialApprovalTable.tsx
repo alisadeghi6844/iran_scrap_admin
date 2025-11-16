@@ -20,119 +20,106 @@ import {
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import { convertToJalali } from "../../../utils/MomentConvertor";
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
-import StatusSelect from "../status/StatusSelect";
 import RequestDetailModal from "../closeRequest/RequestDetailModal";
+import { selectVerifyPaymentData } from "../../../redux/slice/product-request-offer-admin/ProductRequestOfferAdminSlice";
 
-interface ProductRequestAdminTypes {
+interface FinancialApprovalTableProps {
   onRowClick?: any;
+  refreshTrigger?: number;
 }
 
-const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
-  const { onRowClick } = props;
-  const [selectedStatus, setSelectedStatus] = useState("");
-  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
+  props
+) => {
+  const { onRowClick, refreshTrigger } = props;
+
+  const dispatch: any = useDispatch();
+  const [selectedRequest, setSelectedRequest] = useState<unknown>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const dispatch: unknown = useDispatch();
 
   const filterDefaultInitialValues = {
-    FoodName: "",
-    Category: null,
-    Restaurant: null,
+    StatusSelect: "",
   };
 
   const loading = useSelector(selectGetProductRequestAdminLoading);
   const productAdminData = useSelector(selectGetProductRequestAdminData);
-  const updateProviderData = useSelector(
-    selectUpdateProductRequestProviderAdminData
-  );
   const updateData = useSelector(
     selectUpdateRequestProductOfferSendToBuyerData
   );
   const updateData_2 = useSelector(selectUpdateProductRequestProviderAdminData);
+  const verifyPaymentData = useSelector(selectVerifyPaymentData);
+
+  // وضعیت‌های مربوط به تائید مالی
+  const defaultStatuses = ["BUYER_WAITFORFINANCE", "BUYER_WAITFORFINANCE"];
 
   useEffect(() => {
-    if (selectedStatus) {
-      dispatch(
-        GetRequestProductAdminAction({
-          page: 0,
-          size: 20,
-          status: selectedStatus
-            ? [selectedStatus?.value]
-            : ["LOADING_ORDER", "LOADING_ORDER"],
-        })
-      );
-    } else {
-      dispatch(
-        GetRequestProductAdminAction({
-          page: 0,
-          size: 20,
-          status: ["LOADING_ORDER", "LOADING_ORDER"],
-        })
-      );
-    }
-  }, [selectedStatus]);
+    dispatch(
+      GetRequestProductAdminAction({
+        page: 0,
+        size: 20,
+        status: defaultStatuses,
+      })
+    );
+  }, [dispatch]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
-    if (selectedStatus) {
-      dispatch(
-        GetRequestProductAdminAction({
-          filter,
-          page: page ?? 0,
-          size: pageSize ?? 20,
-          status: selectedStatus
-            ? [selectedStatus?.value]
-            : ["LOADING_ORDER", "LOADING_ORDER"],
-        })
-      );
-    } else {
-      dispatch(
-        GetRequestProductAdminAction({
-          filter,
-          page: page ?? 0,
-          size: pageSize ?? 20,
-          status: ["LOADING_ORDER", "LOADING_ORDER"],
-        })
-      );
-    }
+    dispatch(
+      GetRequestProductAdminAction({
+        filter,
+        page: page ?? 0,
+        size: pageSize ?? 20,
+        status: defaultStatuses,
+      })
+    );
   };
 
   useEffect(() => {
-    if (
-      updateData?.status == 200 ||
-      updateData_2?.status == 200 ||
-      updateProviderData?.status?.id
-    ) {
-      if (selectedStatus) {
-        dispatch(
-          GetRequestProductAdminAction({
-            page: 0,
-            size: 20,
-            status: selectedStatus
-              ? [selectedStatus?.value]
-              : ["LOADING_ORDER", "LOADING_ORDER"],
-          })
-        );
-      } else {
-        dispatch(
-          GetRequestProductAdminAction({
-            page: 0,
-            size: 20,
-            status: ["LOADING_ORDER", "LOADING_ORDER"],
-          })
-        );
-      }
+    if (updateData?.status === 200 || updateData_2?.id) {
+      dispatch(
+        GetRequestProductAdminAction({
+          page: 0,
+          size: 20,
+          status: defaultStatuses,
+        })
+      );
     }
-  }, [updateData, updateData_2, updateProviderData]);
+  }, [updateData, updateData_2, dispatch]);
+
+  // Update table after verify payment (approve/reject)
+  useEffect(() => {
+    if (verifyPaymentData) {
+      dispatch(
+        GetRequestProductAdminAction({
+          page: 0,
+          size: 20,
+          status: defaultStatuses,
+        })
+      );
+    }
+  }, [verifyPaymentData, dispatch]);
+
+  // Update table when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger && refreshTrigger > 0) {
+      dispatch(
+        GetRequestProductAdminAction({
+          page: 0,
+          size: 20,
+          status: defaultStatuses,
+        })
+      );
+    }
+  }, [refreshTrigger, dispatch]);
 
   return (
     <CollectionControls
-      title="درخواست های تحویل داده شده"
+      title="درخواست های در انتظار تائید مالی"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
-      data={productAdminData}
       onMetaChange={handleFilter}
+      data={productAdminData}
       onButtonClick={(button) => {
-        if (!!onRowClick) {
+        if (onRowClick) {
           button === "create" && onRowClick("create");
         }
       }}
@@ -141,14 +128,14 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
             <TableHeadCell>نام درخواست کننده</TableHeadCell>
-            <TableHeadCell>دسته بندی</TableHeadCell>
             <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
+            <TableHeadCell>دسته بندی</TableHeadCell>
             <TableHeadCell>توضیحات</TableHeadCell>
+            <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
-            <TableHeadCell>مقدار درخواست</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
+            <TableHeadCell>مقدار درخواستی</TableHeadCell>
             <TableHeadCell className="min-w-[170px]">وضعیت</TableHeadCell>
-            <TableHeadCell />
             <TableHeadCell />
           </TableRow>
         </TableHead>
@@ -162,40 +149,25 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
-
-            <TableFilterCell>
-              <StatusSelect
-                codes={[
-                  "REGISTERED",
-                  "BUYER_CANCELLATION",
-                  "RETURN_TO_BUYER_REQUEST",
-                ]}
-                name="StatusSelect"
-                label=""
-                noBorder
-                value={selectedStatus}
-                onChange={(status: any) => setSelectedStatus(status)} // به روز رسانی وضعیت انتخاب شده
-              />
-            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             productAdminData?.data?.length > 0 ? (
-              productAdminData?.data?.map((row: any) => (
+              productAdminData?.data?.map((row: unknown) => (
                 <TableRow key={row?.id}>
                   <TableCell>
                     {row?.user?.firstName
                       ? row?.user?.firstName + " " + row?.user?.lastName
                       : "_"}
                   </TableCell>
-                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>{row?.user?.mobile ?? "_"}</TableCell>
+                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>{row?.description ?? "_"}</TableCell>
-                  <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>
-                    {row?.amount ? `${row?.amount} (کیلوگرم)` : "_"}
+                    {row?.createdAt ? convertToJalali(row?.createdAt) : "_"}
                   </TableCell>
+                  <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>
                     {row?.paymentType
                       ? row?.paymentType === "INSTALLMENTS"
@@ -205,53 +177,61 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                         : "نقد"
                       : "_"}
                   </TableCell>
-                  <TableCell>{row?.statusTitle ?? "_"}</TableCell>
-                  <TableCell className="flex justify-center gap-2">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        setSelectedRequest(row);
-                        setIsDetailModalOpen(true);
-                      }}
-                      variant="outline-primary"
-                    >
-                      مشاهده درخواست
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        onRowClick && onRowClick("detail", row);
-                      }}
-                      variant="outline-warning"
-                      size="sm"
-                    >
-                      تغییر وضعیت
-                    </Button>
+                  <TableCell>
+                    {row?.amount ? `${row?.amount} (کیلوگرم)` : "_"}
                   </TableCell>
-                  <TableCell className="flex justify-center">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        onRowClick && onRowClick("update", row);
-                      }}
-                      variant="outline-success"
-                      size="sm"
-                    >
-                      پیشنهادات
-                    </Button>
+                  <TableCell>{row?.statusTitle ?? "_"}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="primary"
+                        onClick={() => {
+                          setSelectedRequest(row);
+                          setIsDetailModalOpen(true);
+                        }}
+                      >
+                        مشاهده درخواست
+                      </Button>
+                      {row?.status === "BUYER_WAITFORFINANCE" && (
+                        <>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="success"
+                            onClick={() => {
+                              onRowClick && onRowClick("approve", row);
+                            }}
+                          >
+                            تایید
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="error"
+                            onClick={() => {
+                              onRowClick && onRowClick("reject", row);
+                            }}
+                          >
+                            رد
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colSpan={10} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="9" className="flex justify-center !py-4">
+              <TableCell colSpan={10} className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>
@@ -271,4 +251,5 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
     </CollectionControls>
   );
 };
-export default OpenRequest;
+
+export default FinancialApprovalTable;

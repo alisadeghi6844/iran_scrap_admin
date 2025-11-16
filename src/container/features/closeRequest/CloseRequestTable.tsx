@@ -20,7 +20,7 @@ import {
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import { convertToJalali } from "../../../utils/MomentConvertor";
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
-import StatusSelect from "../status/StatusSelect";
+import RequestDetailModal from "./RequestDetailModal";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
@@ -36,23 +36,21 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   };
 
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const loading = useSelector(selectGetProductRequestAdminLoading);
   const productAdminData = useSelector(selectGetProductRequestAdminData);
   const updateData = useSelector(
     selectUpdateRequestProductOfferSendToBuyerData
   );
-  
+
   const updateData_2 = useSelector(selectUpdateProductRequestProviderAdminData);
 
   // تعریف آرایه وضعیت‌های پیش‌فرض برای جلوگیری از تکرار
   const defaultStatuses = [
-    "WAITING_FOR_OFFERS",
-    "CONSIDERING_SUGGESTIONS",
     "SEND_FINAL_OFFER_TO_BUYER",
-    "CONFIRMATION_REQUEST_BY_BUYER",
-    "BUYER_FAILURE_APPROVE",
-    "NOT_RECEIVING_ENOUGH_OFFERS",
+    "SEND_FINAL_OFFER_TO_BUYER",
   ];
 
   useEffect(() => {
@@ -71,14 +69,14 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       GetRequestProductAdminAction({
         filter,
         page: page ?? 0,
-        size: pageSize??20,
+        size: pageSize ?? 20,
         status: selectedStatus ? [selectedStatus?.value] : defaultStatuses,
       })
     );
   };
 
   useEffect(() => {
-    console.log("updateData_2",updateData_2)
+    console.log("updateData_2", updateData_2);
     if (updateData?.status === 200 || updateData_2?.id) {
       dispatch(
         GetRequestProductAdminAction({
@@ -90,10 +88,9 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
     }
   }, [updateData, updateData_2, dispatch, selectedStatus]);
 
-
   return (
     <CollectionControls
-      title="درخواست های درحال پردازش"
+      title="درخواست های  دارای پیشنهاد"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
       onMetaChange={handleFilter}
@@ -117,8 +114,6 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableHeadCell>مقدار درخواستی</TableHeadCell>
             <TableHeadCell className="min-w-[170px]">وضعیت</TableHeadCell>
             <TableHeadCell />
-            <TableHeadCell />
-            <TableHeadCell />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -127,20 +122,19 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
+
             <TableFilterCell>
-              <StatusSelect
+              {/* <StatusSelect
                 codes={defaultStatuses}
                 name="StatusSelect"
                 label=""
                 noBorder
                 value={selectedStatus}
                 onChange={(status: any) => setSelectedStatus(status)}
-              />
+              /> */}
             </TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
@@ -162,22 +156,20 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                   </TableCell>
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>
-                  {row?.paymentType
-                    ? row?.paymentType === "INSTALLMENTS"
-                      ? "مدت دار"
-                      : row?.paymentType === "CASH_AND_INSTALLMENTS"
-                      ? "نقد و مدت دار"
-                      : "نقد"
-                    : "_"}
-                </TableCell>
-                <TableCell>
-                    {row?.amount
-                      ? `${row?.amount} (کیلوگرم)`
+                    {row?.paymentType
+                      ? row?.paymentType === "INSTALLMENTS"
+                        ? "مدت دار"
+                        : row?.paymentType === "CASH_AND_INSTALLMENTS"
+                        ? "نقد و مدت دار"
+                        : "نقد"
                       : "_"}
+                  </TableCell>
+                  <TableCell>
+                    {row?.amount ? `${row?.amount} (کیلوگرم)` : "_"}
                   </TableCell>
 
                   <TableCell>{row?.statusTitle ?? "_"}</TableCell>
-                  <TableCell className="flex justify-center">
+                  {/* <TableCell className="flex justify-center">
                     <Button
                       type="button"
                       onClick={() => {
@@ -187,18 +179,28 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                     >
                       تغییر وضعیت
                     </Button>
-                  </TableCell>
-                  <TableCell className="flex justify-center">
+                  </TableCell> */}
+                  <TableCell className="flex justify-center gap-2">
                     <Button
                       onClick={() => {
-                        onRowClick && onRowClick("update", row);
+                        setSelectedRequest(row);
+                        setIsDetailModalOpen(true);
                       }}
                       variant="outline-primary"
                     >
-                      مشاهده پیشنهادات
+                      مشاهده درخواست
                     </Button>
+                    {/* <Button
+                      onClick={() => {
+                        onRowClick && onRowClick("update", row);
+                      }}
+                      variant="outline-success"
+                      size="sm"
+                    >
+                      پیشنهادات
+                    </Button> */}
                   </TableCell>
-                  {row?.status === "SEND_FINAL_OFFER_TO_BUYER" && (
+                  {/* {row?.status === "SEND_FINAL_OFFER_TO_BUYER" && (
                     <TableCell className="flex justify-center">
                       <Button
                         onClick={() => {
@@ -209,7 +211,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                         پرداخت هزینه
                       </Button>
                     </TableCell>
-                  )}
+                  )} */}
                 </TableRow>
               ))
             ) : (
@@ -228,6 +230,16 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
           )}
         </TableBody>
       </Table>
+
+      {/* مودال جزئیات درخواست */}
+      <RequestDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setSelectedRequest(null);
+        }}
+        request={selectedRequest}
+      />
     </CollectionControls>
   );
 };

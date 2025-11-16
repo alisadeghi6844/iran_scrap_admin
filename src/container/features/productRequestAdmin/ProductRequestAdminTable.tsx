@@ -162,31 +162,40 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>{row?.statusTitle ?? "_"}</TableCell>
 
-                  <TableCell className="flex justify-center gap-2">
-                 
-                    <Button
-                     onClick={() => {
-                      onRowClick && onRowClick("detail", row);
-                    }}
-                    variant="outline-info"
-                    >
-                      ویرایش درخواست
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        onRowClick && onRowClick("update", row);
-                      }}
-                      variant="outline-primary"
-                    >
-                      پردازش درخواست
-                    </Button>
-                    <Button
-                      onClick={() => handleCloseRequest(row?.id)}
-                      variant="outline-error"
-                      loading={closeRequestLoading}
-                    >
-                      تغییر وضعیت درخواست
-                    </Button>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      {(row?.status === "REGISTERED" || row?.status === "WAITING_FOR_OFFERS") && (
+                        <Button
+                          size="sm"
+                          type="button"
+                          variant="secondary"
+                          onClick={() => {
+                            onRowClick && onRowClick("detail", row);
+                          }}
+                        >
+                          ویرایش درخواست
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="primary"
+                        onClick={() => {
+                          onRowClick && onRowClick("update", row);
+                        }}
+                      >
+                        پردازش درخواست
+                      </Button>
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="error"
+                        onClick={() => handleCloseRequest(row?.id)}
+                        loading={closeRequestLoading}
+                      >
+                        تغییر وضعیت درخواست
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

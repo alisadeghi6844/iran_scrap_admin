@@ -8,6 +8,13 @@ import {
   selectVerifyRequestPaymentData,
 } from "../../redux/slice/requestOrder/requestOrderSlice";
 import { clearAllProductRequestAdminData } from "../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
+import { 
+  VerifyPaymentAction,
+} from "../../redux/actions/product-request-offer-admin/ProductRequestOfferAdminActions";
+import {
+  selectVerifyPaymentLoading,
+  selectVerifyPaymentData,
+} from "../../redux/slice/product-request-offer-admin/ProductRequestOfferAdminSlice";
 
 const ProductRequestAdminTable = lazy(
   () =>
@@ -63,19 +70,46 @@ const TenderRequestEditModal = lazy(
       /* webpackChunkName: "TenderRequest" */ "../../container/features/tenderRequest/TenderRequestEditModal"
     )
 );
+const FinancialApprovalTable = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "FinancialApproval" */ "../../container/features/financialApproval/FinancialApprovalTable"
+    )
+);
+const PendingDeliveryTable = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "PendingDelivery" */ "../../container/features/pendingDelivery/PendingDeliveryTable"
+    )
+);
+const ProductRequestApprovalModal = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "ProductRequestApproval" */ "../../container/features/productRequest/ProductRequestApprovalModal"
+    )
+);
+const ProductRequestRejectionModal = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "ProductRequestRejection" */ "../../container/features/productRequest/ProductRequestRejectionModal"
+    )
+);
 
 const AllRequests = () => {
-  const dispatch: any = useDispatch();
-  const [activeTab, setActiveTab] = useState<"new" | "processing" | "closed">(
+  const dispatch: unknown = useDispatch();
+  const [activeTab, setActiveTab] = useState<"new" | "processing" | "closed" | "financial" | "delivery">(
     "new"
   );
   const [mode, setMode] = useState<string>("content");
   const [selectedRow, setSelectedRow] = useState<unknown>({});
+  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
 
   const verifyRequestPaymentLoading = useSelector(
     selectVerifyRequestPaymentLoading
   );
   const verifyRequestPaymentData = useSelector(selectVerifyRequestPaymentData);
+  const verifyPaymentLoading = useSelector(selectVerifyPaymentLoading);
+  const verifyPaymentData = useSelector(selectVerifyPaymentData);
 
   const handleRequestPayment = (requestOrderId: string) => {
     dispatch(
@@ -98,6 +132,26 @@ const AllRequests = () => {
     }
   };
 
+  const handleApproveRequest = (requestId: string) => {
+    dispatch(
+      VerifyPaymentAction({
+        requestId: requestId,
+        verified: true,
+        comment: "تایید پرداخت توسط ادمین",
+      })
+    );
+  };
+
+  const handleRejectRequest = (requestId: string, reason: string) => {
+    dispatch(
+      VerifyPaymentAction({
+        requestId: requestId,
+        verified: false,
+        comment: reason,
+      })
+    );
+  };
+
   // Handle successful payment response
   useEffect(() => {
     if (verifyRequestPaymentData?.status === 200) {
@@ -106,10 +160,22 @@ const AllRequests = () => {
     }
   }, [verifyRequestPaymentData]);
 
+  // Handle successful verify payment response
+  useEffect(() => {
+    if (verifyPaymentData) {
+      setMode("content");
+      setSelectedRow({});
+      // Trigger refresh in child components
+      setRefreshTrigger(prev => prev + 1);
+    }
+  }, [verifyPaymentData]);
+
   const tabs = [
     { key: "new", label: "درخواست های ثبت شده" },
-    { key: "processing", label: "درخواست های درحال پردازش" },
-    { key: "closed", label: "درخواست های تحویل داده شده" },
+    { key: "processing", label: "درخواست های دارای پیشنهاد" },
+    { key: "closed", label: " درخواست های در انتظار بارگیری" },
+    { key: "financial", label: "درخواست های در انتظار تائید مالی" },
+    { key: "delivery", label: "درخواست های در انتظار تحویل" },
   ];
 
   const renderTabContent = () => {
@@ -144,6 +210,33 @@ const AllRequests = () => {
         return (
           <Suspense>
             <OpenRequestTable
+              onRowClick={(name: string, row: unknown) => {
+                setMode(name);
+                if (row) {
+                  setSelectedRow(row);
+                }
+              }}
+            />
+          </Suspense>
+        );
+      case "financial":
+        return (
+          <Suspense>
+            <FinancialApprovalTable
+              refreshTrigger={refreshTrigger}
+              onRowClick={(name: string, row: unknown) => {
+                setMode(name);
+                if (row) {
+                  setSelectedRow(row);
+                }
+              }}
+            />
+          </Suspense>
+        );
+      case "delivery":
+        return (
+          <Suspense>
+            <PendingDeliveryTable
               onRowClick={(name: string, row: unknown) => {
                 setMode(name);
                 if (row) {
@@ -240,7 +333,7 @@ const AllRequests = () => {
                 key={tab.key}
                 onClick={() => {
                   dispatch(clearAllProductRequestAdminData());
-                  setActiveTab(tab.key as "new" | "processing" | "closed");
+                  setActiveTab(tab.key as "new" | "processing" | "closed" | "financial" | "delivery");
                   setMode("content");
                   setSelectedRow({});
                 }}
@@ -312,6 +405,38 @@ const AllRequests = () => {
             requestOrder={selectedRow}
             onPayment={handleRequestPayment}
             loading={verifyRequestPaymentLoading}
+          />
+        </Suspense>
+      )}
+
+      {/* Render ProductRequestApprovalModal for financial tab */}
+      {activeTab === "financial" && mode === "approve" && (
+        <Suspense>
+          <ProductRequestApprovalModal
+            isOpen={true}
+            onClose={() => {
+              setMode("content");
+              setSelectedRow({});
+            }}
+            request={selectedRow}
+            onApprove={handleApproveRequest}
+            loading={verifyPaymentLoading}
+          />
+        </Suspense>
+      )}
+
+      {/* Render ProductRequestRejectionModal for financial tab */}
+      {activeTab === "financial" && mode === "reject" && (
+        <Suspense>
+          <ProductRequestRejectionModal
+            isOpen={true}
+            onClose={() => {
+              setMode("content");
+              setSelectedRow({});
+            }}
+            request={selectedRow}
+            onReject={handleRejectRequest}
+            loading={verifyPaymentLoading}
           />
         </Suspense>
       )}
