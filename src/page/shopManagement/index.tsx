@@ -1,50 +1,6 @@
-import { lazy, Suspense, useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "../../redux/store";
+import { lazy, Suspense, useState } from "react";
 import CRUD from "../../container/organism/CRUD";
-
-interface OrderItem {
-  id: string;
-  buyerId: string;
-  providerId: string;
-  product: {
-    id: string;
-    name?: string;
-    categoryId: string;
-    inventoryType: string;
-  };
-  quantity: number;
-  price: number;
-  finalPrice: number;
-  payingPrice: number;
-  paymentType: string;
-  installmentMonths: number;
-  status: string;
-  city: string;
-  province: string;
-  createdAt: number;
-  updatedAt: number;
-  loadingDate?: string;
-  unloadingDate?: string;
-  cheques?: Array<{
-    date: string;
-    bank: string;
-    no: string;
-    sayyad: string;
-  }>;
-  driver?: {
-    billNumber: string;
-    licensePlate: string;
-    vehicleName: string;
-    driverName: string;
-    driverPhone: string;
-  };
-  shippings: {
-    digifarm: number;
-    provider: number;
-  };
-  shippingPrice: number;
-}
+import { OrderItem } from "../../types/OrderItem";
 
 // Lazy load components
 const RegisteredOrdersTable = lazy(
@@ -97,8 +53,9 @@ const FinancialApprovalModal = lazy(
 );
 
 const ShopManagement = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const [activeTab, setActiveTab] = useState<"registered" | "loading" | "financial" | "delivery">("registered");
+  const [activeTab, setActiveTab] = useState<
+    "registered" | "loading" | "financial" | "delivery"
+  >("registered");
   const [mode, setMode] = useState<string>("content");
   const [selectedRow, setSelectedRow] = useState<OrderItem | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
@@ -109,7 +66,7 @@ const ShopManagement = () => {
   };
 
   const handleRefreshTable = () => {
-    setRefreshTrigger(prev => prev + 1);
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   const tabs = [
@@ -192,7 +149,13 @@ const ShopManagement = () => {
               <button
                 key={tab.key}
                 onClick={() => {
-                  setActiveTab(tab.key as "registered" | "loading" | "financial" | "delivery");
+                  setActiveTab(
+                    tab.key as
+                      | "registered"
+                      | "loading"
+                      | "financial"
+                      | "delivery"
+                  );
                   setMode("content");
                   setSelectedRow(null);
                 }}
@@ -212,7 +175,7 @@ const ShopManagement = () => {
       {/* Content */}
       <CRUD
         confirmModalSize="lg"
-        mode="content"
+        mode={mode}
         content={renderTabContent()}
         confirmation={null}
         onModalClose={handleCloseModal}

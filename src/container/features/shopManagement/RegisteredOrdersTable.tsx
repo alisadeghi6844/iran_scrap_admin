@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../redux/store";
 import { HandleFilterParams } from "../../../types/FilterParams";
+import { OrderItem } from "../../../types/OrderItem";
 import CollectionControls from "../../organism/CollectionControls";
 import Table from "../../../components/table";
 import TableHead from "../../../components/table/TableHead";
@@ -13,6 +14,8 @@ import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import Button from "../../../components/button";
+import SingleSelect from "../../../components/select/SingleSelect";
+import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
 import {
   selectGetOrderAdminData,
   selectGetOrderAdminLoading,
@@ -20,53 +23,19 @@ import {
 import { GetOrderAdminAction } from "../../../redux/actions/order/OrderActions";
 import StatusSelect from "../order/StatusSelect";
 import {
-  OrderStatus,
   getOrderStatusText,
   getOrderStatusColor,
 } from "../../../types/OrderStatus";
-
-interface OrderItem {
-  id: string;
-  buyerId: string;
-  providerId: string;
-  product: {
-    id: string;
-    name?: string;
-    categoryId: string;
-    inventoryType: string;
-  };
-  quantity: number;
-  price: number;
-  finalPrice: number;
-  payingPrice: number;
-  paymentType: string;
-  installmentMonths: number;
-  status: string;
-  city: string;
-  province: string;
-  createdAt: number;
-  updatedAt: number;
-  loadingDate?: string;
-  unloadingDate?: string;
-  cheques?: Array<{
-    date: string;
-    bank: string;
-    no: string;
-    sayyad: string;
-  }>;
-  driver?: {
-    billNumber: string;
-    licensePlate: string;
-    vehicleName: string;
-    driverName: string;
-    driverPhone: string;
-  };
-  shippings: {
-    digifarm: number;
-    provider: number;
-  };
-  shippingPrice: number;
-}
+import {
+  selectGetCategoryData,
+  selectGetCategoryLoading,
+} from "../../../redux/slice/category/CategorySlice";
+import { GetCategoryAction } from "../../../redux/actions/category/CategoryActions";
+import {
+  selectGetUsersProvidersData,
+  selectGetUsersProvidersLoading,
+} from "../../../redux/slice/users/UsersSlice";
+import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
 
 interface RegisteredOrdersTableProps {
   refreshTrigger?: number;
@@ -79,16 +48,48 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
 
+  // Filter states
+  const [categoryFilter, setCategoryFilter] = useState<SelectOptionTypes | null>(null);
+  const [providerFilter, setProviderFilter] = useState<SelectOptionTypes | null>(null);
+  const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(null);
+
   const filterDefaultInitialValues = {
-    Status: null,
+    Category: categoryFilter,
+    Provider: providerFilter,
+    Status: statusFilter,
   };
 
   const loading = useSelector(selectGetOrderAdminLoading);
   const orderData = useSelector(selectGetOrderAdminData);
+  const categoryData = useSelector(selectGetCategoryData);
+  const categoryLoading = useSelector(selectGetCategoryLoading);
+  const providersData = useSelector(selectGetUsersProvidersData);
+  const providersLoading = useSelector(selectGetUsersProvidersLoading);
 
   useEffect(() => {
     dispatch(GetOrderAdminAction({ page: 0, size: 20 }));
+    dispatch(GetCategoryAction({}));
+    dispatch(GetUsersProvidersAction({ credentials: {} }));
   }, [dispatch]);
+
+  // Trigger filtering when filter values change
+  useEffect(() => {
+    const filterData = {
+      Category: categoryFilter,
+      Provider: providerFilter,
+      Status: statusFilter,
+    };
+
+    const filterString = handleFilterParameters(filterData);
+
+    dispatch(
+      GetOrderAdminAction({
+        filter: filterString || undefined,
+        page: 0,
+        size: 20,
+      })
+    );
+  }, [categoryFilter, providerFilter, statusFilter, dispatch]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     dispatch(
@@ -101,10 +102,14 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
   };
 
   const handleFilterParameters = (data: unknown) => {
-    const { Status } = data as {
-      Status?: { label: string; value: string };
+    const { Category, Provider, Status } = data as {
+      Category?: SelectOptionTypes;
+      Provider?: SelectOptionTypes;
+      Status?: SelectOptionTypes;
     };
     let queryParam = "";
+    if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
+    if (Provider?.value) queryParam += "providerId=" + Provider?.value + ",";
     if (Status?.value) queryParam += "status=" + Status?.value + ",";
 
     return queryParam.substring(0, queryParam.length - 1);
@@ -115,6 +120,33 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
       dispatch(GetOrderAdminAction({ page: 0, size: 20 }));
     }
   }, [refreshTrigger, dispatch]);
+
+  // Get categories from category API
+  const categoryOptions = React.useMemo(() => {
+    if (!categoryData?.data) return [];
+    return categoryData.data.map((category: any) => ({
+      value: category._id || category.id,
+      label: category.name,
+    }));
+  }, [categoryData]);
+
+  // Get providers from users API with Provider or Both usertype
+  const providerOptions = React.useMemo(() => {
+    // Check both possible data structures
+    const data = providersData?.data?.data || providersData?.data;
+    if (!data) return [];
+    return data
+      .filter(
+        (user: any) => user.usertype === "Provider" || user.usertype === "Both"
+      )
+      .map((user: any) => ({
+        value: user.id,
+        label:
+          user.firstName && user.lastName
+            ? `${user.firstName} ${user.lastName}`
+            : user.mobile || user.companyName || "نامشخص",
+      }));
+  }, [providersData]);
 
   const formatDate = (timestamp: number) => {
     if (!timestamp) return "_";
@@ -164,9 +196,11 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
             <TableHeadCell>نام محصول</TableHeadCell>
+            <TableHeadCell className="min-w-[200px]">دسته بندی</TableHeadCell>
             <TableHeadCell>تعداد</TableHeadCell>
             <TableHeadCell>قیمت واحد</TableHeadCell>
             <TableHeadCell>قیمت نهایی</TableHeadCell>
+            <TableHeadCell className="min-w-[200px]">تامین کننده</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
             <TableHeadCell>شهر</TableHeadCell>
             <TableHeadCell>تاریخ ایجاد</TableHeadCell>
@@ -178,15 +212,43 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
         <TableBody>
           <TableRow>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <SingleSelect
+                label=""
+                isLoading={categoryLoading}
+                options={categoryOptions}
+                onChange={(value: any) => setCategoryFilter(value)}
+                value={categoryFilter}
+                placeholder="انتخاب دسته‌بندی..."
+                noBorder
+                isClearable
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <SingleSelect
+                label=""
+                isLoading={providersLoading}
+                options={providerOptions}
+                onChange={(value: any) => setProviderFilter(value)}
+                value={providerFilter}
+                placeholder="انتخاب تامین‌کننده..."
+                noBorder
+                isClearable
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              <StatusSelect name="Status" noBorder label="" />
+              <StatusSelect 
+                name="Status" 
+                noBorder 
+                label=""
+              />
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
@@ -195,6 +257,7 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
               orderData?.data?.map((row: OrderItem) => (
                 <TableRow key={row?.id}>
                   <TableCell>{row?.product?.name ?? "_"}</TableCell>
+                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>
                     {row?.quantity
                       ? `${row.quantity} ${getInventoryUnit(
@@ -209,6 +272,15 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
                     {row?.finalPrice
                       ? `${row.finalPrice.toLocaleString()} تومان`
                       : "_"}
+                  </TableCell>
+                  <TableCell>
+                    {typeof row?.providerId === 'object' && row?.providerId?.firstName && row?.providerId?.lastName
+                      ? `${row.providerId.firstName} ${row.providerId.lastName}`
+                      : typeof row?.providerId === 'object' && (row?.providerId?.mobile || row?.providerId?.companyName)
+                      ? (row?.providerId?.mobile || row?.providerId?.companyName)
+                      : row?.provider?.firstName && row?.provider?.lastName
+                      ? `${row.provider.firstName} ${row.provider.lastName}`
+                      : row?.provider?.mobile || row?.provider?.companyName || "_"}
                   </TableCell>
                   <TableCell>{getPaymentTypeText(row?.paymentType)}</TableCell>
                   <TableCell>{row?.city ?? "_"}</TableCell>
@@ -263,14 +335,14 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={10} className="flex justify-center !py-4">
+                <TableCell colSpan={12} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colSpan={10} className="flex justify-center !py-4">
+              <TableCell colSpan={12} className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

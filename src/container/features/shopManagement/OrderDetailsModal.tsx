@@ -18,9 +18,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
   return (
     <Modal
-      isOpen={isOpen}
+      open={isOpen}
       onClose={onClose}
-      title="جزئیات سفارش"
+      headerTitle="جزئیات سفارش"
       size="lg"
     >
       <div className="space-y-6">

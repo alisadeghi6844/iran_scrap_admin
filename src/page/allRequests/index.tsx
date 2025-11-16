@@ -8,9 +8,7 @@ import {
   selectVerifyRequestPaymentData,
 } from "../../redux/slice/requestOrder/requestOrderSlice";
 import { clearAllProductRequestAdminData } from "../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
-import { 
-  VerifyPaymentAction,
-} from "../../redux/actions/product-request-offer-admin/ProductRequestOfferAdminActions";
+import { VerifyPaymentAction } from "../../redux/actions/product-request-offer-admin/ProductRequestOfferAdminActions";
 import {
   selectVerifyPaymentLoading,
   selectVerifyPaymentData,
@@ -103,15 +101,17 @@ const ProductRequestDetailsModal = lazy(
 
 const AllRequests = () => {
   const dispatch: unknown = useDispatch();
-  const [activeTab, setActiveTab] = useState<"new" | "processing" | "closed" | "financial" | "delivery">(
-    "new"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "new" | "processing" | "closed" | "financial" | "delivery"
+  >("new");
   const [mode, setMode] = useState<string>("content");
   const [selectedRow, setSelectedRow] = useState<unknown>({});
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
-  const [isDriverEditModalOpen, setIsDriverEditModalOpen] = useState<boolean>(false);
-  const [selectedDriverEditRow, setSelectedDriverEditRow] = useState<unknown>({});
-
+  const [isDriverEditModalOpen, setIsDriverEditModalOpen] =
+    useState<boolean>(false);
+  const [selectedDriverEditRow, setSelectedDriverEditRow] = useState<unknown>(
+    {}
+  );
 
   const verifyRequestPaymentLoading = useSelector(
     selectVerifyRequestPaymentLoading
@@ -175,7 +175,7 @@ const AllRequests = () => {
       setMode("content");
       setSelectedRow({});
       // Trigger refresh in child components
-      setRefreshTrigger(prev => prev + 1);
+      setRefreshTrigger((prev) => prev + 1);
     }
   }, [verifyPaymentData]);
 
@@ -347,7 +347,14 @@ const AllRequests = () => {
                 key={tab.key}
                 onClick={() => {
                   dispatch(clearAllProductRequestAdminData());
-                  setActiveTab(tab.key as "new" | "processing" | "closed" | "financial" | "delivery");
+                  setActiveTab(
+                    tab.key as
+                      | "new"
+                      | "processing"
+                      | "closed"
+                      | "financial"
+                      | "delivery"
+                  );
                   setMode("content");
                   setSelectedRow({});
                 }}
@@ -469,8 +476,6 @@ const AllRequests = () => {
           />
         </Suspense>
       )}
-
-
     </div>
   );
 };
