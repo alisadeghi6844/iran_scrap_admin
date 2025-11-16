@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { HandleFilterParams } from "../../../types/FilterParams";
 import CollectionControls from "../../organism/CollectionControls";
@@ -13,6 +13,8 @@ import Button from "../../../components/button";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import { MdOutlineFeaturedPlayList } from "react-icons/md";
+import Input from "../../../components/input";
+import useDebounce from "../../../hooks/UseDebounce";
 
 import { LuGitPullRequestCreateArrow } from "react-icons/lu";
 import {
@@ -23,7 +25,6 @@ import {
 } from "../../../redux/slice/category/CategorySlice";
 import { GetCategoryAction } from "../../../redux/actions/category/CategoryActions";
 import { FaRegEdit } from "react-icons/fa";
-import { FaRegTrashCan } from "react-icons/fa6";
 import Image from "../../../components/image";
 
 interface CategoryTypes {
@@ -35,10 +36,13 @@ const CategoryTable: React.FC<CategoryTypes> = (props) => {
 
   const dispatch: any = useDispatch();
 
+  // Filter states
+  const [nameFilter, setNameFilter] = useState<string>("");
+  const [parentNameFilter, setParentNameFilter] = useState<string>("");
+
   const filterDefaultInitialValues = {
-    FoodName: "",
-    Category: null,
-    Restaurant: null,
+    name: nameFilter,
+    parentName: parentNameFilter,
   };
 
   const loading = useSelector(selectGetCategoryLoading);
@@ -50,6 +54,28 @@ const CategoryTable: React.FC<CategoryTypes> = (props) => {
     dispatch(GetCategoryAction({ page: 0, size: 20 }));
   }, []);
 
+  // Debounced filter effect
+  useDebounce(
+    () => {
+      const filterData = {
+        name: nameFilter,
+        parentName: parentNameFilter,
+      };
+
+      const filterString = handleFilterParameters(filterData);
+
+      dispatch(
+        GetCategoryAction({
+          filter: filterString || undefined,
+          page: 0,
+          size: 20,
+        })
+      );
+    },
+    [nameFilter, parentNameFilter],
+    500
+  );
+
   const handleFilter = ({
     filter,
     page,
@@ -59,18 +85,21 @@ const CategoryTable: React.FC<CategoryTypes> = (props) => {
       GetCategoryAction({
         filter,
         page: page ?? 0,
-        size: pageSize??20,
+        size: pageSize ?? 20,
       })
     );
   };
 
   const handleFilterParameters = (data: any) => {
-    const { FoodName, Category, Restaurant } = data;
+    const { name, parentName } = data;
     let queryParam = "";
-    if (FoodName) queryParam += "title=" + FoodName + ",";
-    if (Category?.label) queryParam += "categoriesId=" + Category?.value + ",";
-    if (Restaurant?.label)
-      queryParam += "restaurantId=" + Restaurant?.value + ",";
+    
+    if (name && name.trim()) {
+      queryParam += "name=" + encodeURIComponent(name.trim()) + ",";
+    }
+    if (parentName && parentName.trim()) {
+      queryParam += "parentName=" + encodeURIComponent(parentName.trim()) + ",";
+    }
 
     return queryParam.substring(0, queryParam.length - 1);
   };
@@ -105,13 +134,35 @@ const CategoryTable: React.FC<CategoryTypes> = (props) => {
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
             <TableHeadCell>تصویر دسته بندی</TableHeadCell>
-            <TableHeadCell>نام دسته بندی </TableHeadCell>
+            <TableHeadCell>نام دسته بندی</TableHeadCell>
+            <TableHeadCell>کد دسته بندی</TableHeadCell>
+            <TableHeadCell>والد دسته بندی</TableHeadCell>
+            <TableHeadCell>مسیر کامل</TableHeadCell>
             <TableHeadCell />
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <Input
+                label=""
+                placeholder="جستجو نام دسته بندی..."
+                value={nameFilter}
+                onChange={(e: any) => setNameFilter(e.target.value)}
+                size="sm"
+              />
+            </TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <Input
+                label=""
+                placeholder="جستجو نام والد..."
+                value={parentNameFilter}
+                onChange={(e: any) => setParentNameFilter(e.target.value)}
+                size="sm"
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
@@ -130,6 +181,11 @@ const CategoryTable: React.FC<CategoryTypes> = (props) => {
                     />
                   </TableCell>
                   <TableCell>{row?.name ?? "_"}</TableCell>
+                  <TableCell>{row?.code ?? "_"}</TableCell>
+                  <TableCell>{row?.parent?.name ?? "_"}</TableCell>
+                  <TableCell className="max-w-[200px] truncate" title={row?.catRoute}>
+                    {row?.catRoute ?? "_"}
+                  </TableCell>
                   <TableCell
                     onClick={(e: any) => {
                       e.stopPropagation();
@@ -178,14 +234,14 @@ const CategoryTable: React.FC<CategoryTypes> = (props) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colspan="6" className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="9" className="flex justify-center !py-4">
+              <TableCell colspan="6" className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

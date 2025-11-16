@@ -11,12 +11,19 @@ import {
 } from "../../api/category/CategoryApi";
 
 export const getCategoryService = async (query: any) => {
-  let queryText;
-  if (!!query) {
+  let queryText = "";
+  
+  if (query) {
     queryText = AxiosQueryCustom(query);
   }
+  
+  // If no query text is generated, add default parentId=null
+  if (!queryText) {
+    queryText = "parentId=null";
+  }
+  
   return await HttpServises.get(
-    `${BASE_URL}${GET_CATEGORY_POINT}?${queryText ? queryText : null}`
+    `${BASE_URL}${GET_CATEGORY_POINT}?${queryText}`
   );
 };
 export const getCategoryByIdService = async (items: any) => {
