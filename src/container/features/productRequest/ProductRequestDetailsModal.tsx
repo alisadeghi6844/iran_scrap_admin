@@ -147,12 +147,14 @@ interface ProductRequestDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   request: ProductRequestItem | null;
+  driverOnlyMode?: boolean;
 }
 
 const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
   isOpen,
   onClose,
   request,
+  driverOnlyMode = false,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [requestDetails, setRequestDetails] = useState<unknown>(null);
@@ -237,8 +239,19 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
         setEditableDriver(null);
         setEditableLoadingDate("");
       }
+
+      // In driverOnlyMode, always ensure we have an editable driver object
+      if (driverOnlyMode) {
+        setEditableDriver({
+          billNumber: requestData.invoiceId?.driver?.billNumber || "",
+          licensePlate: requestData.invoiceId?.driver?.licensePlate || "",
+          vehicleName: requestData.invoiceId?.driver?.vehicleName || "",
+          driverName: requestData.invoiceId?.driver?.driverName || "",
+          driverPhone: requestData.invoiceId?.driver?.driverPhone || "",
+        });
+      }
     }
-  }, [requestData, isOpen]);
+  }, [requestData, isOpen, driverOnlyMode]);
 
   // Handle successful update response
   useEffect(() => {
@@ -493,8 +506,8 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
     <Modal
       open={isOpen}
       onClose={onClose}
-      size="xl"
-      headerTitle="جزئیات درخواست محصول"
+      size={driverOnlyMode ? "lg" : "xl"}
+      headerTitle={driverOnlyMode ? "ویرایش اطلاعات راننده" : "جزئیات درخواست محصول"}
     >
       {loading ? (
         <div className="flex justify-center items-center py-8">
@@ -502,6 +515,101 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
         </div>
       ) : (
         <div className="space-y-6">
+          {driverOnlyMode ? (
+            /* Driver Only Mode - Show only driver section */
+            <div>
+              <div className="flex justify-between items-center mb-3">
+                <Typography className="text-lg font-bold">
+                  اطلاعات راننده
+                </Typography>
+                {editableDriver && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleSaveDriver}
+                    loading={updateLoading}
+                    disabled={updateLoading}
+                  >
+                    ذخیره اطلاعات راننده
+                  </Button>
+                )}
+              </div>
+
+              {editableDriver ? (
+                <div className="bg-gray-50 p-4 rounded-lg border">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Input
+                        label="شماره بارنامه"
+                        value={editableDriver.billNumber}
+                        onChange={(e) =>
+                          handleDriverChange("billNumber", e.target.value)
+                        }
+                        size="md"
+                        errorMessage={driverValidationErrors.billNumber}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        label="شماره پلاک"
+                        value={editableDriver.licensePlate}
+                        onChange={(e) =>
+                          handleDriverChange("licensePlate", e.target.value)
+                        }
+                        size="md"
+                        errorMessage={driverValidationErrors.licensePlate}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        label="نام وسیله نقلیه"
+                        value={editableDriver.vehicleName}
+                        onChange={(e) =>
+                          handleDriverChange("vehicleName", e.target.value)
+                        }
+                        size="md"
+                        errorMessage={driverValidationErrors.vehicleName}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        label="نام راننده"
+                        value={editableDriver.driverName}
+                        onChange={(e) =>
+                          handleDriverChange("driverName", e.target.value)
+                        }
+                        size="md"
+                        errorMessage={driverValidationErrors.driverName}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        label="شماره تلفن راننده"
+                        value={editableDriver.driverPhone}
+                        onChange={(e) =>
+                          handleDriverChange("driverPhone", e.target.value)
+                        }
+                        size="md"
+                        errorMessage={driverValidationErrors.driverPhone}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gray-50 p-4 rounded-lg text-center">
+                  <Typography className="text-gray-500">
+                    اطلاعات راننده موجود نیست
+                  </Typography>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
           {/* Request Header */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1157,6 +1265,8 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
               </div>
             )}
           </div>
+          </>
+          )}
         </div>
       )}
     </Modal>

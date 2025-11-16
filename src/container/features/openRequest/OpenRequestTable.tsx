@@ -18,7 +18,7 @@ import {
   selectUpdateProductRequestProviderAdminData,
 } from "../../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
-import { convertToJalali } from "../../../utils/MomentConvertor";
+
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
 import StatusSelect from "../status/StatusSelect";
 import RequestDetailModal from "../closeRequest/RequestDetailModal";
@@ -32,7 +32,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const dispatch: unknown = useDispatch();
+  const dispatch: any = useDispatch();
 
   const filterDefaultInitialValues = {
     FoodName: "",
@@ -56,9 +56,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         GetRequestProductAdminAction({
           page: 0,
           size: 20,
-          status: selectedStatus
-            ? [selectedStatus?.value]
-            : ["LOADING_ORDER", "LOADING_ORDER"],
+          status: [selectedStatus],
         })
       );
     } else {
@@ -66,11 +64,11 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         GetRequestProductAdminAction({
           page: 0,
           size: 20,
-          status: ["LOADING_ORDER", "LOADING_ORDER"],
+          status: ["LOADING_ORDER", "WAITING_UNLOADING"],
         })
       );
     }
-  }, [selectedStatus]);
+  }, [selectedStatus, dispatch]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     if (selectedStatus) {
@@ -79,9 +77,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
           filter,
           page: page ?? 0,
           size: pageSize ?? 20,
-          status: selectedStatus
-            ? [selectedStatus?.value]
-            : ["LOADING_ORDER", "LOADING_ORDER"],
+          status: [selectedStatus],
         })
       );
     } else {
@@ -90,7 +86,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
           filter,
           page: page ?? 0,
           size: pageSize ?? 20,
-          status: ["LOADING_ORDER", "LOADING_ORDER"],
+          status: ["LOADING_ORDER", "WAITING_UNLOADING"],
         })
       );
     }
@@ -107,9 +103,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
           GetRequestProductAdminAction({
             page: 0,
             size: 20,
-            status: selectedStatus
-              ? [selectedStatus?.value]
-              : ["LOADING_ORDER", "LOADING_ORDER"],
+            status: [selectedStatus],
           })
         );
       } else {
@@ -117,12 +111,12 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
           GetRequestProductAdminAction({
             page: 0,
             size: 20,
-            status: ["LOADING_ORDER", "LOADING_ORDER"],
+            status: ["LOADING_ORDER", "WAITING_UNLOADING"],
           })
         );
       }
     }
-  }, [updateData, updateData_2, updateProviderData]);
+  }, [updateData, updateData_2, updateProviderData, dispatch, selectedStatus]);
 
   return (
     <CollectionControls
@@ -132,8 +126,10 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       data={productAdminData}
       onMetaChange={handleFilter}
       onButtonClick={(button) => {
-        if (!!onRowClick) {
-          button === "create" && onRowClick("create");
+        if (onRowClick) {
+          if (button === "create") {
+            onRowClick("create");
+          }
         }
       }}
     >
@@ -148,8 +144,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableHeadCell>مقدار درخواست</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
             <TableHeadCell className="min-w-[170px]">وضعیت</TableHeadCell>
-            <TableHeadCell />
-            <TableHeadCell />
+            <TableHeadCell>عملیات</TableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -163,26 +158,11 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
 
-            <TableFilterCell>
-              <StatusSelect
-                codes={[
-                  "REGISTERED",
-                  "BUYER_CANCELLATION",
-                  "RETURN_TO_BUYER_REQUEST",
-                ]}
-                name="StatusSelect"
-                label=""
-                noBorder
-                value={selectedStatus}
-                onChange={(status: any) => setSelectedStatus(status)} // به روز رسانی وضعیت انتخاب شده
-              />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             productAdminData?.data?.length > 0 ? (
-              productAdminData?.data?.map((row: any) => (
+              productAdminData?.data?.map((row: unknown) => (
                 <TableRow key={row?.id}>
                   <TableCell>
                     {row?.user?.firstName
@@ -206,52 +186,46 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                       : "_"}
                   </TableCell>
                   <TableCell>{row?.statusTitle ?? "_"}</TableCell>
-                  <TableCell className="flex justify-center gap-2">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        setSelectedRequest(row);
-                        setIsDetailModalOpen(true);
-                      }}
-                      variant="outline-primary"
-                    >
-                      مشاهده درخواست
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        onRowClick && onRowClick("detail", row);
-                      }}
-                      variant="outline-warning"
-                      size="sm"
-                    >
-                      تغییر وضعیت
-                    </Button>
-                  </TableCell>
-                  <TableCell className="flex justify-center">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        onRowClick && onRowClick("update", row);
-                      }}
-                      variant="outline-success"
-                      size="sm"
-                    >
-                      پیشنهادات
-                    </Button>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="primary"
+                        onClick={() => {
+                          setSelectedRequest(row);
+                          setIsDetailModalOpen(true);
+                        }}
+                      >
+                        مشاهده درخواست
+                      </Button>
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                          if (onRowClick) {
+                            onRowClick("showDriver", row);
+                          }
+                        }}
+                      >
+                        ویرایش اطلاعات راننده
+                      </Button>
+                   
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colSpan={9} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="9" className="flex justify-center !py-4">
+              <TableCell colSpan={9} className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

@@ -45,9 +45,7 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
   const updateData_2 = useSelector(selectUpdateProductRequestProviderAdminData);
 
   // وضعیت‌های مربوط به در انتظار تحویل
-  const defaultStatuses = [
-    "WAITING_UNLOADING",
-  ];
+  const defaultStatuses = ["WAITING_UNLOADING", "WAITING_UNLOADING"];
 
   useEffect(() => {
     dispatch(

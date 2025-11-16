@@ -94,6 +94,12 @@ const ProductRequestRejectionModal = lazy(
       /* webpackChunkName: "ProductRequestRejection" */ "../../container/features/productRequest/ProductRequestRejectionModal"
     )
 );
+const ProductRequestDetailsModal = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "ProductRequestDetails" */ "../../container/features/productRequest/ProductRequestDetailsModal"
+    )
+);
 
 const AllRequests = () => {
   const dispatch: unknown = useDispatch();
@@ -103,6 +109,9 @@ const AllRequests = () => {
   const [mode, setMode] = useState<string>("content");
   const [selectedRow, setSelectedRow] = useState<unknown>({});
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
+  const [isDriverEditModalOpen, setIsDriverEditModalOpen] = useState<boolean>(false);
+  const [selectedDriverEditRow, setSelectedDriverEditRow] = useState<unknown>({});
+
 
   const verifyRequestPaymentLoading = useSelector(
     selectVerifyRequestPaymentLoading
@@ -211,9 +220,14 @@ const AllRequests = () => {
           <Suspense>
             <OpenRequestTable
               onRowClick={(name: string, row: unknown) => {
-                setMode(name);
-                if (row) {
-                  setSelectedRow(row);
+                if (name === "showDriver") {
+                  setIsDriverEditModalOpen(true);
+                  setSelectedDriverEditRow(row);
+                } else {
+                  setMode(name);
+                  if (row) {
+                    setSelectedRow(row);
+                  }
                 }
               }}
             />
@@ -440,6 +454,23 @@ const AllRequests = () => {
           />
         </Suspense>
       )}
+
+      {/* Render ProductRequestDetailsModal for driver edit */}
+      {isDriverEditModalOpen && (
+        <Suspense>
+          <ProductRequestDetailsModal
+            isOpen={true}
+            onClose={() => {
+              setIsDriverEditModalOpen(false);
+              setSelectedDriverEditRow({});
+            }}
+            request={selectedDriverEditRow}
+            driverOnlyMode={true}
+          />
+        </Suspense>
+      )}
+
+
     </div>
   );
 };
