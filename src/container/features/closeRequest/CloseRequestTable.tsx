@@ -44,9 +44,12 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const dispatch: any = useDispatch();
 
   // Filter states
-  const [categoryFilter, setCategoryFilter] = useState<SelectOptionTypes | null>(null);
-  const [providerFilter, setProviderFilter] = useState<SelectOptionTypes | null>(null);
-  const [paymentTypeFilter, setPaymentTypeFilter] = useState<SelectOptionTypes | null>(null);
+  const [categoryFilter, setCategoryFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [providerFilter, setProviderFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [paymentTypeFilter, setPaymentTypeFilter] =
+    useState<SelectOptionTypes | null>(null);
 
   const filterDefaultInitialValues = {
     Category: categoryFilter,
@@ -105,7 +108,13 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         status: selectedStatus ? [selectedStatus?.value] : defaultStatuses,
       })
     );
-  }, [categoryFilter, providerFilter, paymentTypeFilter, dispatch, selectedStatus]);
+  }, [
+    categoryFilter,
+    providerFilter,
+    paymentTypeFilter,
+    dispatch,
+    selectedStatus,
+  ]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     console.log("search ", filter, page, pageSize);
@@ -128,7 +137,8 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
     let queryParam = "";
     if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
     if (Provider?.value) queryParam += "providerId=" + Provider?.value + ",";
-    if (PaymentType?.value) queryParam += "paymentType=" + PaymentType?.value + ",";
+    if (PaymentType?.value)
+      queryParam += "paymentType=" + PaymentType?.value + ",";
 
     return queryParam.substring(0, queryParam.length - 1);
   };
@@ -199,7 +209,10 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
             <TableHeadCell className="min-w-[230px]">دسته بندی</TableHeadCell>
             <TableHeadCell>توضیحات</TableHeadCell>
-            <TableHeadCell className="min-w-[230px]"> تامین کننده</TableHeadCell>
+            <TableHeadCell className="min-w-[230px]">
+              {" "}
+              تامین کننده
+            </TableHeadCell>
             <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
             <TableHeadCell className="min-w-[230px]">نوع پرداخت</TableHeadCell>

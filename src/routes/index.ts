@@ -174,6 +174,13 @@ const routes = [
     layout: "admin",
     role: ["admin", "client", "reservation"],
   },
+  {
+    path: "/shop-management",
+    breadCrumb: "فروشگاه",
+    component: lazy(() => import("../page/shopManagement")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
 ];
 
 export const privateRoutes = [

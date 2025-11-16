@@ -24,65 +24,91 @@ const MenuSelect: React.FC<MenuSelectProps> = ({
   const [field, meta, helpers] = useField(name);
 
   // Define available menus based on the sidebar structure
-  const menuOptions: MenuOption[] = useMemo(() => [
-    // مدیریت درخواست ها
-    { value: "/", label: "درخواست های مناقصه" },
-    { value: "all-requests", label: "درخواست های مناقصه (کلید)" },
-    { value: "product-request-status", label: "مدیریت وضعیت درخواست ها" },
-    { value: "/product-request-status", label: "مدیریت وضعیت درخواست ها (مسیر)" },
-    { value: "pending-orders-financial", label: "سفارشات در انتظار تایید مالی" },
-    { value: "/pending-orders-financial", label: "سفارشات در انتظار تایید مالی (مسیر)" },
-    { value: "product-requests", label: "تاریخچه درخواست های مناقصه" },
-    { value: "/product-requests", label: "تاریخچه درخواست های مناقصه (مسیر)" },
-    
-    // فرم های پایه - مدیریت کاربران
-    { value: "role-management", label: "مدیریت نقش" },
-    { value: "/role-management", label: "مدیریت نقش (مسیر)" },
-    { value: "users-management", label: "مدیریت کاربران" },
-    { value: "/users-management", label: "مدیریت کاربران (مسیر)" },
-    { value: "buyer-management", label: "مدیریت خریداران" },
-    { value: "/buyer-management", label: "مدیریت خریداران (مسیر)" },
-    
-    // فرم های پایه - مدیریت صفحات
-    { value: "pages-management", label: "مدیریت متن صفحات" },
-    { value: "/pages-management", label: "مدیریت متن صفحات (مسیر)" },
-    { value: "faq-management", label: "مدیریت سوالات متداول" },
-    { value: "/faq-management", label: "مدیریت سوالات متداول (مسیر)" },
-    { value: "blog-management", label: "مدیریت مقالات" },
-    { value: "/blog-management", label: "مدیریت مقالات (مسیر)" },
-    { value: "blog-category-management", label: "مدیریت دسته بندی مقالات" },
-    { value: "/blog-category-management", label: "مدیریت دسته بندی مقالات (مسیر)" },
-    
-    // سایر فرم های پایه
-    { value: "category-management", label: "مدیریت دسته بندی" },
-    { value: "/category-management", label: "مدیریت دسته بندی (مسیر)" },
-    { value: "ticket-management", label: "مدیریت تیکت ها" },
-    { value: "/ticket-management", label: "مدیریت تیکت ها (مسیر)" },
-    { value: "survey-management", label: "مدیریت نظرسنجی ها" },
-    { value: "/survey-management", label: "مدیریت نظرسنجی ها (مسیر)" },
-    
-    // مدیریت محصولات
-    { value: "product-management", label: "مدیریت محصولات" },
-    { value: "/product-management", label: "مدیریت محصولات (مسیر)" },
-    { value: "product-price-management", label: "مدیریت قیمت گذاری محصولات" },
-    { value: "/product-price-management", label: "مدیریت قیمت گذاری محصولات (مسیر)" },
-    { value: "purchase-price-management", label: "مدیریت قیمت خرید" },
-    { value: "/purchase-price-management", label: "مدیریت قیمت خرید (مسیر)" },
-    { value: "view-pricing-management", label: "مشاهده قیمت گذاری" },
-    { value: "/view-pricing-management", label: "مشاهده قیمت گذاری (مسیر)" },
-    { value: "shipment-management", label: "محاسبه کرایه ناوگان" },
-    { value: "/shipment-management", label: "محاسبه کرایه ناوگان (مسیر)" },
-    
-    // اطلاعات پایه قیمت گذاری
-    { value: "pb-product-admin-management", label: "تعریف کالا" },
-    { value: "/pb-product-admin-management", label: "تعریف کالا (مسیر)" },
-    { value: "pb-brand-admin-management", label: "مدیریت برند" },
-    { value: "/pb-brand-admin-management", label: "مدیریت برند (مسیر)" },
-    { value: "pb-provider-admin-management", label: "تعریف تامین کنندگان" },
-    { value: "/pb-provider-admin-management", label: "تعریف تامین کنندگان (مسیر)" },
-    { value: "pb-port-admin-management", label: "تعریف محل بارگیری" },
-    { value: "/pb-port-admin-management", label: "تعریف محل بارگیری (مسیر)" },
-  ], []);
+  const menuOptions: MenuOption[] = useMemo(
+    () => [
+      // مدیریت درخواست ها
+      { value: "/", label: "درخواست های مناقصه" },
+      { value: "all-requests", label: "درخواست های مناقصه (کلید)" },
+      { value: "product-request-status", label: "مدیریت وضعیت درخواست ها" },
+      {
+        value: "/product-request-status",
+        label: "مدیریت وضعیت درخواست ها (مسیر)",
+      },
+      {
+        value: "pending-orders-financial",
+        label: "سفارشات در انتظار تایید مالی",
+      },
+      {
+        value: "/pending-orders-financial",
+        label: "سفارشات در انتظار تایید مالی (مسیر)",
+      },
+      { value: "product-requests", label: "تاریخچه درخواست های مناقصه" },
+      {
+        value: "/product-requests",
+        label: "تاریخچه درخواست های مناقصه (مسیر)",
+      },
+      { value: "shop-management", label: "فروشگاه" },
+      { value: "/shop-management", label: "فروشگاه (مسیر)" },
+
+      // فرم های پایه - مدیریت کاربران
+      { value: "role-management", label: "مدیریت نقش" },
+      { value: "/role-management", label: "مدیریت نقش (مسیر)" },
+      { value: "users-management", label: "مدیریت کاربران" },
+      { value: "/users-management", label: "مدیریت کاربران (مسیر)" },
+      { value: "buyer-management", label: "مدیریت خریداران" },
+      { value: "/buyer-management", label: "مدیریت خریداران (مسیر)" },
+
+      // فرم های پایه - مدیریت صفحات
+      { value: "pages-management", label: "مدیریت متن صفحات" },
+      { value: "/pages-management", label: "مدیریت متن صفحات (مسیر)" },
+      { value: "faq-management", label: "مدیریت سوالات متداول" },
+      { value: "/faq-management", label: "مدیریت سوالات متداول (مسیر)" },
+      { value: "blog-management", label: "مدیریت مقالات" },
+      { value: "/blog-management", label: "مدیریت مقالات (مسیر)" },
+      { value: "blog-category-management", label: "مدیریت دسته بندی مقالات" },
+      {
+        value: "/blog-category-management",
+        label: "مدیریت دسته بندی مقالات (مسیر)",
+      },
+
+      // سایر فرم های پایه
+      { value: "category-management", label: "مدیریت دسته بندی" },
+      { value: "/category-management", label: "مدیریت دسته بندی (مسیر)" },
+      { value: "ticket-management", label: "مدیریت تیکت ها" },
+      { value: "/ticket-management", label: "مدیریت تیکت ها (مسیر)" },
+      { value: "survey-management", label: "مدیریت نظرسنجی ها" },
+      { value: "/survey-management", label: "مدیریت نظرسنجی ها (مسیر)" },
+
+      // مدیریت محصولات
+      { value: "product-management", label: "مدیریت محصولات" },
+      { value: "/product-management", label: "مدیریت محصولات (مسیر)" },
+      { value: "product-price-management", label: "مدیریت قیمت گذاری محصولات" },
+      {
+        value: "/product-price-management",
+        label: "مدیریت قیمت گذاری محصولات (مسیر)",
+      },
+      { value: "purchase-price-management", label: "مدیریت قیمت خرید" },
+      { value: "/purchase-price-management", label: "مدیریت قیمت خرید (مسیر)" },
+      { value: "view-pricing-management", label: "مشاهده قیمت گذاری" },
+      { value: "/view-pricing-management", label: "مشاهده قیمت گذاری (مسیر)" },
+      { value: "shipment-management", label: "محاسبه کرایه ناوگان" },
+      { value: "/shipment-management", label: "محاسبه کرایه ناوگان (مسیر)" },
+
+      // اطلاعات پایه قیمت گذاری
+      { value: "pb-product-admin-management", label: "تعریف کالا" },
+      { value: "/pb-product-admin-management", label: "تعریف کالا (مسیر)" },
+      { value: "pb-brand-admin-management", label: "مدیریت برند" },
+      { value: "/pb-brand-admin-management", label: "مدیریت برند (مسیر)" },
+      { value: "pb-provider-admin-management", label: "تعریف تامین کنندگان" },
+      {
+        value: "/pb-provider-admin-management",
+        label: "تعریف تامین کنندگان (مسیر)",
+      },
+      { value: "pb-port-admin-management", label: "تعریف محل بارگیری" },
+      { value: "/pb-port-admin-management", label: "تعریف محل بارگیری (مسیر)" },
+    ],
+    []
+  );
 
   const handleChange = (selectedOptions: any) => {
     helpers.setValue(selectedOptions || []);

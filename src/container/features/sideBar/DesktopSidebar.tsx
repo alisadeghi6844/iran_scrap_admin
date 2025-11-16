@@ -19,6 +19,7 @@ import { MdPoll } from "react-icons/md";
 import { MdLocalShipping } from "react-icons/md";
 import { HiOutlineOfficeBuilding } from "react-icons/hi";
 import { MdProductionQuantityLimits } from "react-icons/md";
+import { MdStorefront } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { selectGetUserProfileData } from "../../../redux/slice/account/AccountSlice";
 import { useMemo } from "react";
@@ -72,6 +73,16 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ isMobile = false, onClo
           title: "تاریخچه درخواست های مناقصه",
           icon: <LuGitPullRequest className="text-2xl" />,
           id: 241,
+          isNew: false,
+          subRoutes: [],
+          notif: "",
+          role: ["admin", "client", "reservation"],
+        },
+        {
+          path: "/shop-management",
+          title: "فروشگاه",
+          icon: <MdStorefront className="text-2xl" />,
+          id: 242,
           isNew: false,
           subRoutes: [],
           notif: "",
