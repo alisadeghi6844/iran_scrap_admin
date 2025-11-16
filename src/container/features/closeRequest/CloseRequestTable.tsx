@@ -12,6 +12,8 @@ import TableCell from "../../../components/table/TableCell";
 import Button from "../../../components/button";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
+import SingleSelect from "../../../components/select/SingleSelect";
+import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
 import {
   selectGetProductRequestAdminData,
   selectGetProductRequestAdminLoading,
@@ -21,6 +23,16 @@ import { GetRequestProductAdminAction } from "../../../redux/actions/productRequ
 import { convertToJalali } from "../../../utils/MomentConvertor";
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
 import RequestDetailModal from "./RequestDetailModal";
+import {
+  selectGetCategoryData,
+  selectGetCategoryLoading,
+} from "../../../redux/slice/category/CategorySlice";
+import { GetCategoryAction } from "../../../redux/actions/category/CategoryActions";
+import {
+  selectGetUsersProvidersData,
+  selectGetUsersProvidersLoading,
+} from "../../../redux/slice/users/UsersSlice";
+import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
@@ -31,8 +43,15 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
 
   const dispatch: any = useDispatch();
 
+  // Filter states
+  const [categoryFilter, setCategoryFilter] = useState<SelectOptionTypes | null>(null);
+  const [providerFilter, setProviderFilter] = useState<SelectOptionTypes | null>(null);
+  const [paymentTypeFilter, setPaymentTypeFilter] = useState<SelectOptionTypes | null>(null);
+
   const filterDefaultInitialValues = {
-    StatusSelect: "",
+    Category: categoryFilter,
+    Provider: providerFilter,
+    PaymentType: paymentTypeFilter,
   };
 
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -44,8 +63,11 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const updateData = useSelector(
     selectUpdateRequestProductOfferSendToBuyerData
   );
-
   const updateData_2 = useSelector(selectUpdateProductRequestProviderAdminData);
+  const categoryData = useSelector(selectGetCategoryData);
+  const categoryLoading = useSelector(selectGetCategoryLoading);
+  const providersData = useSelector(selectGetUsersProvidersData);
+  const providersLoading = useSelector(selectGetUsersProvidersLoading);
 
   // تعریف آرایه وضعیت‌های پیش‌فرض برای جلوگیری از تکرار
   const defaultStatuses = [
@@ -61,7 +83,29 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         status: selectedStatus ? [selectedStatus?.value] : defaultStatuses,
       })
     );
+    dispatch(GetCategoryAction({}));
+    dispatch(GetUsersProvidersAction({ credentials: {} }));
   }, [selectedStatus, dispatch]);
+
+  // Trigger filtering when filter values change
+  useEffect(() => {
+    const filterData = {
+      Category: categoryFilter,
+      Provider: providerFilter,
+      PaymentType: paymentTypeFilter,
+    };
+
+    const filterString = handleFilterParameters(filterData);
+
+    dispatch(
+      GetRequestProductAdminAction({
+        filter: filterString || undefined,
+        page: 0,
+        size: 20,
+        status: selectedStatus ? [selectedStatus?.value] : defaultStatuses,
+      })
+    );
+  }, [categoryFilter, providerFilter, paymentTypeFilter, dispatch, selectedStatus]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     console.log("search ", filter, page, pageSize);
@@ -74,6 +118,52 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       })
     );
   };
+
+  const handleFilterParameters = (data: unknown) => {
+    const { Category, Provider, PaymentType } = data as {
+      Category?: SelectOptionTypes;
+      Provider?: SelectOptionTypes;
+      PaymentType?: SelectOptionTypes;
+    };
+    let queryParam = "";
+    if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
+    if (Provider?.value) queryParam += "providerId=" + Provider?.value + ",";
+    if (PaymentType?.value) queryParam += "paymentType=" + PaymentType?.value + ",";
+
+    return queryParam.substring(0, queryParam.length - 1);
+  };
+
+  // Filter options
+  const paymentTypeOptions = [
+    { value: "CASH", label: "نقدی" },
+    { value: "INSTALLMENTS", label: "مدت دار" },
+    { value: "CASH_AND_INSTALLMENTS", label: "نقدی و مدت دار" },
+  ];
+
+  // Get categories from category API
+  const categoryOptions = React.useMemo(() => {
+    if (!categoryData?.data) return [];
+    return categoryData.data.map((category: any) => ({
+      value: category._id || category.id,
+      label: category.name,
+    }));
+  }, [categoryData]);
+
+  // Get providers from users API with Provider or Both usertype
+  const providerOptions = React.useMemo(() => {
+    if (!providersData?.data?.data) return [];
+    return providersData.data.data
+      .filter(
+        (user: any) => user.usertype === "Provider" || user.usertype === "Both"
+      )
+      .map((user: any) => ({
+        value: user.id,
+        label:
+          user.firstName && user.lastName
+            ? `${user.firstName} ${user.lastName}`
+            : user.mobile || user.companyName || "نامشخص",
+      }));
+  }, [providersData]);
 
   useEffect(() => {
     console.log("updateData_2", updateData_2);
@@ -93,6 +183,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       title="درخواست های  دارای پیشنهاد"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
+      onFilter={handleFilterParameters}
       onMetaChange={handleFilter}
       data={productAdminData}
       onButtonClick={(button) => {
@@ -106,12 +197,12 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
           <TableRow>
             <TableHeadCell>نام درخواست کننده</TableHeadCell>
             <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
-            <TableHeadCell>دسته بندی</TableHeadCell>
+            <TableHeadCell className="min-w-[230px]">دسته بندی</TableHeadCell>
             <TableHeadCell>توضیحات</TableHeadCell>
-            <TableHeadCell> تامین کننده</TableHeadCell>
+            <TableHeadCell className="min-w-[230px]"> تامین کننده</TableHeadCell>
             <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
-            <TableHeadCell>نوع پرداخت</TableHeadCell>
+            <TableHeadCell className="min-w-[230px]">نوع پرداخت</TableHeadCell>
             <TableHeadCell>مقدار درخواستی</TableHeadCell>
             <TableHeadCell className="min-w-[170px]">وضعیت</TableHeadCell>
             <TableHeadCell />
@@ -121,22 +212,42 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
           <TableRow>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-
             <TableFilterCell>
-              {/* <StatusSelect
-                codes={defaultStatuses}
-                name="StatusSelect"
-                label=""
+              <SingleSelect
+                isLoading={categoryLoading}
+                options={categoryOptions}
+                onChange={(value: any) => setCategoryFilter(value)}
+                value={categoryFilter}
+                placeholder="انتخاب دسته‌بندی..."
                 noBorder
-                value={selectedStatus}
-                onChange={(status: any) => setSelectedStatus(status)}
-              /> */}
+                isClearable
+              />
+            </TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <SingleSelect
+                isLoading={providersLoading}
+                options={providerOptions}
+                onChange={(value: any) => setProviderFilter(value)}
+                value={providerFilter}
+                placeholder="انتخاب تامین‌کننده..."
+                noBorder
+                isClearable
+              />
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <SingleSelect
+                isLoading={false}
+                options={paymentTypeOptions}
+                onChange={(value: any) => setPaymentTypeFilter(value)}
+                value={paymentTypeFilter}
+                placeholder="انتخاب نوع پرداخت..."
+                noBorder
+                isClearable
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>

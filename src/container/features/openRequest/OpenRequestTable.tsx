@@ -22,6 +22,18 @@ import { GetRequestProductAdminAction } from "../../../redux/actions/productRequ
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
 import StatusSelect from "../status/StatusSelect";
 import RequestDetailModal from "../closeRequest/RequestDetailModal";
+import SingleSelect from "../../../components/select/SingleSelect";
+import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
+import {
+  selectGetCategoryData,
+  selectGetCategoryLoading,
+} from "../../../redux/slice/category/CategorySlice";
+import { GetCategoryAction } from "../../../redux/actions/category/CategoryActions";
+import {
+  selectGetUsersProvidersData,
+  selectGetUsersProvidersLoading,
+} from "../../../redux/slice/users/UsersSlice";
+import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
@@ -34,10 +46,15 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const dispatch: any = useDispatch();
 
+  // Filter states
+  const [categoryFilter, setCategoryFilter] = useState<SelectOptionTypes | null>(null);
+  const [providerFilter, setProviderFilter] = useState<SelectOptionTypes | null>(null);
+  const [paymentTypeFilter, setPaymentTypeFilter] = useState<SelectOptionTypes | null>(null);
+
   const filterDefaultInitialValues = {
-    FoodName: "",
-    Category: null,
-    Restaurant: null,
+    Category: categoryFilter,
+    Provider: providerFilter,
+    PaymentType: paymentTypeFilter,
   };
 
   const loading = useSelector(selectGetProductRequestAdminLoading);
@@ -48,6 +65,10 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const updateData = useSelector(
     selectUpdateRequestProductOfferSendToBuyerData
   );
+  const categoryData = useSelector(selectGetCategoryData);
+  const categoryLoading = useSelector(selectGetCategoryLoading);
+  const providersData = useSelector(selectGetUsersProvidersData);
+  const providersLoading = useSelector(selectGetUsersProvidersLoading);
   const updateData_2 = useSelector(selectUpdateProductRequestProviderAdminData);
 
   useEffect(() => {
@@ -68,7 +89,76 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         })
       );
     }
+    dispatch(GetCategoryAction({}));
+    dispatch(GetUsersProvidersAction({ credentials: {} }));
   }, [selectedStatus, dispatch]);
+
+  // Trigger filtering when filter values change
+  useEffect(() => {
+    const filterData = {
+      Category: categoryFilter,
+      Provider: providerFilter,
+      PaymentType: paymentTypeFilter,
+    };
+
+    const filterString = handleFilterParameters(filterData);
+    const statusArray = selectedStatus ? [selectedStatus] : ["LOADING_ORDER", "WAITING_UNLOADING"];
+
+    dispatch(
+      GetRequestProductAdminAction({
+        filter: filterString || undefined,
+        page: 0,
+        size: 20,
+        status: statusArray,
+      })
+    );
+  }, [categoryFilter, providerFilter, paymentTypeFilter, dispatch, selectedStatus]);
+
+  const handleFilterParameters = (data: unknown) => {
+    const { Category, Provider, PaymentType } = data as {
+      Category?: SelectOptionTypes;
+      Provider?: SelectOptionTypes;
+      PaymentType?: SelectOptionTypes;
+    };
+    let queryParam = "";
+    if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
+    if (Provider?.value) queryParam += "providerId=" + Provider?.value + ",";
+    if (PaymentType?.value) queryParam += "paymentType=" + PaymentType?.value + ",";
+
+    return queryParam.substring(0, queryParam.length - 1);
+  };
+
+  // Filter options
+  const paymentTypeOptions = [
+    { value: "CASH", label: "نقدی" },
+    { value: "INSTALLMENTS", label: "مدت دار" },
+    { value: "CASH_AND_INSTALLMENTS", label: "نقدی و مدت دار" },
+  ];
+
+  // Get categories from category API
+  const categoryOptions = React.useMemo(() => {
+    if (!categoryData?.data) return [];
+    return categoryData.data.map((category: any) => ({
+      value: category._id || category.id,
+      label: category.name,
+    }));
+  }, [categoryData]);
+
+  // Get providers from users API with Provider or Both usertype
+  const providerOptions = React.useMemo(() => {
+    if (!providersData?.data?.data) return [];
+    return providersData.data.data
+      .filter(
+        (user: any) => user.usertype === "Provider" || user.usertype === "Both"
+      )
+      .map((user: any) => ({
+        value: user.id,
+        label:
+          user.firstName && user.lastName
+            ? `${user.firstName} ${user.lastName}`
+            : user.mobile || user.companyName || "نامشخص",
+      }));
+  }, [providersData]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     if (selectedStatus) {
@@ -123,6 +213,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       title="درخواست های تحویل داده شده"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
+      onFilter={handleFilterParameters}
       data={productAdminData}
       onMetaChange={handleFilter}
       onButtonClick={(button) => {
@@ -137,13 +228,13 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
             <TableHeadCell>نام درخواست کننده</TableHeadCell>
-            <TableHeadCell>دسته بندی</TableHeadCell>
+            <TableHeadCell className="min-w-[230px]">دسته بندی</TableHeadCell>
             <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
             <TableHeadCell>توضیحات</TableHeadCell>
-            <TableHeadCell> تامین کننده</TableHeadCell>
+            <TableHeadCell className="min-w-[230px]"> تامین کننده</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
             <TableHeadCell>مقدار درخواست</TableHeadCell>
-            <TableHeadCell>نوع پرداخت</TableHeadCell>
+            <TableHeadCell className="min-w-[230px]">نوع پرداخت</TableHeadCell>
             <TableHeadCell className="min-w-[170px]">وضعیت</TableHeadCell>
             <TableHeadCell>عملیات</TableHeadCell>
           </TableRow>
@@ -151,15 +242,44 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         <TableBody>
           <TableRow>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <SingleSelect
+                isLoading={categoryLoading}
+                options={categoryOptions}
+                onChange={(value: any) => setCategoryFilter(value)}
+                value={categoryFilter}
+                placeholder="انتخاب دسته‌بندی..."
+                noBorder
+                isClearable
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <SingleSelect
+                isLoading={providersLoading}
+                options={providerOptions}
+                onChange={(value: any) => setProviderFilter(value)}
+                value={providerFilter}
+                placeholder="انتخاب تامین‌کننده..."
+                noBorder
+                isClearable
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <SingleSelect
+                isLoading={false}
+                options={paymentTypeOptions}
+                onChange={(value: any) => setPaymentTypeFilter(value)}
+                value={paymentTypeFilter}
+                placeholder="انتخاب نوع پرداخت..."
+                noBorder
+                isClearable
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-
             <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
