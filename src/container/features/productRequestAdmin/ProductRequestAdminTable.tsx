@@ -252,7 +252,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              <SingleSelect
+              {/* <SingleSelect
                 isLoading={false}
                 options={statusOptions}
                 onChange={(value: any) => setStatusFilter(value)}
@@ -260,7 +260,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                 placeholder="انتخاب وضعیت..."
                 noBorder
                 isClearable
-              />
+              /> */}
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
