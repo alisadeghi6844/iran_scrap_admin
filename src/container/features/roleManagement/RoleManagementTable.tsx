@@ -30,8 +30,8 @@ import { BiTrashAlt } from "react-icons/bi";
 // Helper function to get menu label by value
 const getMenuLabel = (value: string): string => {
   const menuMap: { [key: string]: string } = {
-    "/": "همه درخواست ها",
-    "all-requests": "همه درخواست ها (کلید)",
+    "/": "درخواست های مناقصه",
+    "all-requests": "درخواست های مناقصه (کلید)",
     "product-request-status": "مدیریت وضعیت درخواست ها",
     "/product-request-status": "مدیریت وضعیت درخواست ها (مسیر)",
     "pending-orders-financial": "سفارشات در انتظار تایید مالی",

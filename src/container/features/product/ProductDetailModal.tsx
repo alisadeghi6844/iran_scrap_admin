@@ -235,7 +235,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <div className="flex justify-between">
                 <span className="text-gray-600"> نوع:</span>
                 <span className="font-medium">
-                  {product?.provider?.userSort==="HAGH" ? "حقیقی": "حقوقی"}
+                  {product?.provider?.userSort === "HAGH" ? "حقیقی" : "حقوقی"}
                 </span>
               </div>
             </div>

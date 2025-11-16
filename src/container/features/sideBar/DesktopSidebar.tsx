@@ -47,7 +47,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ isMobile = false, onClo
       menus: [
         {
           path: "/",
-          title: "همه درخواست ها",
+          title: "درخواست های مناقصه",
           icon: <LuGitPullRequest className="text-2xl" />,
           id: 110,
           isNew: false,

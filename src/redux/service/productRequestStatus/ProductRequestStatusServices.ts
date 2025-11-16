@@ -10,6 +10,7 @@ import {
   UPDATE_PRODUCT_REQUEST_ADMIN_PROVIDER_POINT,
   UPDATE_PRODUCT_REQUEST_STATUS_POINT,
   DELETE_PRODUCT_REQUEST_ADMIN_POINT,
+  EDIT_PRODUCT_REQUEST_ADMIN_POINT,
 } from "../../api/productRequestStatus/ProductRequestStatusApi";
 
 export const getProductRequestStatusService = async (items: any) => {
@@ -72,5 +73,12 @@ export const updateProductRequestAdminProviderService = async (
 export const deleteProductRequestAdminService = async (id: any) => {
   return await HttpServises.delete(
     `${BASE_URL}${DELETE_PRODUCT_REQUEST_ADMIN_POINT}/${id}`
+  );
+};
+
+export const editProductRequestAdminService = async (id: any, item: any) => {
+  return await HttpServises.patch(
+    `${BASE_URL}${EDIT_PRODUCT_REQUEST_ADMIN_POINT}/${id}`,
+    item
   );
 };

@@ -26,8 +26,8 @@ const MenuSelect: React.FC<MenuSelectProps> = ({
   // Define available menus based on the sidebar structure
   const menuOptions: MenuOption[] = useMemo(() => [
     // مدیریت درخواست ها
-    { value: "/", label: "همه درخواست ها" },
-    { value: "all-requests", label: "همه درخواست ها (کلید)" },
+    { value: "/", label: "درخواست های مناقصه" },
+    { value: "all-requests", label: "درخواست های مناقصه (کلید)" },
     { value: "product-request-status", label: "مدیریت وضعیت درخواست ها" },
     { value: "/product-request-status", label: "مدیریت وضعیت درخواست ها (مسیر)" },
     { value: "pending-orders-financial", label: "سفارشات در انتظار تایید مالی" },

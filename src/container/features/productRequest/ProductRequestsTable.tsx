@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../redux/store";
 import { HandleFilterParams } from "../../../types/FilterParams";
@@ -17,13 +17,24 @@ import {
   getOrderStatusText,
   getOrderStatusColor,
 } from "../../../types/OrderStatus";
-import SelectField from "../../../components/molcols/formik-fields/SelectField";
+import SingleSelect from "../../../components/select/SingleSelect";
+import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
 
 import {
   selectGetProductRequestOfferAdminData,
   selectGetProductRequestOfferAdminLoading,
 } from "../../../redux/slice/product-request-offer-admin/ProductRequestOfferAdminSlice";
 import { GetProductRequestOfferAdminAction } from "../../../redux/actions/product-request-offer-admin/ProductRequestOfferAdminActions";
+import {
+  selectGetCategoryData,
+  selectGetCategoryLoading,
+} from "../../../redux/slice/category/CategorySlice";
+import { GetCategoryAction } from "../../../redux/actions/category/CategoryActions";
+import {
+  selectGetUsersProvidersData,
+  selectGetUsersProvidersLoading,
+} from "../../../redux/slice/users/UsersSlice";
+import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
 
 interface ProductRequestItem {
   _id: string;
@@ -101,10 +112,10 @@ interface ProductRequestItem {
     authCode: string;
     authCodeExpireTime: number;
     createdAt: number;
-    extraImages: any[];
+    extraImages: unknown[];
     isWelcomeComplete: boolean;
     lastLoginAt: number;
-    permissions: any[];
+    permissions: unknown[];
     productCategories: string[];
     roles: string[];
     updatedAt: number;
@@ -121,10 +132,10 @@ interface ProductRequestItem {
     authCode: string;
     authCodeExpireTime: number;
     createdAt: number;
-    extraImages: any[];
+    extraImages: unknown[];
     isWelcomeComplete: boolean;
     lastLoginAt: number;
-    permissions: any[];
+    permissions: unknown[];
     productCategories: string[];
     roles: string[];
     updatedAt: number;
@@ -152,19 +163,62 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const filterDefaultInitialValues = {
-    Status: null,
-    Category: null,
-    PaymentType: null,
-    Provider: null,
-  };
+  // Filter states
+  const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(
+    null
+  );
+  const [categoryFilter, setCategoryFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [paymentTypeFilter, setPaymentTypeFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [providerFilter, setProviderFilter] =
+    useState<SelectOptionTypes | null>(null);
+
+  const getFilterInitialValues = () => ({
+    Status: statusFilter,
+    Category: categoryFilter,
+    PaymentType: paymentTypeFilter,
+    Provider: providerFilter,
+  });
 
   const loading = useSelector(selectGetProductRequestOfferAdminLoading);
   const requestData = useSelector(selectGetProductRequestOfferAdminData);
+  const categoryData = useSelector(selectGetCategoryData);
+  const categoryLoading = useSelector(selectGetCategoryLoading);
+  const providersData = useSelector(selectGetUsersProvidersData);
+  const providersLoading = useSelector(selectGetUsersProvidersLoading);
 
   useEffect(() => {
     dispatch(GetProductRequestOfferAdminAction({ page: 0, size: 20 }));
+    dispatch(GetCategoryAction({}));
+    dispatch(GetUsersProvidersAction({ credentials: {} }));
   }, [dispatch]);
+
+  // Trigger filtering when filter values change
+  useEffect(() => {
+    const filterData = {
+      Status: statusFilter,
+      Category: categoryFilter,
+      PaymentType: paymentTypeFilter,
+      Provider: providerFilter,
+    };
+
+    const filterString = handleFilterParameters(filterData);
+
+    dispatch(
+      GetProductRequestOfferAdminAction({
+        filter: filterString || undefined,
+        page: 0,
+        size: 20,
+      })
+    );
+  }, [
+    statusFilter,
+    categoryFilter,
+    paymentTypeFilter,
+    providerFilter,
+    dispatch,
+  ]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     dispatch(
@@ -178,15 +232,16 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
 
   const handleFilterParameters = (data: unknown) => {
     const { Status, Category, PaymentType, Provider } = data as {
-      Status?: { label: string; value: string };
-      Category?: { label: string; value: string };
-      PaymentType?: { label: string; value: string };
-      Provider?: { label: string; value: string };
+      Status?: SelectOptionTypes;
+      Category?: SelectOptionTypes;
+      PaymentType?: SelectOptionTypes;
+      Provider?: SelectOptionTypes;
     };
     let queryParam = "";
     if (Status?.value) queryParam += "status=" + Status?.value + ",";
     if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
-    if (PaymentType?.value) queryParam += "paymentType=" + PaymentType?.value + ",";
+    if (PaymentType?.value)
+      queryParam += "paymentType=" + PaymentType?.value + ",";
     if (Provider?.value) queryParam += "providerId=" + Provider?.value + ",";
 
     return queryParam.substring(0, queryParam.length - 1);
@@ -194,9 +249,30 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
 
   useEffect(() => {
     if (refreshTrigger && refreshTrigger > 0) {
-      dispatch(GetProductRequestOfferAdminAction({ page: 0, size: 20 }));
+      const filterData = {
+        Status: statusFilter,
+        Category: categoryFilter,
+        PaymentType: paymentTypeFilter,
+        Provider: providerFilter,
+      };
+      const filterString = handleFilterParameters(filterData);
+
+      dispatch(
+        GetProductRequestOfferAdminAction({
+          filter: filterString || undefined,
+          page: 0,
+          size: 20,
+        })
+      );
     }
-  }, [refreshTrigger, dispatch]);
+  }, [
+    refreshTrigger,
+    dispatch,
+    statusFilter,
+    categoryFilter,
+    paymentTypeFilter,
+    providerFilter,
+  ]);
 
   const formatDate = (timestamp: number) => {
     if (!timestamp) return "_";
@@ -210,8 +286,8 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
         return "نقدی";
       case "INSTALLMENTS":
         return "مدت دار";
-      case "CREDIT":
-        return "اعتباری";
+      case "CASH_AND_INSTALLMENTS":
+        return "نقدی و مدت دار";
       default:
         return paymentType || "_";
     }
@@ -245,40 +321,50 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
   const paymentTypeOptions = [
     { value: "CASH", label: "نقدی" },
     { value: "INSTALLMENTS", label: "مدت دار" },
-    { value: "CREDIT", label: "اعتباری" },
+    { value: "CASH_AND_INSTALLMENTS", label: "نقدی و مدت دار" },
   ];
 
-  // Extract unique categories from data for filter options
+  // Get categories from category API
   const categoryOptions = React.useMemo(() => {
-    if (!requestData?.data) return [];
-    const uniqueCategories = Array.from(
-      new Set(
-        requestData.data
-          .filter((item: ProductRequestItem) => item.category?.name)
-          .map((item: ProductRequestItem) => item.category.name)
-      )
-    );
-    return uniqueCategories.map((name) => ({
-      value: name,
-      label: name,
+    if (!categoryData?.data) return [];
+    return categoryData.data.map((category: any) => ({
+      value: category._id || category.id,
+      label: category.name,
     }));
-  }, [requestData?.data]);
+  }, [categoryData]);
 
-  // Extract unique providers from data for filter options
+  // Get providers from users API with Provider or Both usertype
   const providerOptions = React.useMemo(() => {
-    if (!requestData?.data) return [];
-    const uniqueProviders = Array.from(
-      new Set(
-        requestData.data
-          .filter((item: ProductRequestItem) => item.user?.firstName && item.user?.lastName)
-          .map((item: ProductRequestItem) => `${item.user.firstName} ${item.user.lastName}`)
+    if (!providersData?.data?.data) return [];
+    return providersData.data.data
+      .filter(
+        (user: any) => user.usertype === "Provider" || user.usertype === "Both"
       )
-    );
-    return uniqueProviders.map((name) => ({
-      value: name,
-      label: name,
-    }));
-  }, [requestData?.data]);
+      .map((user: unknown) => ({
+        value: user.id,
+        label:
+          user.firstName && user.lastName
+            ? `${user.firstName} ${user.lastName}`
+            : user.mobile || user.companyName || "نامشخص",
+      }));
+  }, [providersData]);
+
+  // Filter change handlers
+  const handleStatusFilterChange = (value: SelectOptionTypes | null) => {
+    setStatusFilter(value);
+  };
+
+  const handleCategoryFilterChange = (value: SelectOptionTypes | null) => {
+    setCategoryFilter(value);
+  };
+
+  const handlePaymentTypeFilterChange = (value: SelectOptionTypes | null) => {
+    setPaymentTypeFilter(value);
+  };
+
+  const handleProviderFilterChange = (value: SelectOptionTypes | null) => {
+    setProviderFilter(value);
+  };
 
   const getStatusDisplay = (row: ProductRequestItem) => {
     let statusText;
@@ -312,7 +398,7 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
     <CollectionControls
       buttons={[]}
       hasBox={false}
-      filterInitialValues={filterDefaultInitialValues}
+      filterInitialValues={getFilterInitialValues()}
       onFilter={handleFilterParameters}
       data={requestData}
       onMetaChange={handleFilter}
@@ -335,33 +421,49 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
           <TableRow>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              <SelectField
-                name="Category"
-                placeholder="انتخاب دسته‌بندی..."
+              <SingleSelect
+                isLoading={categoryLoading}
                 options={categoryOptions}
+                onChange={handleCategoryFilterChange}
+                value={categoryFilter}
+                placeholder="انتخاب دسته‌بندی..."
+                noBorder
+                isClearable
               />
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              <SelectField
-                name="PaymentType"
-                placeholder="انتخاب نوع پرداخت..."
+              <SingleSelect
+                isLoading={false}
                 options={paymentTypeOptions}
+                onChange={handlePaymentTypeFilterChange}
+                value={paymentTypeFilter}
+                placeholder="انتخاب نوع پرداخت..."
+                noBorder
+                isClearable
               />
             </TableFilterCell>
             <TableFilterCell>
-              <SelectField
-                name="Provider"
-                placeholder="انتخاب تامین‌کننده..."
+              <SingleSelect
+                isLoading={providersLoading}
                 options={providerOptions}
+                onChange={handleProviderFilterChange}
+                value={providerFilter}
+                placeholder="انتخاب تامین‌کننده..."
+                noBorder
+                isClearable
               />
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              <SelectField
-                name="Status"
-                placeholder="انتخاب وضعیت..."
+              <SingleSelect
+                isLoading={false}
                 options={statusOptions}
+                onChange={handleStatusFilterChange}
+                value={statusFilter}
+                placeholder="انتخاب وضعیت..."
+                noBorder
+                isClearable
               />
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>

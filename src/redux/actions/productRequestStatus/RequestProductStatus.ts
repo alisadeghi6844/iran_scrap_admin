@@ -8,6 +8,7 @@ import {
   updateProductRequestAdminService,
   updateProductRequestStatusService,
   deleteProductRequestAdminService,
+  editProductRequestAdminService,
 } from "../../service/productRequestStatus/ProductRequestStatusServices";
 
 import {
@@ -20,6 +21,7 @@ import {
   UPDATE_PRODUCT_REQUEST_PROVIDER_ADMIN,
   UPDATE_PRODUCT_REQUEST_STATUS,
   DELETE_PRODUCT_REQUEST_ADMIN,
+  EDIT_PRODUCT_REQUEST_ADMIN,
 } from "../../types/productRequestStatus/ProductRequestStatusTypes";
 import { toast } from "react-toastify";
 
@@ -174,6 +176,28 @@ export const DeleteRequestProductAdminAction = createAsyncThunk(
       if (response?.status === 200) {
         onSuccess();
         toast.success("درخواست با موفقیت حذف شد");
+        
+        return response;
+      } else {
+        return rejectWithValue(response.data);
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || { message: "خطای ناشناخته" });
+    }
+  }
+);
+
+export const EditRequestProductAdminAction = createAsyncThunk(
+  `${PRODUCT_REQUEST_STATUS}/${EDIT_PRODUCT_REQUEST_ADMIN}`,
+  async (
+    { id, credentials, onSuccess }: { id: any; credentials: any; onSuccess: any; },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await editProductRequestAdminService(id, credentials);
+      if (response?.status === 200) {
+        onSuccess();
+        toast.success("درخواست با موفقیت ویرایش شد");
         
         return response;
       } else {

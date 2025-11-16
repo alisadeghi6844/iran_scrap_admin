@@ -3,7 +3,7 @@ import { lazy } from "react";
 const routes = [
   {
     path: "/",
-    breadCrumb: "همه درخواست ها",
+    breadCrumb: "درخواست های مناقصه",
     component: lazy(() => import("../page/allRequests")),
     layout: "admin",
     role: ["admin", "client", "reservation"],

@@ -9,6 +9,7 @@ import {
   UpdateRequestProductAdminProviderAction,
   UpdateRequestProductStatusAction,
   DeleteRequestProductAdminAction,
+  EditRequestProductAdminAction,
 } from "../../actions/productRequestStatus/RequestProductStatus";
 
 interface productRequestStatusState {
@@ -43,6 +44,10 @@ interface productRequestStatusState {
   deleteProductRequestAdminError: string | null;
   deleteProductRequestAdminLoading: boolean;
   deleteProductRequestAdminData: any;
+
+  editProductRequestAdminError: string | null;
+  editProductRequestAdminLoading: boolean;
+  editProductRequestAdminData: any;
 }
 
 const initialState: productRequestStatusState = {
@@ -77,6 +82,10 @@ const initialState: productRequestStatusState = {
   deleteProductRequestAdminError: null,
   deleteProductRequestAdminLoading: false,
   deleteProductRequestAdminData: [],
+
+  editProductRequestAdminError: null,
+  editProductRequestAdminLoading: false,
+  editProductRequestAdminData: [],
 };
 
 const productRequestStatusSlice = createSlice({
@@ -84,6 +93,19 @@ const productRequestStatusSlice = createSlice({
   initialState,
   reducers: {
     clearUpdateProductRequestAdminData: (state) => {
+      state.updateProductRequestAdminData = null;
+      state.updateProductRequestAdminError = null;
+      state.updateProductRequestAdminLoading = false;
+    },
+    clearGetProductRequestAdminByIdData: (state) => {
+      state.getProductRequestAdminByIdData = null;
+      state.getProductRequestAdminByIdError = null;
+      state.getProductRequestAdminByIdLoading = false;
+    },
+    clearAllProductRequestAdminData: (state) => {
+      state.getProductRequestAdminByIdData = null;
+      state.getProductRequestAdminByIdError = null;
+      state.getProductRequestAdminByIdLoading = false;
       state.updateProductRequestAdminData = null;
       state.updateProductRequestAdminError = null;
       state.updateProductRequestAdminLoading = false;
@@ -253,6 +275,28 @@ const productRequestStatusSlice = createSlice({
           state.deleteProductRequestAdminError = action.payload;
           state.deleteProductRequestAdminData = [];
         }
+      )
+      // edit products request admin
+      .addCase(EditRequestProductAdminAction.pending, (state) => {
+        state.editProductRequestAdminLoading = true;
+        state.editProductRequestAdminData = [];
+        state.editProductRequestAdminError = null;
+      })
+      .addCase(
+        EditRequestProductAdminAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.editProductRequestAdminLoading = false;
+          state.editProductRequestAdminData = action.payload;
+          state.editProductRequestAdminError = null;
+        }
+      )
+      .addCase(
+        EditRequestProductAdminAction.rejected,
+        (state, action: PayloadAction<string>) => {
+          state.editProductRequestAdminLoading = false;
+          state.editProductRequestAdminError = action.payload;
+          state.editProductRequestAdminData = [];
+        }
       );
   },
 });
@@ -313,8 +357,18 @@ export const selectDeleteProductRequestAdminLoading = (state: any) =>
 export const selectDeleteProductRequestAdminData = (state: any) =>
   state.productRequestStatus.deleteProductRequestAdminData;
 
+export const selectEditProductRequestAdminError = (state: any) =>
+  state.productRequestStatus.editProductRequestAdminError;
+export const selectEditProductRequestAdminLoading = (state: any) =>
+  state.productRequestStatus.editProductRequestAdminLoading;
+export const selectEditProductRequestAdminData = (state: any) =>
+  state.productRequestStatus.editProductRequestAdminData;
+
 // Export actions
-export const { clearUpdateProductRequestAdminData } =
-  productRequestStatusSlice.actions;
+export const { 
+  clearUpdateProductRequestAdminData,
+  clearGetProductRequestAdminByIdData,
+  clearAllProductRequestAdminData
+} = productRequestStatusSlice.actions;
 
 export default productRequestStatusSlice.reducer;

@@ -54,7 +54,6 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
       GetRequestProductAdminAction({
         page: 0,
         size: 20,
-        status: ["REGISTERED"],
       })
     );
   }, []);
@@ -69,7 +68,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
     );
   };
 
-  const handleFilterParameters = (data: any) => {
+  const handleFilterParameters = (data: unknown) => {
     const { FoodName, Category, Restaurant } = data;
     let queryParam = "";
     if (FoodName) queryParam += "title=" + FoodName + ",";
@@ -86,7 +85,6 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
         GetRequestProductAdminAction({
           page: 0,
           size: 20,
-          status: ["REGISTERED"],
         })
       );
     }
@@ -98,7 +96,6 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
         GetRequestProductAdminAction({
           page: 0,
           size: 20,
-          status: ["REGISTERED"],
         })
       );
     }
@@ -117,7 +114,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
       data={productAdminData}
       onMetaChange={handleFilter}
       onButtonClick={(button) => {
-        if (!!onRowClick) {
+        if (onRowClick) {
           button === "create" && onRowClick("create");
         }
       }}
@@ -143,18 +140,16 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
             productAdminData?.data?.length > 0 ? (
-              productAdminData?.data?.map((row: any) => (
+              productAdminData?.data?.map((row: unknown) => (
                 <TableRow key={row?.id}>
                   <TableCell>{row?.description ?? "_"}</TableCell>
                   <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>
-                    {" "}
-                    {row?.amount
-                      ? `${row?.amount} (کیلوگرم)`
-                      : "_"}
+                    {row?.amount ? `${row?.amount} (کیلوگرم)` : "_"}
                   </TableCell>
                   <TableCell>
                     {row?.createdAt ? convertToJalali(row?.createdAt) : "_"}
@@ -168,6 +163,15 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                   <TableCell>{row?.statusTitle ?? "_"}</TableCell>
 
                   <TableCell className="flex justify-center gap-2">
+                 
+                    <Button
+                     onClick={() => {
+                      onRowClick && onRowClick("detail", row);
+                    }}
+                    variant="outline-info"
+                    >
+                      ویرایش درخواست
+                    </Button>
                     <Button
                       onClick={() => {
                         onRowClick && onRowClick("update", row);
@@ -180,7 +184,9 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                       onClick={() => handleCloseRequest(row?.id)}
                       variant="outline-error"
                       loading={closeRequestLoading}
-                    > تغییر وضعیت درخواست</Button>
+                    >
+                      تغییر وضعیت درخواست
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))

@@ -76,7 +76,7 @@ const allMenuData = [
     menus: [
       {
         path: "/",
-        title: "همه درخواست ها",
+        title: "درخواست های مناقصه",
         // ... other properties
       },
       // ... more menu items
@@ -94,7 +94,7 @@ Routes are defined in `src/routes/index.ts`:
 const routes = [
   {
     path: "/",
-    breadCrumb: "همه درخواست ها",
+    breadCrumb: "درخواست های مناقصه",
     component: lazy(() => import("../page/allRequests")),
     layout: "admin",
   },
