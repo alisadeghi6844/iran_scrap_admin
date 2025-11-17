@@ -57,7 +57,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
     dispatch(GetOrderAdminAction({ 
       page: 0, 
       size: 20,
-      filter: "status=BUYER_WAITFORFINANCE,status=BUYER_WAITFORFINANCE"
+      filter: "status=BUYER_WAITFORFINANCE"
     }));
   }, [dispatch]);
 
@@ -94,7 +94,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
       Category?: SelectOptionTypes;
       Provider?: SelectOptionTypes;
     };
-    let queryParam = "status=BUYER_WAITFORFINANCE,status=BUYER_WAITFORFINANCE"; // Always filter by BUYER_WAITFORFINANCE status (repeated)
+    let queryParam = "status=BUYER_WAITFORFINANCE"; // Always filter by BUYER_WAITFORFINANCE status (repeated)
     if (Category?.value) queryParam += ",categoryId=" + Category?.value;
     if (Provider?.value) queryParam += ",providerId=" + Provider?.value;
 
@@ -106,7 +106,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
       dispatch(GetOrderAdminAction({ 
         page: 0, 
         size: 20,
-        filter: "status=BUYER_WAITFORFINANCE,status=BUYER_WAITFORFINANCE"
+        filter: "status=BUYER_WAITFORFINANCE"
       }));
     }
   }, [refreshTrigger, dispatch]);

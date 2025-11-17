@@ -1,13 +1,7 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  selectGetCategoryData,
-  selectGetCategoryLoading,
-} from "../../../redux/slice/category/CategorySlice";
-import { GetCategoryAction } from "../../../redux/actions/category/CategoryActions";
+import React, { useEffect, useState } from "react";
+import { getCategoryService } from "../../../redux/service/category/CategoryServices";
 import SingleSelect from "../../../components/select/SingleSelect";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
-import { AppDispatch } from "../../../redux/store";
 
 interface CategoryFilterSelectProps {
   value: SelectOptionTypes | null;
@@ -17,6 +11,12 @@ interface CategoryFilterSelectProps {
   isClearable?: boolean;
 }
 
+interface CategoryItem {
+  _id?: string;
+  id?: string;
+  name: string;
+}
+
 const CategoryFilterSelect: React.FC<CategoryFilterSelectProps> = ({
   value,
   onChange,
@@ -24,28 +24,39 @@ const CategoryFilterSelect: React.FC<CategoryFilterSelectProps> = ({
   noBorder = false,
   isClearable = true,
 }) => {
-  const dispatch = useDispatch<AppDispatch>();
-
-  const categoryData = useSelector(selectGetCategoryData);
-  const categoryLoading = useSelector(selectGetCategoryLoading);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    dispatch(GetCategoryAction({}));
-  }, [dispatch]);
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await getCategoryService({size:50000000});
+        if (response?.data?.data) {
+          setCategories(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Get categories from category API
+    fetchCategories();
+  }, []);
+
+  // Get categories options
   const categoryOptions = React.useMemo(() => {
-    if (!categoryData?.data) return [];
-    return categoryData.data.map((category: any) => ({
-      value: category._id || category.id,
+    return categories.map((category) => ({
+      value: category._id || category.id || "",
       label: category.name,
     }));
-  }, [categoryData]);
+  }, [categories]);
 
   return (
     <SingleSelect
       label=""
-      isLoading={categoryLoading}
+      isLoading={loading}
       options={categoryOptions}
       onChange={onChange}
       value={value}

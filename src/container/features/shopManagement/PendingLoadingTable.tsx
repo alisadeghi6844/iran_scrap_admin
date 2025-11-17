@@ -57,7 +57,7 @@ const PendingLoadingTable: React.FC<PendingLoadingTableProps> = ({
       GetOrderAdminAction({
         page: 0,
         size: 20,
-        filter: "status=LOADING_ORDER,status=LOADING_ORDER",
+        filter: "status=LOADING_ORDER",
       })
     );
   }, [dispatch]);
@@ -95,7 +95,7 @@ const PendingLoadingTable: React.FC<PendingLoadingTableProps> = ({
       Category?: SelectOptionTypes;
       Provider?: SelectOptionTypes;
     };
-    let queryParam = "status=LOADING_ORDER,status=LOADING_ORDER"; // Always filter by LOADING_ORDER status (repeated)
+    let queryParam = "status=LOADING_ORDER"; // Always filter by LOADING_ORDER status (repeated)
     if (Category?.value) queryParam += ",categoryId=" + Category?.value;
     if (Provider?.value) queryParam += ",providerId=" + Provider?.value;
 
@@ -108,7 +108,7 @@ const PendingLoadingTable: React.FC<PendingLoadingTableProps> = ({
         GetOrderAdminAction({
           page: 0,
           size: 20,
-          filter: "status=LOADING_ORDER,status=LOADING_ORDER",
+          filter: "status=LOADING_ORDER",
         })
       );
     }
@@ -209,7 +209,7 @@ const PendingLoadingTable: React.FC<PendingLoadingTableProps> = ({
               orderData?.data?.map((row: OrderItem) => (
                 <TableRow key={row?.id}>
                   <TableCell>{row?.product?.name ?? "_"}</TableCell>
-                  <TableCell>{row?.product?.category?.name ?? "_"}</TableCell>
+                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>
                     {row?.quantity
                       ? `${row.quantity} ${getInventoryUnit(
@@ -226,7 +226,15 @@ const PendingLoadingTable: React.FC<PendingLoadingTableProps> = ({
                       : "_"}
                   </TableCell>
                   <TableCell>
-                    {row?.provider?.firstName && row?.provider?.lastName
+                  {typeof row?.providerId === "object" &&
+                    row?.providerId?.firstName &&
+                    row?.providerId?.lastName
+                      ? `${row.providerId.firstName} ${row.providerId.lastName}`
+                      : typeof row?.providerId === "object" &&
+                        (row?.providerId?.mobile ||
+                          row?.providerId?.companyName)
+                      ? row?.providerId?.mobile || row?.providerId?.companyName
+                      : row?.provider?.firstName && row?.provider?.lastName
                       ? `${row.provider.firstName} ${row.provider.lastName}`
                       : row?.provider?.mobile ||
                         row?.provider?.companyName ||

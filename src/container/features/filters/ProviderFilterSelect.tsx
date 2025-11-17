@@ -1,13 +1,7 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  selectGetUsersProvidersData,
-  selectGetUsersProvidersLoading,
-} from "../../../redux/slice/users/UsersSlice";
-import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
+import React, { useEffect, useState } from "react";
+import { GetUsersProvidersService } from "../../../redux/service/users/UsersServices";
 import SingleSelect from "../../../components/select/SingleSelect";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
-import { AppDispatch } from "../../../redux/store";
 
 interface ProviderFilterSelectProps {
   value: SelectOptionTypes | null;
@@ -17,6 +11,15 @@ interface ProviderFilterSelectProps {
   isClearable?: boolean;
 }
 
+interface ProviderUser {
+  id: string;
+  firstName?: string;
+  lastName?: string;
+  mobile?: string;
+  companyName?: string;
+  usertype: string;
+}
+
 const ProviderFilterSelect: React.FC<ProviderFilterSelectProps> = ({
   value,
   onChange,
@@ -24,35 +27,46 @@ const ProviderFilterSelect: React.FC<ProviderFilterSelectProps> = ({
   noBorder = false,
   isClearable = true,
 }) => {
-  const dispatch = useDispatch<AppDispatch>();
-
-  const providersData = useSelector(selectGetUsersProvidersData);
-  const providersLoading = useSelector(selectGetUsersProvidersLoading);
+  const [providers, setProviders] = useState<ProviderUser[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    dispatch(GetUsersProvidersAction({ credentials: {} }));
-  }, [dispatch]);
+    const fetchProviders = async () => {
+      try {
+        setLoading(true);
+        const response = await GetUsersProvidersService({ credentials: {} });
+        if (response?.data?.data) {
+          setProviders(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching providers:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProviders();
+  }, []);
 
   // Get providers from users API with Provider or Both usertype
   const providerOptions = React.useMemo(() => {
-    if (!providersData?.data?.data) return [];
-    return providersData.data.data
+    return providers
       .filter(
-        (user: any) => user.usertype === "Provider" || user.usertype === "Both"
+        (user) => user.usertype === "Provider" || user.usertype === "Both"
       )
-      .map((user: any) => ({
+      .map((user) => ({
         value: user.id,
         label:
           user.firstName && user.lastName
             ? `${user.firstName} ${user.lastName}`
             : user.mobile || user.companyName || "نامشخص",
       }));
-  }, [providersData]);
+  }, [providers]);
 
   return (
     <SingleSelect
       label=""
-      isLoading={providersLoading}
+      isLoading={loading}
       options={providerOptions}
       onChange={onChange}
       value={value}
