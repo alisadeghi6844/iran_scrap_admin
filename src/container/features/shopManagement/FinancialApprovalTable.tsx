@@ -27,8 +27,8 @@ import {
 import { OrderItem } from "../../../types/OrderItem";
 import CategoryFilterSelect from "../filters/CategoryFilterSelect";
 import ProviderFilterSelect from "../filters/ProviderFilterSelect";
-
-
+import { verifyPaymentService } from "../../../redux/service/order/OrderServices";
+import { toast } from "react-toastify";
 
 interface FinancialApprovalTableProps {
   refreshTrigger?: number;
@@ -42,8 +42,13 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
   const dispatch = useDispatch<AppDispatch>();
 
   // Filter states
-  const [categoryFilter, setCategoryFilter] = useState<SelectOptionTypes | null>(null);
-  const [providerFilter, setProviderFilter] = useState<SelectOptionTypes | null>(null);
+  const [categoryFilter, setCategoryFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [providerFilter, setProviderFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [loadingActions, setLoadingActions] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   const filterDefaultInitialValues = {
     Category: categoryFilter,
@@ -54,11 +59,13 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
   const orderData = useSelector(selectGetOrderAdminData);
 
   useEffect(() => {
-    dispatch(GetOrderAdminAction({ 
-      page: 0, 
-      size: 20,
-      filter: "status=BUYER_WAITFORFINANCE"
-    }));
+    dispatch(
+      GetOrderAdminAction({
+        page: 0,
+        size: 20,
+        filter: "status=BUYER_WAITFORFINANCE",
+      })
+    );
   }, [dispatch]);
 
   // Trigger filtering when filter values change
@@ -103,15 +110,15 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
 
   useEffect(() => {
     if (refreshTrigger && refreshTrigger > 0) {
-      dispatch(GetOrderAdminAction({ 
-        page: 0, 
-        size: 20,
-        filter: "status=BUYER_WAITFORFINANCE"
-      }));
+      dispatch(
+        GetOrderAdminAction({
+          page: 0,
+          size: 20,
+          filter: "status=BUYER_WAITFORFINANCE",
+        })
+      );
     }
   }, [refreshTrigger, dispatch]);
-
-
 
   const formatDate = (timestamp: number) => {
     if (!timestamp) return "_";
@@ -145,6 +152,48 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
         return "عدد";
       default:
         return "";
+    }
+  };
+
+  const handleApprovePayment = async (orderId: string) => {
+    try {
+      setLoadingActions((prev) => ({ ...prev, [`approve_${orderId}`]: true }));
+      await verifyPaymentService(orderId, true, "تایید پرداخت توسط ادمین");
+      toast.success("پرداخت با موفقیت تایید شد");
+
+      // Refresh data
+      dispatch(
+        GetOrderAdminAction({
+          page: 0,
+          size: 20,
+          filter: "status=BUYER_WAITFORFINANCE",
+        })
+      );
+    } catch (error) {
+      console.error("Error approving payment:", error);
+    } finally {
+      setLoadingActions((prev) => ({ ...prev, [`approve_${orderId}`]: false }));
+    }
+  };
+
+  const handleRejectPayment = async (orderId: string) => {
+    try {
+      setLoadingActions((prev) => ({ ...prev, [`reject_${orderId}`]: true }));
+      await verifyPaymentService(orderId, false, "رد پرداخت توسط ادمین");
+      toast.success("پرداخت با موفقیت رد شد");
+
+      // Refresh data
+      dispatch(
+        GetOrderAdminAction({
+          page: 0,
+          size: 20,
+          filter: "status=BUYER_WAITFORFINANCE",
+        })
+      );
+    } catch (error) {
+      console.error("Error rejecting payment:", error);
+    } finally {
+      setLoadingActions((prev) => ({ ...prev, [`reject_${orderId}`]: false }));
     }
   };
 
@@ -200,8 +249,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-            </TableFilterCell>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
@@ -209,7 +257,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
               orderData?.data?.map((row: OrderItem) => (
                 <TableRow key={row?.id}>
                   <TableCell>{row?.product?.name ?? "_"}</TableCell>
-                  <TableCell>{row?.product?.category?.name ?? "_"}</TableCell>
+                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>
                     {row?.quantity
                       ? `${row.quantity} ${getInventoryUnit(
@@ -226,7 +274,15 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
                       : "_"}
                   </TableCell>
                   <TableCell>
-                    {row?.provider?.firstName && row?.provider?.lastName
+                    {typeof row?.providerId === "object" &&
+                    row?.providerId?.firstName &&
+                    row?.providerId?.lastName
+                      ? `${row.providerId.firstName} ${row.providerId.lastName}`
+                      : typeof row?.providerId === "object" &&
+                        (row?.providerId?.mobile ||
+                          row?.providerId?.companyName)
+                      ? row?.providerId?.mobile || row?.providerId?.companyName
+                      : row?.provider?.firstName && row?.provider?.lastName
                       ? `${row.provider.firstName} ${row.provider.lastName}`
                       : row?.provider?.mobile ||
                         row?.provider?.companyName ||
@@ -236,10 +292,9 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
                   <TableCell>{row?.city ?? "_"}</TableCell>
                   <TableCell>{formatDate(row?.createdAt)}</TableCell>
                   <TableCell>
-                    {row?.unloadingDate 
+                    {row?.unloadingDate
                       ? new Date(row.unloadingDate).toLocaleDateString("fa-IR")
-                      : "_"
-                    }
+                      : "_"}
                   </TableCell>
                   <TableCell>
                     <span className={getOrderStatusColor(row?.status)}>
@@ -260,16 +315,28 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
                       </Button>
                       {row?.status?.toLowerCase() ===
                         OrderStatus.BUYER_WAITFORFINANCE.toLowerCase() && (
-                        <Button
-                          size="sm"
-                          type="button"
-                          variant="success"
-                          onClick={() => {
-                            onRowClick?.("financialApproval", row);
-                          }}
-                        >
-                          تائید مالی
-                        </Button>
+                        <>
+                          <Button
+                            size="sm"
+                            type="button"
+                            variant="success"
+                            onClick={() => handleApprovePayment(row.id)}
+                            disabled={loadingActions[`approve_${row.id}`]}
+                            isLoading={loadingActions[`approve_${row.id}`]}
+                          >
+                            تایید پرداخت
+                          </Button>
+                          <Button
+                            size="sm"
+                            type="button"
+                            variant="error"
+                            onClick={() => handleRejectPayment(row.id)}
+                            disabled={loadingActions[`reject_${row.id}`]}
+                            isLoading={loadingActions[`reject_${row.id}`]}
+                          >
+                            رد پرداخت
+                          </Button>
+                        </>
                       )}
                     </div>
                   </TableCell>
