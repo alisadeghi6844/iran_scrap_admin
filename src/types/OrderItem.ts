@@ -1,3 +1,5 @@
+import { PaymentType } from "./PaymentType";
+
 export interface OrderItem {
   id: string;
   buyerId: string;
@@ -33,9 +35,11 @@ export interface OrderItem {
   price: number;
   finalPrice: number;
   payingPrice: number;
-  paymentType: string;
+  paymentType: PaymentType;
   installmentMonths: number;
   status: string;
+  description?: string;
+  amount?: number;
   city: string;
   province: string;
   createdAt: number;

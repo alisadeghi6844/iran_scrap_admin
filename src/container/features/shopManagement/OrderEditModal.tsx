@@ -5,6 +5,7 @@ import Input from "../../../components/input";
 import TextArea from "../../../components/textarea";
 import SingleSelect from "../../../components/select/SingleSelect";
 import { OrderItem } from "../../../types/OrderItem";
+import { PaymentType, PaymentTypeLabels } from "../../../types/PaymentType";
 
 interface OrderEditModalProps {
   isOpen: boolean;
@@ -33,8 +34,8 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
     if (order) {
       setFormData({
         description: order.description || "",
-        amount: order.amount?.toString() || "",
-        paymentType: order.paymentType ? { value: order.paymentType, label: order.paymentType } : null,
+        amount: order.amount?.toString() || order.quantity?.toString() || "",
+        paymentType: order.paymentType ? { value: order.paymentType, label: PaymentTypeLabels[order.paymentType] } : null,
         category: order.category ? { value: order.category.id, label: order.category.name } : null,
         province: order.province || "",
         city: order.city || "",
@@ -42,11 +43,10 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
     }
   }, [order]);
 
-  const paymentTypeOptions = [
-    { value: "CASH", label: "نقدی" },
-    { value: "INSTALLMENTS", label: "مدت دار" },
-    { value: "CASH_AND_INSTALLMENTS", label: "نقدی و مدت دار" },
-  ];
+  const paymentTypeOptions = Object.values(PaymentType).map(type => ({
+    value: type,
+    label: PaymentTypeLabels[type]
+  }));
 
   const categoryOptions = [
     { value: "1", label: "غلات" },
@@ -93,39 +93,11 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
           <h3 className="text-lg font-semibold mb-3 text-gray-800">اطلاعات کلی</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                شناسه سفارش
-              </label>
-              <p className="text-sm text-gray-500 bg-gray-100 p-2 rounded">
-                {order.id}
-              </p>
-            </div>
-            <div>
               <SingleSelect
                 label="دسته بندی"
                 options={categoryOptions}
                 value={formData.category}
                 onChange={(value) => handleInputChange("category", value)}
-                placeholder="انتخاب دسته‌بندی..."
-                required
-              />
-            </div>
-            <div className="col-span-2">
-              <TextArea
-                label="توضیحات"
-                value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
-                placeholder="توضیحات سفارش..."
-                rows={3}
-              />
-            </div>
-            <div>
-              <Input
-                label="مقدار (کیلوگرم)"
-                type="number"
-                value={formData.amount}
-                onChange={(e) => handleInputChange("amount", e.target.value)}
-                placeholder="مقدار..."
                 required
               />
             </div>
@@ -135,7 +107,23 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
                 options={paymentTypeOptions}
                 value={formData.paymentType}
                 onChange={(value) => handleInputChange("paymentType", value)}
-                placeholder="انتخاب نوع پرداخت..."
+                required
+              />
+            </div>
+            <div className="col-span-2">
+              <TextArea
+                label="توضیحات"
+                value={formData.description}
+                onChange={(e) => handleInputChange("description", e.target.value)}
+                rows={3}
+              />
+            </div>
+            <div>
+              <Input
+                label="مقدار (کیلوگرم)"
+                type="number"
+                value={formData.amount}
+                onChange={(e) => handleInputChange("amount", e.target.value)}
                 required
               />
             </div>
@@ -151,7 +139,6 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
                 label="استان"
                 value={formData.province}
                 onChange={(e) => handleInputChange("province", e.target.value)}
-                placeholder="نام استان..."
                 required
               />
             </div>
@@ -160,7 +147,6 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
                 label="شهر"
                 value={formData.city}
                 onChange={(e) => handleInputChange("city", e.target.value)}
-                placeholder="نام شهر..."
                 required
               />
             </div>

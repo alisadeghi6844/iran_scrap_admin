@@ -320,7 +320,7 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
                       >
                         ویرایش سفارش
                       </Button>
-                      <Button
+                      {/* <Button
                         size="sm"
                         type="button"
                         variant="warning"
@@ -330,7 +330,7 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
                         }}
                       >
                         تغییر وضعیت
-                      </Button>
+                      </Button> */}
                     </div>
                   </TableCell>
                 </TableRow>
