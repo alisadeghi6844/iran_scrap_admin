@@ -21,21 +21,13 @@ import {
   selectGetOrderAdminLoading,
 } from "../../../redux/slice/order/orderSlice";
 import { GetOrderAdminAction } from "../../../redux/actions/order/OrderActions";
-import StatusSelect from "../order/StatusSelect";
 import {
   getOrderStatusText,
   getOrderStatusColor,
+  orderStatusOptions,
 } from "../../../types/OrderStatus";
-import {
-  selectGetCategoryData,
-  selectGetCategoryLoading,
-} from "../../../redux/slice/category/CategorySlice";
-import { GetCategoryAction } from "../../../redux/actions/category/CategoryActions";
-import {
-  selectGetUsersProvidersData,
-  selectGetUsersProvidersLoading,
-} from "../../../redux/slice/users/UsersSlice";
-import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
+import CategoryFilterSelect from "../filters/CategoryFilterSelect";
+import ProviderFilterSelect from "../filters/ProviderFilterSelect";
 
 interface RegisteredOrdersTableProps {
   refreshTrigger?: number;
@@ -65,15 +57,9 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
 
   const loading = useSelector(selectGetOrderAdminLoading);
   const orderData = useSelector(selectGetOrderAdminData);
-  const categoryData = useSelector(selectGetCategoryData);
-  const categoryLoading = useSelector(selectGetCategoryLoading);
-  const providersData = useSelector(selectGetUsersProvidersData);
-  const providersLoading = useSelector(selectGetUsersProvidersLoading);
 
   useEffect(() => {
     dispatch(GetOrderAdminAction({ page: 0, size: 20 }));
-    dispatch(GetCategoryAction({}));
-    dispatch(GetUsersProvidersAction({ credentials: {} }));
   }, [dispatch]);
 
   // Trigger filtering when filter values change
@@ -125,32 +111,7 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
     }
   }, [refreshTrigger, dispatch]);
 
-  // Get categories from category API
-  const categoryOptions = React.useMemo(() => {
-    if (!categoryData?.data) return [];
-    return categoryData.data.map((category: any) => ({
-      value: category._id || category.id,
-      label: category.name,
-    }));
-  }, [categoryData]);
 
-  // Get providers from users API with Provider or Both usertype
-  const providerOptions = React.useMemo(() => {
-    // Check both possible data structures
-    const data = providersData?.data?.data || providersData?.data;
-    if (!data) return [];
-    return data
-      .filter(
-        (user: any) => user.usertype === "Provider" || user.usertype === "Both"
-      )
-      .map((user: any) => ({
-        value: user.id,
-        label:
-          user.firstName && user.lastName
-            ? `${user.firstName} ${user.lastName}`
-            : user.mobile || user.companyName || "نامشخص",
-      }));
-  }, [providersData]);
 
   const formatDate = (timestamp: number) => {
     if (!timestamp) return "_";
@@ -219,38 +180,38 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
           <TableRow>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              <SingleSelect
-                label=""
-                isLoading={categoryLoading}
-                options={categoryOptions}
-                onChange={(value: any) => setCategoryFilter(value)}
+              <CategoryFilterSelect
                 value={categoryFilter}
-                placeholder="انتخاب دسته‌بندی..."
+                onChange={setCategoryFilter}
                 noBorder
                 isClearable
               />
             </TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <ProviderFilterSelect
+                value={providerFilter}
+                onChange={setProviderFilter}
+                noBorder
+                isClearable
+              />
+            </TableFilterCell>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
               <SingleSelect
                 label=""
-                isLoading={providersLoading}
-                options={providerOptions}
-                onChange={(value: any) => setProviderFilter(value)}
-                value={providerFilter}
-                placeholder="انتخاب تامین‌کننده..."
+                options={orderStatusOptions}
+                onChange={setStatusFilter}
+                value={statusFilter}
+                placeholder="انتخاب وضعیت..."
                 noBorder
                 isClearable
               />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <StatusSelect name="Status" noBorder label="" />
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>

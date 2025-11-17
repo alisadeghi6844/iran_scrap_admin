@@ -19,6 +19,15 @@ export interface OrderItem {
       id: string;
       name: string;
     };
+    address?: {
+      id: string;
+      province: string;
+      city: string;
+      detail: string;
+      postalCode: string;
+      lat?: string;
+      lng?: string;
+    };
   };
   category?: {
     id: string;
@@ -47,6 +56,10 @@ export interface OrderItem {
   updatedAt: number;
   loadingDate?: string;
   unloadingDate?: string;
+  address?: string;
+  postalCode?: string;
+  lat?: string;
+  lng?: string;
   cheques?: Array<{
     date: string;
     bank: string;

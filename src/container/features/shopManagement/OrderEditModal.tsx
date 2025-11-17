@@ -5,14 +5,15 @@ import Button from "../../../components/button";
 import Input from "../../../components/input";
 import TextArea from "../../../components/textArea";
 import SingleSelect from "../../../components/select/SingleSelect";
+import StandaloneProvinceSelect from "../provinceSelect/StandaloneProvinceSelect";
+import StandaloneCitySelect from "../provinceSelect/StandaloneCitySelect";
+import { province } from "../provinceSelect/Province";
+import { city } from "../provinceSelect/city";
 import { OrderItem } from "../../../types/OrderItem";
-import { PaymentType, PaymentTypeLabels } from "../../../types/PaymentType";
+import { OrderStatus, orderStatusOptions } from "../../../types/OrderStatus";
 import { AppDispatch } from "../../../redux/store";
-import {
-  selectGetCategoryData,
-  selectGetCategoryLoading,
-} from "../../../redux/slice/category/CategorySlice";
-import { GetCategoryAction } from "../../../redux/actions/category/CategoryActions";
+import { UpdateOrderAdminAction } from "../../../redux/actions/order/OrderActions";
+import { selectUpdateOrderAdminLoading } from "../../../redux/slice/order/orderSlice";
 
 interface OrderEditModalProps {
   isOpen: boolean;
@@ -28,159 +29,194 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
   onSuccess,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const categoryData = useSelector(selectGetCategoryData);
-  const categoryLoading = useSelector(selectGetCategoryLoading);
+  const loading = useSelector(selectUpdateOrderAdminLoading);
 
   const [formData, setFormData] = useState<{
-    description: string;
-    amount: string;
-    paymentType: { value: PaymentType; label: string } | null;
-    category: { value: string; label: string } | null;
+    status: { value: OrderStatus; label: string } | null;
     province: string;
     city: string;
+    detail: string;
+    postalCode: string;
   }>({
-    description: "",
-    amount: "",
-    paymentType: null,
-    category: null,
+    status: null,
     province: "",
     city: "",
+    detail: "",
+    postalCode: "",
   });
-  const [loading, setLoading] = useState(false);
 
-  // Load categories when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      dispatch(GetCategoryAction({ page: 0, size: 900000 }));
-    }
-  }, [isOpen, dispatch]);
+  const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     if (order) {
+      const statusOption = orderStatusOptions.find(
+        (opt) => opt.value === order.status
+      );
+
+      // Get province from product.address or order level
+      const orderProvince =
+        order.product?.address?.province || order.province || "";
+      const orderCity = order.product?.address?.city || order.city || "";
+
+      // Convert province name to ID if it's stored as name
+      let provinceId: string = "";
+      let provinceIdNumber: number | null = null;
+
+      if (orderProvince) {
+        // Check if it's already an ID (number as string)
+        if (!isNaN(Number(orderProvince))) {
+          provinceId = orderProvince;
+          provinceIdNumber = parseInt(orderProvince);
+        } else {
+          // It's a name, find the ID
+          const foundProvince = province.find((p) => p.name === orderProvince);
+          if (foundProvince) {
+            provinceId = foundProvince.id.toString();
+            provinceIdNumber = foundProvince.id;
+          }
+        }
+      }
+
+      // Convert city name to ID if it's stored as name
+      let cityId: string = "";
+
+      if (orderCity && provinceIdNumber) {
+        // Check if it's already an ID (number as string)
+        if (!isNaN(Number(orderCity))) {
+          cityId = orderCity;
+        } else {
+          // It's a name, find the ID
+          const foundCity = city.find(
+            (c) => c.name === orderCity && c.province_id === provinceIdNumber
+          );
+          if (foundCity) {
+            cityId = foundCity.id.toString();
+          }
+        }
+      }
+
       setFormData({
-        description: order.description || "",
-        amount: order.amount?.toString() || order.quantity?.toString() || "",
-        paymentType: order.paymentType ? { value: order.paymentType, label: PaymentTypeLabels[order.paymentType] } : null,
-        category: order.category ? { 
-          value: order.category.id || order.category._id, 
-          label: order.category.name 
-        } : null,
-        province: order.province || "",
-        city: order.city || "",
+        status: statusOption || null,
+        province: provinceId,
+        city: cityId,
+        detail: order.product?.address?.detail || order.address || "",
+        postalCode:
+          order.product?.address?.postalCode || order.postalCode || "",
       });
+
+      // Set province ID for city filtering
+      setSelectedProvinceId(provinceIdNumber);
     }
   }, [order]);
 
-  const paymentTypeOptions = Object.values(PaymentType).map(type => ({
-    value: type,
-    label: PaymentTypeLabels[type]
-  }));
-
-  // Get categories from API like in CategorySelect component
-  const categoryOptions = React.useMemo(() => {
-    if (!categoryData?.data) return [];
-    return categoryData.data.map((category: any) => ({
-      value: category._id || category.id,
-      label: category.name,
-    }));
-  }, [categoryData]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      console.log("Updated order data:", formData);
-      onSuccess();
-      onClose();
-    } catch (error) {
-      console.error("Error updating order:", error);
-    } finally {
-      setLoading(false);
-    }
+    if (!order?.id) return;
+
+    const updateData = {
+      status: formData.status?.value,
+      province: formData.province,
+      city: formData.city,
+      address: formData.detail,
+      postalCode: formData.postalCode,
+    };
+
+    dispatch(
+      UpdateOrderAdminAction({
+        orderId: order.id,
+        data: updateData,
+        onSubmitForm: () => {
+          onSuccess();
+          onClose();
+        },
+      })
+    );
   };
 
   const handleInputChange = (field: string, value: unknown) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
+    }));
+  };
+
+  const handleProvinceChange = (provinceValue: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      province: provinceValue,
+      city: "", // Reset city when province changes
+    }));
+    setSelectedProvinceId(provinceValue ? parseInt(provinceValue) : null);
+  };
+
+  const handleCityChange = (cityValue: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      city: cityValue,
     }));
   };
 
   if (!order) return null;
 
   return (
-    <Modal
-      open={isOpen}
-      onClose={onClose}
-      headerTitle="ویرایش سفارش"
-      size="lg"
-    >
+    <Modal open={isOpen} onClose={onClose} headerTitle="ویرایش سفارش" size="lg">
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Information */}
+        {/* Order Status */}
         <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold mb-3 text-gray-800">اطلاعات کلی</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <SingleSelect
-                label="دسته بندی"
-                options={categoryOptions}
-                value={formData.category}
-                onChange={(value) => handleInputChange("category", value)}
-                isLoading={categoryLoading}
-                required
-              />
-            </div>
-            <div>
-              <SingleSelect
-                label="نوع پرداخت"
-                options={paymentTypeOptions}
-                value={formData.paymentType}
-                onChange={(value) => handleInputChange("paymentType", value)}
-                required
-              />
-            </div>
-            <div className="col-span-2">
-              <TextArea
-                label="توضیحات"
-                value={formData.description}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("description", e.target.value)}
-                rows={3}
-              />
-            </div>
-            <div>
-              <Input
-                label="مقدار (کیلوگرم)"
-                type="number"
-                value={formData.amount}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("amount", e.target.value)}
-                required
-              />
-            </div>
-          </div>
+          <h3 className="text-lg font-semibold mb-3 text-gray-800">
+            وضعیت سفارش
+          </h3>
+          <SingleSelect
+            label="وضعیت"
+            options={orderStatusOptions}
+            value={formData.status}
+            onChange={(value) => handleInputChange("status", value)}
+            required
+          />
         </div>
 
         {/* Address Information */}
         <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold mb-3 text-gray-800">آدرس</h3>
+          <h3 className="text-lg font-semibold mb-3 text-gray-800">
+            اطلاعات آدرس
+          </h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Input
+              <StandaloneProvinceSelect
                 label="استان"
                 value={formData.province}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("province", e.target.value)}
-                required
+                onChange={handleProvinceChange}
+                onProvinceChange={setSelectedProvinceId}
+              />
+            </div>
+            <div>
+              <StandaloneCitySelect
+                label="شهر"
+                value={formData.city}
+                onChange={handleCityChange}
+                provinceId={selectedProvinceId}
+              />
+            </div>
+            <div className="col-span-2">
+              <TextArea
+                label="آدرس کامل"
+                value={formData.detail}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  handleInputChange("detail", e.target.value)
+                }
+                rows={2}
               />
             </div>
             <div>
               <Input
-                label="شهر"
-                value={formData.city}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("city", e.target.value)}
-                required
+                label="کد پستی"
+                value={formData.postalCode}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  handleInputChange("postalCode", e.target.value)
+                }
               />
             </div>
           </div>
@@ -196,11 +232,7 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
           >
             انصراف
           </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            loading={loading}
-          >
+          <Button type="submit" variant="primary" loading={loading}>
             ذخیره تغییرات
           </Button>
         </div>

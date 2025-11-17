@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Modal from "../../../components/modal";
 import Button from "../../../components/button";
 import Input from "../../../components/input";
 import { OrderItem } from "../../../types/OrderItem";
+import { AppDispatch } from "../../../redux/store";
+import { UpdateOrderAdminAction } from "../../../redux/actions/order/OrderActions";
+import { selectUpdateOrderAdminLoading } from "../../../redux/slice/order/orderSlice";
 
 interface DriverEditModalProps {
   isOpen: boolean;
@@ -17,6 +21,9 @@ const DriverEditModal: React.FC<DriverEditModalProps> = ({
   order,
   onSuccess,
 }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const loading = useSelector(selectUpdateOrderAdminLoading);
+  
   const [formData, setFormData] = useState({
     driverName: "",
     driverPhone: "",
@@ -24,7 +31,13 @@ const DriverEditModal: React.FC<DriverEditModalProps> = ({
     vehicleName: "",
     billNumber: "",
   });
-  const [loading, setLoading] = useState(false);
+
+  const [errors, setErrors] = useState({
+    driverName: "",
+    driverPhone: "",
+    licensePlate: "",
+    vehicleName: "",
+  });
 
   useEffect(() => {
     if (order?.driver) {
@@ -40,20 +53,27 @@ const DriverEditModal: React.FC<DriverEditModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    
+    if (!order?.id) return;
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      console.log("Updated driver data:", formData);
-      onSuccess();
-      onClose();
-    } catch (error) {
-      console.error("Error updating driver:", error);
-    } finally {
-      setLoading(false);
-    }
+    const driverData = {
+      driver: {
+        driverName: formData.driverName,
+        driverPhone: formData.driverPhone,
+        licensePlate: formData.licensePlate,
+        vehicleName: formData.vehicleName,
+        billNumber: formData.billNumber,
+      }
+    };
+
+    dispatch(UpdateOrderAdminAction({
+      orderId: order.id,
+      data: driverData,
+      onSubmitForm: () => {
+        onSuccess();
+        onClose();
+      }
+    }));
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -87,10 +107,10 @@ const DriverEditModal: React.FC<DriverEditModalProps> = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                توضیحات
+                نام محصول
               </label>
               <p className="text-sm text-gray-500 bg-gray-100 p-2 rounded">
-                {order.description || "_"}
+                {order.product?.name || "_"}
               </p>
             </div>
           </div>
@@ -105,7 +125,6 @@ const DriverEditModal: React.FC<DriverEditModalProps> = ({
                 label="نام راننده"
                 value={formData.driverName}
                 onChange={(e) => handleInputChange("driverName", e.target.value)}
-                placeholder="نام و نام خانوادگی راننده..."
                 required
               />
             </div>
@@ -114,7 +133,6 @@ const DriverEditModal: React.FC<DriverEditModalProps> = ({
                 label="شماره تماس راننده"
                 value={formData.driverPhone}
                 onChange={(e) => handleInputChange("driverPhone", e.target.value)}
-                placeholder="09xxxxxxxxx"
                 required
               />
             </div>
@@ -123,7 +141,6 @@ const DriverEditModal: React.FC<DriverEditModalProps> = ({
                 label="پلاک خودرو"
                 value={formData.licensePlate}
                 onChange={(e) => handleInputChange("licensePlate", e.target.value)}
-                placeholder="12ط345-67"
                 required
               />
             </div>
@@ -132,7 +149,6 @@ const DriverEditModal: React.FC<DriverEditModalProps> = ({
                 label="نوع خودرو"
                 value={formData.vehicleName}
                 onChange={(e) => handleInputChange("vehicleName", e.target.value)}
-                placeholder="نوع و مدل خودرو..."
                 required
               />
             </div>
@@ -141,7 +157,6 @@ const DriverEditModal: React.FC<DriverEditModalProps> = ({
                 label="شماره بارنامه"
                 value={formData.billNumber}
                 onChange={(e) => handleInputChange("billNumber", e.target.value)}
-                placeholder="شماره بارنامه..."
               />
             </div>
           </div>

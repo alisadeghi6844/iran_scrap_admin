@@ -13,83 +13,22 @@ import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import Button from "../../../components/button";
-import SingleSelect from "../../../components/select/SingleSelect";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
 import {
   selectGetOrderAdminData,
   selectGetOrderAdminLoading,
 } from "../../../redux/slice/order/orderSlice";
 import { GetOrderAdminAction } from "../../../redux/actions/order/OrderActions";
-import StatusSelect from "../order/StatusSelect";
 import {
   OrderStatus,
   getOrderStatusText,
   getOrderStatusColor,
 } from "../../../types/OrderStatus";
-import {
-  selectGetCategoryData,
-  selectGetCategoryLoading,
-} from "../../../redux/slice/category/CategorySlice";
-import { GetCategoryAction } from "../../../redux/actions/category/CategoryActions";
-import {
-  selectGetUsersProvidersData,
-  selectGetUsersProvidersLoading,
-} from "../../../redux/slice/users/UsersSlice";
-import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
+import { OrderItem } from "../../../types/OrderItem";
+import CategoryFilterSelect from "../filters/CategoryFilterSelect";
+import ProviderFilterSelect from "../filters/ProviderFilterSelect";
 
-interface OrderItem {
-  id: string;
-  buyerId: string;
-  providerId: string;
-  product: {
-    id: string;
-    name?: string;
-    categoryId: string;
-    inventoryType: string;
-    category?: {
-      id: string;
-      name: string;
-    };
-  };
-  provider?: {
-    id: string;
-    firstName?: string;
-    lastName?: string;
-    mobile?: string;
-    companyName?: string;
-  };
-  quantity: number;
-  price: number;
-  finalPrice: number;
-  payingPrice: number;
-  paymentType: string;
-  installmentMonths: number;
-  status: string;
-  city: string;
-  province: string;
-  createdAt: number;
-  updatedAt: number;
-  loadingDate?: string;
-  unloadingDate?: string;
-  cheques?: Array<{
-    date: string;
-    bank: string;
-    no: string;
-    sayyad: string;
-  }>;
-  driver?: {
-    billNumber: string;
-    licensePlate: string;
-    vehicleName: string;
-    driverName: string;
-    driverPhone: string;
-  };
-  shippings: {
-    digifarm: number;
-    provider: number;
-  };
-  shippingPrice: number;
-}
+
 
 interface FinancialApprovalTableProps {
   refreshTrigger?: number;
@@ -105,25 +44,21 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
   // Filter states
   const [categoryFilter, setCategoryFilter] = useState<SelectOptionTypes | null>(null);
   const [providerFilter, setProviderFilter] = useState<SelectOptionTypes | null>(null);
-  const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(null);
 
   const filterDefaultInitialValues = {
     Category: categoryFilter,
     Provider: providerFilter,
-    Status: statusFilter,
   };
 
   const loading = useSelector(selectGetOrderAdminLoading);
   const orderData = useSelector(selectGetOrderAdminData);
-  const categoryData = useSelector(selectGetCategoryData);
-  const categoryLoading = useSelector(selectGetCategoryLoading);
-  const providersData = useSelector(selectGetUsersProvidersData);
-  const providersLoading = useSelector(selectGetUsersProvidersLoading);
 
   useEffect(() => {
-    dispatch(GetOrderAdminAction({ page: 0, size: 20 }));
-    dispatch(GetCategoryAction({}));
-    dispatch(GetUsersProvidersAction({ credentials: {} }));
+    dispatch(GetOrderAdminAction({ 
+      page: 0, 
+      size: 20,
+      filter: "status=BUYER_WAITFORFINANCE,status=BUYER_WAITFORFINANCE"
+    }));
   }, [dispatch]);
 
   // Trigger filtering when filter values change
@@ -131,7 +66,6 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
     const filterData = {
       Category: categoryFilter,
       Provider: providerFilter,
-      Status: statusFilter,
     };
 
     const filterString = handleFilterParameters(filterData);
@@ -143,7 +77,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
         size: 20,
       })
     );
-  }, [categoryFilter, providerFilter, statusFilter, dispatch]);
+  }, [categoryFilter, providerFilter, dispatch]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     dispatch(
@@ -156,49 +90,28 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
   };
 
   const handleFilterParameters = (data: unknown) => {
-    const { Category, Provider, Status } = data as {
+    const { Category, Provider } = data as {
       Category?: SelectOptionTypes;
       Provider?: SelectOptionTypes;
-      Status?: SelectOptionTypes;
     };
-    let queryParam = "";
-    if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
-    if (Provider?.value) queryParam += "providerId=" + Provider?.value + ",";
-    if (Status?.value) queryParam += "status=" + Status?.value + ",";
+    let queryParam = "status=BUYER_WAITFORFINANCE,status=BUYER_WAITFORFINANCE"; // Always filter by BUYER_WAITFORFINANCE status (repeated)
+    if (Category?.value) queryParam += ",categoryId=" + Category?.value;
+    if (Provider?.value) queryParam += ",providerId=" + Provider?.value;
 
-    return queryParam.substring(0, queryParam.length - 1);
+    return queryParam;
   };
 
   useEffect(() => {
     if (refreshTrigger && refreshTrigger > 0) {
-      dispatch(GetOrderAdminAction({ page: 0, size: 20 }));
+      dispatch(GetOrderAdminAction({ 
+        page: 0, 
+        size: 20,
+        filter: "status=BUYER_WAITFORFINANCE,status=BUYER_WAITFORFINANCE"
+      }));
     }
   }, [refreshTrigger, dispatch]);
 
-  // Get categories from category API
-  const categoryOptions = React.useMemo(() => {
-    if (!categoryData?.data) return [];
-    return categoryData.data.map((category: any) => ({
-      value: category._id || category.id,
-      label: category.name,
-    }));
-  }, [categoryData]);
 
-  // Get providers from users API with Provider or Both usertype
-  const providerOptions = React.useMemo(() => {
-    if (!providersData?.data?.data) return [];
-    return providersData.data.data
-      .filter(
-        (user: any) => user.usertype === "Provider" || user.usertype === "Both"
-      )
-      .map((user: any) => ({
-        value: user.id,
-        label:
-          user.firstName && user.lastName
-            ? `${user.firstName} ${user.lastName}`
-            : user.mobile || user.companyName || "نامشخص",
-      }));
-  }, [providersData]);
 
   const formatDate = (timestamp: number) => {
     if (!timestamp) return "_";
@@ -265,12 +178,9 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
           <TableRow>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              <SingleSelect
-                isLoading={categoryLoading}
-                options={categoryOptions}
-                onChange={(value: any) => setCategoryFilter(value)}
+              <CategoryFilterSelect
                 value={categoryFilter}
-                placeholder="انتخاب دسته‌بندی..."
+                onChange={setCategoryFilter}
                 noBorder
                 isClearable
               />
@@ -279,12 +189,9 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              <SingleSelect
-                isLoading={providersLoading}
-                options={providerOptions}
-                onChange={(value: any) => setProviderFilter(value)}
+              <ProviderFilterSelect
                 value={providerFilter}
-                placeholder="انتخاب تامین‌کننده..."
+                onChange={setProviderFilter}
                 noBorder
                 isClearable
               />
@@ -294,7 +201,6 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              <StatusSelect name="Status" noBorder label="" />
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
@@ -303,7 +209,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
               orderData?.data?.map((row: OrderItem) => (
                 <TableRow key={row?.id}>
                   <TableCell>{row?.product?.name ?? "_"}</TableCell>
-                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
+                  <TableCell>{row?.product?.category?.name ?? "_"}</TableCell>
                   <TableCell>
                     {row?.quantity
                       ? `${row.quantity} ${getInventoryUnit(
@@ -320,9 +226,11 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
                       : "_"}
                   </TableCell>
                   <TableCell>
-                  {row?.providerId?.firstName && row?.providerId?.lastName
-                      ? `${row.providerId.firstName} ${row.providerId.lastName}`
-                      : row?.providerId?.mobile || row?.providerId?.companyName || "_"}
+                    {row?.provider?.firstName && row?.provider?.lastName
+                      ? `${row.provider.firstName} ${row.provider.lastName}`
+                      : row?.provider?.mobile ||
+                        row?.provider?.companyName ||
+                        "_"}
                   </TableCell>
                   <TableCell>{getPaymentTypeText(row?.paymentType)}</TableCell>
                   <TableCell>{row?.city ?? "_"}</TableCell>
