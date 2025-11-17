@@ -1,11 +1,18 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Modal from "../../../components/modal";
 import Button from "../../../components/button";
 import Input from "../../../components/input";
-import TextArea from "../../../components/textarea";
+import TextArea from "../../../components/textArea";
 import SingleSelect from "../../../components/select/SingleSelect";
 import { OrderItem } from "../../../types/OrderItem";
 import { PaymentType, PaymentTypeLabels } from "../../../types/PaymentType";
+import { AppDispatch } from "../../../redux/store";
+import {
+  selectGetCategoryData,
+  selectGetCategoryLoading,
+} from "../../../redux/slice/category/CategorySlice";
+import { GetCategoryAction } from "../../../redux/actions/category/CategoryActions";
 
 interface OrderEditModalProps {
   isOpen: boolean;
@@ -20,7 +27,18 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
   order,
   onSuccess,
 }) => {
-  const [formData, setFormData] = useState({
+  const dispatch = useDispatch<AppDispatch>();
+  const categoryData = useSelector(selectGetCategoryData);
+  const categoryLoading = useSelector(selectGetCategoryLoading);
+
+  const [formData, setFormData] = useState<{
+    description: string;
+    amount: string;
+    paymentType: { value: PaymentType; label: string } | null;
+    category: { value: string; label: string } | null;
+    province: string;
+    city: string;
+  }>({
     description: "",
     amount: "",
     paymentType: null,
@@ -30,13 +48,23 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
   });
   const [loading, setLoading] = useState(false);
 
+  // Load categories when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(GetCategoryAction({ page: 0, size: 900000 }));
+    }
+  }, [isOpen, dispatch]);
+
   useEffect(() => {
     if (order) {
       setFormData({
         description: order.description || "",
         amount: order.amount?.toString() || order.quantity?.toString() || "",
         paymentType: order.paymentType ? { value: order.paymentType, label: PaymentTypeLabels[order.paymentType] } : null,
-        category: order.category ? { value: order.category.id, label: order.category.name } : null,
+        category: order.category ? { 
+          value: order.category.id || order.category._id, 
+          label: order.category.name 
+        } : null,
         province: order.province || "",
         city: order.city || "",
       });
@@ -48,10 +76,14 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
     label: PaymentTypeLabels[type]
   }));
 
-  const categoryOptions = [
-    { value: "1", label: "غلات" },
-    { value: "2", label: "حبوبات" },
-  ];
+  // Get categories from API like in CategorySelect component
+  const categoryOptions = React.useMemo(() => {
+    if (!categoryData?.data) return [];
+    return categoryData.data.map((category: any) => ({
+      value: category._id || category.id,
+      label: category.name,
+    }));
+  }, [categoryData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +103,7 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
     }
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: unknown) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -98,6 +130,7 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
                 options={categoryOptions}
                 value={formData.category}
                 onChange={(value) => handleInputChange("category", value)}
+                isLoading={categoryLoading}
                 required
               />
             </div>
@@ -114,7 +147,7 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
               <TextArea
                 label="توضیحات"
                 value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("description", e.target.value)}
                 rows={3}
               />
             </div>
@@ -123,7 +156,7 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
                 label="مقدار (کیلوگرم)"
                 type="number"
                 value={formData.amount}
-                onChange={(e) => handleInputChange("amount", e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("amount", e.target.value)}
                 required
               />
             </div>
@@ -138,7 +171,7 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
               <Input
                 label="استان"
                 value={formData.province}
-                onChange={(e) => handleInputChange("province", e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("province", e.target.value)}
                 required
               />
             </div>
@@ -146,7 +179,7 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
               <Input
                 label="شهر"
                 value={formData.city}
-                onChange={(e) => handleInputChange("city", e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("city", e.target.value)}
                 required
               />
             </div>

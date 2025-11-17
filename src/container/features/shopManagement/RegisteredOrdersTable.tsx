@@ -49,9 +49,13 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
   const dispatch = useDispatch<AppDispatch>();
 
   // Filter states
-  const [categoryFilter, setCategoryFilter] = useState<SelectOptionTypes | null>(null);
-  const [providerFilter, setProviderFilter] = useState<SelectOptionTypes | null>(null);
-  const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(null);
+  const [categoryFilter, setCategoryFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [providerFilter, setProviderFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(
+    null
+  );
 
   const filterDefaultInitialValues = {
     Category: categoryFilter,
@@ -246,11 +250,7 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              <StatusSelect 
-                name="Status" 
-                noBorder 
-                label=""
-              />
+              <StatusSelect name="Status" noBorder label="" />
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
@@ -276,22 +276,27 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
                       : "_"}
                   </TableCell>
                   <TableCell>
-                    {typeof row?.providerId === 'object' && row?.providerId?.firstName && row?.providerId?.lastName
+                    {typeof row?.providerId === "object" &&
+                    row?.providerId?.firstName &&
+                    row?.providerId?.lastName
                       ? `${row.providerId.firstName} ${row.providerId.lastName}`
-                      : typeof row?.providerId === 'object' && (row?.providerId?.mobile || row?.providerId?.companyName)
-                      ? (row?.providerId?.mobile || row?.providerId?.companyName)
+                      : typeof row?.providerId === "object" &&
+                        (row?.providerId?.mobile ||
+                          row?.providerId?.companyName)
+                      ? row?.providerId?.mobile || row?.providerId?.companyName
                       : row?.provider?.firstName && row?.provider?.lastName
                       ? `${row.provider.firstName} ${row.provider.lastName}`
-                      : row?.provider?.mobile || row?.provider?.companyName || "_"}
+                      : row?.provider?.mobile ||
+                        row?.provider?.companyName ||
+                        "_"}
                   </TableCell>
                   <TableCell>{getPaymentTypeText(row?.paymentType)}</TableCell>
                   <TableCell>{row?.city ?? "_"}</TableCell>
                   <TableCell>{formatDate(row?.createdAt)}</TableCell>
                   <TableCell>
-                    {row?.unloadingDate 
+                    {row?.unloadingDate
                       ? new Date(row.unloadingDate).toLocaleDateString("fa-IR")
-                      : "_"
-                    }
+                      : "_"}
                   </TableCell>
                   <TableCell>
                     <span className={getOrderStatusColor(row?.status)}>

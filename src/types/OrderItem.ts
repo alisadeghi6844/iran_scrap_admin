@@ -37,6 +37,7 @@ export interface OrderItem {
   payingPrice: number;
   paymentType: PaymentType;
   installmentMonths: number;
+  installmentPrice?: Array<{ duration: number; price: number }>;
   status: string;
   description?: string;
   amount?: number;
