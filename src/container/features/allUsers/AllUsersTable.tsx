@@ -11,7 +11,7 @@ import TableFilterCell from "../../../components/table/TableFilterCell";
 import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
-import { MdAccessibility, MdEdit } from "react-icons/md";
+import { MdAccessibility, MdEdit, MdDownload } from "react-icons/md";
 import UserEditModal from "./UserEditModal";
 
 import {
@@ -150,6 +150,21 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
   const handleEditSuccess = () => {
     // Refresh the users list after successful edit
     fetchData(currentFilter, sortState);
+  };
+
+  const handleDownloadDocuments = (extraImages: string[]) => {
+    if (!extraImages || extraImages.length === 0) return;
+    
+    extraImages.forEach((imagePath) => {
+      const downloadUrl = `https://digifarm.ir/api/file/download/${imagePath}`;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = '';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
   };
   return (
     <>
@@ -326,6 +341,17 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
                       >
                         ویرایش
                       </Button>
+                      {row?.extraImages && row.extraImages.length > 0 && (
+                        <Button
+                          startIcon={<MdDownload className="text-xl" />}
+                          type="button"
+                          variant="outline-success"
+                          size="sm"
+                          onClick={() => handleDownloadDocuments(row.extraImages)}
+                        >
+                          دانلود مدارک
+                        </Button>
+                      )}
                       {/* <Button
                         startIcon={<MdAccessibility className="text-xl" />}
                         type="button"
