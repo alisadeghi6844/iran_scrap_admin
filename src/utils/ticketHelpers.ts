@@ -36,7 +36,7 @@ export const getStatusLabel = (status: string): string => {
       return "در انتظار پاسخ";
     case "ANSWERED":
       return "پاسخ داده شده";
-    case "CLOSED":
+    case "ADMIN_CLOSED":
       return "بسته شده";
     case "OPEN":
       return "باز";

@@ -227,12 +227,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = ({
           <TableRow>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              <CategoryFilterSelect
-                value={categoryFilter}
-                onChange={setCategoryFilter}
-                noBorder
-                isClearable
-              />
+         
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>

@@ -172,12 +172,7 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = ({
               <TableFilterCell></TableFilterCell>
               <TableFilterCell></TableFilterCell>
               <TableFilterCell>
-                <CategoryFilterSelect
-                  value={categoryFilter}
-                  onChange={setCategoryFilter}
-                  noBorder
-                  isClearable
-                />
+             
               </TableFilterCell>
               <TableFilterCell>
                 <ProviderFilterSelect

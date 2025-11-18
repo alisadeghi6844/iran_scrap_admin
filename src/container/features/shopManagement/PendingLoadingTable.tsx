@@ -179,12 +179,7 @@ const PendingLoadingTable: React.FC<PendingLoadingTableProps> = ({
           <TableRow>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              <CategoryFilterSelect
-                value={categoryFilter}
-                onChange={setCategoryFilter}
-                noBorder
-                isClearable
-              />
+       
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>

@@ -11,7 +11,7 @@ import TableFilterCell from "../../../components/table/TableFilterCell";
 import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
-import { MdAccessibility, MdEdit, MdDownload } from "react-icons/md";
+import { MdEdit, MdDownload } from "react-icons/md";
 import UserEditModal from "./UserEditModal";
 
 import {
@@ -23,6 +23,7 @@ import SearchInputField from "../../../components/molcols/formik-fields/SearchIn
 import Button from "../../../components/button";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { debounce } from "lodash";
+import HttpServises from "../../../api/HttpServises";
 
 interface AllUsersTypes {
   onRowClick?: any;
@@ -50,6 +51,7 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
   const [currentFilter, setCurrentFilter] = useState<any>({});
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [downloadingFiles, setDownloadingFiles] = useState<string[]>([]);
 
   const filterDefaultInitialValues = {
     firstName: "",
@@ -106,7 +108,7 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
     debouncedFetchData(newFilter, sortState);
   };
 
-  const handleFilterParameters = (data: any) => {
+  const handleFilterParameters = (data: unknown) => {
     const { firstName, lastName, phoneNumber } = data;
     const queryParams: { [key: string]: string | null } = {};
 
@@ -152,19 +154,58 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
     fetchData(currentFilter, sortState);
   };
 
-  const handleDownloadDocuments = (extraImages: string[]) => {
+  const handleDownloadDocuments = async (
+    extraImages: string[],
+    userId: string
+  ) => {
     if (!extraImages || extraImages.length === 0) return;
-    
-    extraImages.forEach((imagePath) => {
-      const downloadUrl = `https://digifarm.ir/api/file/download/${imagePath}`;
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = '';
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
+
+    setDownloadingFiles((prev) => [...prev, userId]);
+
+    try {
+      for (const imagePath of extraImages) {
+        try {
+          // ریکوئست مستقیم به imagePath مثل کد قبلی
+          const response = await HttpServises.get(`${imagePath}`, {
+            responseType: "blob",
+          });
+
+          // ایجاد URL برای فایل باینری
+          const blob = new Blob([response.data]);
+          const url = URL.createObjectURL(blob);
+
+          // استخراج نام فایل از path و تعیین پسوند بر اساس نوع فایل
+          const pathFileName = imagePath.split("/").pop() || "document";
+          const fileExtension =
+            response.data.type === "text/xml"
+              ? ".xml"
+              : response.data.type.includes("pdf")
+              ? ".pdf"
+              : response.data.type.includes("image")
+              ? ".jpg"
+              : "";
+
+          const fileName = pathFileName.includes(".")
+            ? pathFileName
+            : `${pathFileName}${fileExtension}`;
+
+          // ایجاد لینک دانلود
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          // پاک کردن URL برای آزاد کردن حافظه
+          URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error(`خطا در دانلود فایل ${imagePath}:`, error);
+        }
+      }
+    } finally {
+      setDownloadingFiles((prev) => prev.filter((id) => id !== userId));
+    }
   };
   return (
     <>
@@ -240,7 +281,7 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
             </TableRow>
             {!loading ? (
               usersData?.data?.data?.length > 0 ? (
-                usersData?.data?.data?.map((row: any) => (
+                usersData?.data?.data?.map((row: unknown) => (
                   <TableRow key={row?.id}>
                     <TableCell
                       style={{
@@ -327,7 +368,7 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
                       </span>
                     </TableCell>
                     <TableCell
-                      onClick={(e: any) => {
+                      onClick={(e: unknown) => {
                         e.stopPropagation();
                       }}
                       className="justify-center gap-x-2"
@@ -347,7 +388,10 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
                           type="button"
                           variant="outline-success"
                           size="sm"
-                          onClick={() => handleDownloadDocuments(row.extraImages)}
+                          loading={downloadingFiles.includes(row?.id)}
+                          onClick={() =>
+                            handleDownloadDocuments(row.extraImages, row?.id)
+                          }
                         >
                           دانلود مدارک
                         </Button>
@@ -385,7 +429,7 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
           </TableBody>
         </Table>
       </CollectionControls>
-      
+
       <UserEditModal
         isOpen={editModalOpen}
         onClose={() => setEditModalOpen(false)}

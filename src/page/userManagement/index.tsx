@@ -1,6 +1,5 @@
 import React, { lazy, Suspense, useState } from "react";
 import CRUD from "../../container/organism/CRUD";
-import GeneralSettingDeleteConfirmation from "../../container/features/generalSetting/GeneralSettingDeleteConfirmation";
 import AllUsersTable from "../../container/features/allUsers/AllUsersTable";
 import SimpleRoleTable from "../../container/features/roleManagement/SimpleRoleTable";
 
