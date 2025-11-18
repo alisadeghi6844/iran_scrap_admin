@@ -57,7 +57,7 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = ({
       GetOrderAdminAction({
         page: 0,
         size: 20,
-        filter: "status=WAITING_UNLOADING,status=WAITING_UNLOADING",
+        filter: "status=WAITING_UNLOADING",
       })
     );
   }, [dispatch, refreshTrigger]);
@@ -85,7 +85,7 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = ({
       Category?: SelectOptionTypes;
       Provider?: SelectOptionTypes;
     };
-    let queryParam = "status=WAITING_UNLOADING,status=WAITING_UNLOADING";
+    let queryParam = "status=WAITING_UNLOADING";
     if (Category?.value) queryParam += ",categoryId=" + Category?.value;
     if (Provider?.value) queryParam += ",providerId=" + Provider?.value;
 
@@ -107,7 +107,7 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = ({
         GetOrderAdminAction({
           page: 0,
           size: 20,
-          filter: "status=WAITING_UNLOADING,status=WAITING_UNLOADING",
+          filter: "status=WAITING_UNLOADING",
         })
       );
     }
@@ -136,107 +136,131 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = ({
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString("fa-IR");
   };
-
+  const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
+    dispatch(
+      GetOrderAdminAction({
+        filter,
+        page: page ?? 1,
+        size: pageSize ?? 20,
+      })
+    );
+  };
   return (
     <div className="w-full">
       <CollectionControls
-        filterDefaultInitialValues={filterDefaultInitialValues}
-        onFilterSubmit={handleFilterParams}
-      />
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableHeadCell>شناسه سفارش</TableHeadCell>
-            <TableHeadCell>نام محصول</TableHeadCell>
-            <TableHeadCell>دسته‌بندی</TableHeadCell>
-            <TableHeadCell>تامین‌کننده</TableHeadCell>
-            <TableHeadCell>مقدار</TableHeadCell>
-            <TableHeadCell>قیمت نهایی</TableHeadCell>
-            <TableHeadCell>وضعیت</TableHeadCell>
-            <TableHeadCell>تاریخ ایجاد</TableHeadCell>
-            <TableHeadCell>عملیات</TableHeadCell>
-          </TableRow>
-          <TableRow>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <CategoryFilterSelect
-                value={categoryFilter}
-                onChange={setCategoryFilter}
-                noBorder
-                isClearable
-              />
-            </TableFilterCell>
-            <TableFilterCell>
-              <ProviderFilterSelect
-                value={providerFilter}
-                onChange={setProviderFilter}
-                noBorder
-                isClearable
-              />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {loading ? (
-            <TableSkeleton />
-          ) : orderData?.data?.data?.length > 0 ? (
-            orderData.data.data.map((row: OrderItem, index: number) => (
-              <TableRow key={row.id || index}>
-                <TableCell>{row.id}</TableCell>
-                <TableCell>{row?.product?.name ?? "_"}</TableCell>
-                <TableCell>{row?.product?.category?.name ?? "_"}</TableCell>
-                <TableCell>
-                  {row?.provider?.firstName && row?.provider?.lastName
-                    ? `${row.provider.firstName} ${row.provider.lastName}`
-                    : row?.provider?.mobile ||
-                      row?.provider?.companyName ||
-                      "_"}
-                </TableCell>
-                <TableCell>
-                  {row.quantity} {getInventoryUnit(row?.product?.inventoryType)}
-                </TableCell>
-                <TableCell>{formatPrice(row.finalPrice)} تومان</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded text-xs ${
-                      getOrderStatusColor(row.status) || "bg-gray-100"
-                    }`}
-                  >
-                    {getOrderStatusText(row.status)}
-                  </span>
-                </TableCell>
-                <TableCell>{formatDate(row.createdAt)}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      type="button"
-                      variant="primary"
-                      onClick={() => {
-                        onRowClick?.("viewMore", row);
-                      }}
+        buttons={[]}
+        hasBox={false}
+        filterInitialValues={filterDefaultInitialValues}
+        onFilter={handleFilterParameters}
+        data={orderData}
+        onMetaChange={handleFilter}
+      >
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeadCell>شناسه سفارش</TableHeadCell>
+              <TableHeadCell>نام محصول</TableHeadCell>
+              <TableHeadCell>دسته‌بندی</TableHeadCell>
+              <TableHeadCell>تامین‌کننده</TableHeadCell>
+              <TableHeadCell>مقدار</TableHeadCell>
+              <TableHeadCell>قیمت نهایی</TableHeadCell>
+              <TableHeadCell>وضعیت</TableHeadCell>
+              <TableHeadCell>تاریخ ایجاد</TableHeadCell>
+              <TableHeadCell>عملیات</TableHeadCell>
+            </TableRow>
+            <TableRow>
+              <TableFilterCell></TableFilterCell>
+              <TableFilterCell></TableFilterCell>
+              <TableFilterCell>
+                <CategoryFilterSelect
+                  value={categoryFilter}
+                  onChange={setCategoryFilter}
+                  noBorder
+                  isClearable
+                />
+              </TableFilterCell>
+              <TableFilterCell>
+                <ProviderFilterSelect
+                  value={providerFilter}
+                  onChange={setProviderFilter}
+                  noBorder
+                  isClearable
+                />
+              </TableFilterCell>
+              <TableFilterCell></TableFilterCell>
+              <TableFilterCell></TableFilterCell>
+              <TableFilterCell></TableFilterCell>
+              <TableFilterCell></TableFilterCell>
+              <TableFilterCell></TableFilterCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading ? (
+              <TableSkeleton />
+            ) : orderData?.data?.length > 0 ? (
+              orderData.data.map((row: OrderItem, index: number) => (
+                <TableRow key={row.id || index}>
+                  <TableCell>{row.id}</TableCell>
+                  <TableCell>{row?.product?.name ?? "_"}</TableCell>
+                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
+                  <TableCell>
+                  {typeof row?.providerId === "object" &&
+                    row?.providerId?.firstName &&
+                    row?.providerId?.lastName
+                      ? `${row.providerId.firstName} ${row.providerId.lastName}`
+                      : typeof row?.providerId === "object" &&
+                        (row?.providerId?.mobile ||
+                          row?.providerId?.companyName)
+                      ? row?.providerId?.mobile || row?.providerId?.companyName
+                      : row?.provider?.firstName && row?.provider?.lastName
+                      ? `${row.provider.firstName} ${row.provider.lastName}`
+                      : row?.provider?.mobile ||
+                        row?.provider?.companyName ||
+                        "_"}
+                  </TableCell>
+                  <TableCell>
+                    {row.quantity}{" "}
+                    {getInventoryUnit(row?.product?.inventoryType)}
+                  </TableCell>
+                  <TableCell>   {row?.finalPrice
+                      ? `${row.finalPrice.toLocaleString()} تومان`
+                      : "_"}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${
+                        getOrderStatusColor(row.status) || "bg-gray-100"
+                      }`}
                     >
-                      مشاهده سفارش
-                    </Button>
-                  </div>
+                      {getOrderStatusText(row.status)}
+                    </span>
+                  </TableCell>
+                  <TableCell>{formatDate(row.createdAt)}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="primary"
+                        onClick={() => {
+                          onRowClick?.("viewMore", row);
+                        }}
+                      >
+                        مشاهده سفارش
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={9}>
+                  <EmptyImage />
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={9}>
-                <EmptyImage />
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            )}
+          </TableBody>
+        </Table>
+      </CollectionControls>
     </div>
   );
 };
