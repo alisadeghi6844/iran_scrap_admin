@@ -204,7 +204,7 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = ({
                   <TableCell>{row?.product?.name ?? "_"}</TableCell>
                   <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>
-                  {typeof row?.providerId === "object" &&
+                    {typeof row?.providerId === "object" &&
                     row?.providerId?.firstName &&
                     row?.providerId?.lastName
                       ? `${row.providerId.firstName} ${row.providerId.lastName}`
@@ -222,9 +222,12 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = ({
                     {row.quantity}{" "}
                     {getInventoryUnit(row?.product?.inventoryType)}
                   </TableCell>
-                  <TableCell>   {row?.finalPrice
+                  <TableCell>
+                    {" "}
+                    {row?.finalPrice
                       ? `${row.finalPrice.toLocaleString()} تومان`
-                      : "_"}</TableCell>
+                      : "_"}
+                  </TableCell>
                   <TableCell>
                     <span
                       className={`px-2 py-1 rounded text-xs ${

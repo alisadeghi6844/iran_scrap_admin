@@ -32,6 +32,7 @@ const validationSchema = Yup.object({
   nationalCode: Yup.string().required("کد ملی الزامی است"),
   usertype: Yup.string().required("نوع کاربر الزامی است"),
   userSort: Yup.string().required("نوع شخص الزامی است"),
+  status: Yup.string().required("وضعیت کاربر الزامی است"),
 });
 
 const UserEditModal: React.FC<UserEditModalProps> = ({
@@ -67,6 +68,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
     nationalCode: getValidValue(userData?.data?.nationalCode),
     usertype: userData?.data?.usertype || "Buyer",
     userSort: userData?.data?.userSort || "Hagh",
+    status: userData?.data?.status || "CONFIRM",
     companyName: getValidValue(userData?.data?.companyName),
     companyNationalCode: getValidValue(userData?.data?.companyNationalCode),
     agentName: getValidValue(userData?.data?.agentName),
@@ -112,6 +114,11 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
   const userSortOptions = [
     { value: "Hagh", label: "حقیقی" },
     { value: "Hogh", label: "حقوقی" },
+  ];
+
+  const statusOptions = [
+    { value: "CONFIRM", label: "فعال" },
+    { value: "REJECT", label: "غیر فعال" },
   ];
 
   return (
@@ -160,6 +167,20 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
                       setFieldValue("userSort", selectedOption?.value || "");
                     }}
                     options={userSortOptions}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <SingleSelect
+                    label="وضعیت کاربر"
+                    value={statusOptions.find(
+                      (option) => option.value === values.status
+                    )}
+                    onChange={(selectedOption: any) => {
+                      setFieldValue("status", selectedOption?.value || "");
+                    }}
+                    options={statusOptions}
                     required
                   />
                 </div>

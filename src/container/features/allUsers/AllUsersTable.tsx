@@ -198,6 +198,12 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
               >
                 نوع شخص {getSortIcon("userSort")}
               </TableHeadCell>
+              <TableHeadCell
+                onClick={() => handleSort("status")}
+                className="cursor-pointer"
+              >
+                وضعیت {getSortIcon("status")}
+              </TableHeadCell>
               <TableHeadCell />
             </TableRow>
           </TableHead>
@@ -212,6 +218,7 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
               <TableFilterCell>
                 <SearchInputField name="phoneNumber" />
               </TableFilterCell>
+              <TableFilterCell></TableFilterCell>
               <TableFilterCell></TableFilterCell>
               <TableFilterCell></TableFilterCell>
               <TableFilterCell></TableFilterCell>
@@ -281,6 +288,30 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
                         : "نامشخص"}
                     </TableCell>
                     <TableCell
+                      style={{
+                        backgroundColor: selectedUserIds.includes(row?.id)
+                          ? "#f0fdf4"
+                          : "transparent",
+                        transition: "background-color 0.2s",
+                      }}
+                    >
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          row?.status === "CONFIRM"
+                            ? "bg-green-100 text-green-800"
+                            : row?.status === "REJECT"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {row?.status === "CONFIRM"
+                          ? "فعال"
+                          : row?.status === "REJECT"
+                          ? "غیر فعال"
+                          : "نامشخص"}
+                      </span>
+                    </TableCell>
+                    <TableCell
                       onClick={(e: any) => {
                         e.stopPropagation();
                       }}
@@ -313,14 +344,14 @@ const AllUsersTable: React.FC<AllUsersTypes> = (props) => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colspan="6" className="flex justify-center !py-4">
+                  <TableCell colspan="7" className="flex justify-center !py-4">
                     <EmptyImage />
                   </TableCell>
                 </TableRow>
               )
             ) : (
               <TableRow>
-                <TableCell colspan="6" className="flex justify-center !py-4">
+                <TableCell colspan="7" className="flex justify-center !py-4">
                   <TableSkeleton />
                 </TableCell>
               </TableRow>
