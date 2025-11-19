@@ -31,11 +31,12 @@ interface DesktopSidebarProps {
   onClose?: () => void;
 }
 
-const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ isMobile = false, onClose }) => {
+const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
+  isMobile = false,
+  onClose,
+}) => {
   const userProfile = useSelector(selectGetUserProfileData);
   const userAccessMenus = userProfile?.accessMenus || [];
-
-
 
   const allMenuData: unknown = [
     {
@@ -57,7 +58,6 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ isMobile = false, onClo
           role: ["admin", "client", "reservation"],
         },
 
-     
         {
           path: "/pending-orders-financial",
           title: "سفارشات در انتظار تایید مالی",
@@ -255,7 +255,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ isMobile = false, onClo
           notif: "",
           role: ["admin", "client", "reservation"],
         },
-   
+
         {
           path: "/shipment-management",
           title: "محاسبه کرایه ناوگان",
@@ -271,7 +271,6 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ isMobile = false, onClo
           icon: <LuTicketPercent className="text-2xl" />,
           id: 24000992,
           isNew: false,
-          subRoutes: [],
           notif: "",
           role: ["admin", "client", "reservation"],
           subRoutes: [
@@ -310,9 +309,8 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ isMobile = false, onClo
         {
           title: "اطلاعات پایه قیمت گذاری",
           icon: <LuTicketPercent className="text-2xl" />,
-          id: 24000992,
+          id: 24001992,
           isNew: false,
-          subRoutes: [],
           notif: "",
           role: ["admin", "client", "reservation"],
           subRoutes: [
@@ -358,8 +356,6 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ isMobile = false, onClo
             },
           ],
         },
-
-
       ],
     },
   ];
@@ -370,13 +366,19 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ isMobile = false, onClo
   }, [userAccessMenus]);
 
   return (
-    <div className={`${
-      isMobile 
-        ? "w-full h-full bg-white" 
-        : "fixed right-0 z-40 bg-white border-l-2 border-dashed border-gray-300 top-0 min-h-screen w-full max-w-[15.5%]"
-    }`}>
+    <div
+      className={`${
+        isMobile
+          ? "w-full h-full bg-white"
+          : "fixed right-0 z-40 bg-white border-l-2 border-dashed border-gray-300 top-0 min-h-screen w-full max-w-[15.5%]"
+      }`}
+    >
       <div className="flex items-center justify-between pb-4 lg:pb-8 pt-6 px-2">
-        <Link to="/" className="flex items-center gap-x-2" onClick={isMobile ? onClose : undefined}>
+        <Link
+          to="/"
+          className="flex items-center gap-x-2"
+          onClick={isMobile ? onClose : undefined}
+        >
           {/* <Image
             src="/images/core/logo1.svg"
             alt="ویرا"
@@ -395,10 +397,14 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ isMobile = false, onClo
           </button>
         )}
       </div>
-      <div className={`scroll-container ${isMobile ? "max-h-[85vh]" : "max-h-[89vh]"} overflow-y-auto`}>
-        <DynamicMenu 
-          className="sidebar" 
-          data={filteredMenuData} 
+      <div
+        className={`scroll-container ${
+          isMobile ? "max-h-[85vh]" : "max-h-[89vh]"
+        } overflow-y-auto`}
+      >
+        <DynamicMenu
+          className="sidebar"
+          data={filteredMenuData}
           onItemClick={isMobile ? onClose : undefined}
         />
       </div>
