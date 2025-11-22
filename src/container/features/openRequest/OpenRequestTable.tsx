@@ -34,10 +34,10 @@ import {
   selectGetUsersProvidersLoading,
 } from "../../../redux/slice/users/UsersSlice";
 import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
-import { 
+import {
   orderStatusOptions,
   getOrderStatusText,
-  getOrderStatusColor
+  getOrderStatusColor,
 } from "../../../types/OrderStatus";
 
 interface ProductRequestAdminTypes {
@@ -52,10 +52,15 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const dispatch: any = useDispatch();
 
   // Filter states
-  const [categoryFilter, setCategoryFilter] = useState<SelectOptionTypes | null>(null);
-  const [providerFilter, setProviderFilter] = useState<SelectOptionTypes | null>(null);
-  const [paymentTypeFilter, setPaymentTypeFilter] = useState<SelectOptionTypes | null>(null);
-  const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(null);
+  const [categoryFilter, setCategoryFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [providerFilter, setProviderFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [paymentTypeFilter, setPaymentTypeFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(
+    null
+  );
 
   const filterDefaultInitialValues = {
     Category: categoryFilter,
@@ -110,7 +115,9 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
     };
 
     const filterString = handleFilterParameters(filterData);
-    const statusArray = selectedStatus ? [selectedStatus] : ["LOADING_ORDER", "WAITING_UNLOADING"];
+    const statusArray = selectedStatus
+      ? [selectedStatus]
+      : ["LOADING_ORDER", "WAITING_UNLOADING"];
 
     dispatch(
       GetRequestProductAdminAction({
@@ -120,7 +127,14 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         status: statusArray,
       })
     );
-  }, [categoryFilter, providerFilter, paymentTypeFilter, statusFilter, dispatch, selectedStatus]);
+  }, [
+    categoryFilter,
+    providerFilter,
+    paymentTypeFilter,
+    statusFilter,
+    dispatch,
+    selectedStatus,
+  ]);
 
   const handleFilterParameters = (data: unknown) => {
     const { Category, Provider, PaymentType, Status } = data as {
@@ -132,7 +146,8 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
     let queryParam = "";
     if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
     if (Provider?.value) queryParam += "providerId=" + Provider?.value + ",";
-    if (PaymentType?.value) queryParam += "paymentType=" + PaymentType?.value + ",";
+    if (PaymentType?.value)
+      queryParam += "paymentType=" + PaymentType?.value + ",";
     if (Status?.value) queryParam += "status=" + Status?.value + ",";
 
     return queryParam.substring(0, queryParam.length - 1);
@@ -241,7 +256,10 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableHeadCell className="min-w-[230px]">دسته بندی</TableHeadCell>
             <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
             <TableHeadCell>توضیحات</TableHeadCell>
-            <TableHeadCell className="min-w-[230px]"> تامین کننده</TableHeadCell>
+            <TableHeadCell className="min-w-[230px]">
+              {" "}
+              تامین کننده
+            </TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
             <TableHeadCell>مقدار درخواست</TableHeadCell>
             <TableHeadCell className="min-w-[230px]">نوع پرداخت</TableHeadCell>
@@ -289,17 +307,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                 isClearable
               />
             </TableFilterCell>
-            <TableFilterCell>
-              <SingleSelect
-                isLoading={false}
-                options={orderStatusOptions}
-                onChange={(value: any) => setStatusFilter(value)}
-                value={statusFilter}
-                placeholder="انتخاب وضعیت..."
-                noBorder
-                isClearable
-              />
-            </TableFilterCell>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
@@ -334,7 +342,9 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                   </TableCell>
                   <TableCell>
                     <span className={getOrderStatusColor(row?.status)}>
-                      {getOrderStatusText(row?.status) || row?.statusTitle || "_"}
+                      {getOrderStatusText(row?.status) ||
+                        row?.statusTitle ||
+                        "_"}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -362,7 +372,6 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                       >
                         ویرایش اطلاعات راننده
                       </Button>
-                   
                     </div>
                   </TableCell>
                 </TableRow>

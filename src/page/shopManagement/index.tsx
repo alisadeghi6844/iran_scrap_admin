@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useMemo } from "react";
 import CRUD from "../../container/organism/CRUD";
 import { OrderItem } from "../../types/OrderItem";
 
@@ -59,6 +59,7 @@ const ShopManagement = () => {
   const [mode, setMode] = useState<string>("content");
   const [selectedRow, setSelectedRow] = useState<OrderItem | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
+  const [tabLoading, setTabLoading] = useState<boolean>(false);
 
   const handleCloseModal = () => {
     setMode("content");
@@ -76,60 +77,61 @@ const ShopManagement = () => {
     { key: "delivery", label: "خریدهای در انتظار تحویل" },
   ];
 
-  const renderTabContent = () => {
+  const tabContent = useMemo(() => {
+    const handleRowClick = (action: string, row: OrderItem) => {
+      setMode(action);
+      setSelectedRow(row);
+    };
+
+    if (tabLoading) {
+      return (
+        <div className="flex justify-center items-center py-8">
+          <div className="text-gray-500">در حال بارگذاری...</div>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case "registered":
         return (
-          <Suspense>
+          <Suspense fallback={<div className="flex justify-center items-center py-8"><div className="text-gray-500">در حال بارگذاری...</div></div>}>
             <RegisteredOrdersTable
               refreshTrigger={refreshTrigger}
-              onRowClick={(action: string, row: OrderItem) => {
-                setMode(action);
-                setSelectedRow(row);
-              }}
+              onRowClick={handleRowClick}
             />
           </Suspense>
         );
       case "loading":
         return (
-          <Suspense>
+          <Suspense fallback={<div className="flex justify-center items-center py-8"><div className="text-gray-500">در حال بارگذاری...</div></div>}>
             <PendingLoadingTable
               refreshTrigger={refreshTrigger}
-              onRowClick={(action: string, row: OrderItem) => {
-                setMode(action);
-                setSelectedRow(row);
-              }}
+              onRowClick={handleRowClick}
             />
           </Suspense>
         );
       case "financial":
         return (
-          <Suspense>
+          <Suspense fallback={<div className="flex justify-center items-center py-8"><div className="text-gray-500">در حال بارگذاری...</div></div>}>
             <FinancialApprovalTable
               refreshTrigger={refreshTrigger}
-              onRowClick={(action: string, row: OrderItem) => {
-                setMode(action);
-                setSelectedRow(row);
-              }}
+              onRowClick={handleRowClick}
             />
           </Suspense>
         );
       case "delivery":
         return (
-          <Suspense>
+          <Suspense fallback={<div className="flex justify-center items-center py-8"><div className="text-gray-500">در حال بارگذاری...</div></div>}>
             <PendingDeliveryTable
               refreshTrigger={refreshTrigger}
-              onRowClick={(action: string, row: OrderItem) => {
-                setMode(action);
-                setSelectedRow(row);
-              }}
+              onRowClick={handleRowClick}
             />
           </Suspense>
         );
       default:
         return null;
     }
-  };
+  }, [activeTab, refreshTrigger, tabLoading]);
 
   return (
     <div
@@ -149,21 +151,27 @@ const ShopManagement = () => {
               <button
                 key={tab.key}
                 onClick={() => {
-                  setActiveTab(
-                    tab.key as
-                      | "registered"
-                      | "loading"
-                      | "financial"
-                      | "delivery"
-                  );
-                  setMode("content");
-                  setSelectedRow(null);
+                  if (activeTab !== tab.key) {
+                    setTabLoading(true);
+                    setActiveTab(
+                      tab.key as
+                        | "registered"
+                        | "loading"
+                        | "financial"
+                        | "delivery"
+                    );
+                    setMode("content");
+                    setSelectedRow(null);
+                    // Reset loading after a short delay to allow component to mount
+                    setTimeout(() => setTabLoading(false), 100);
+                  }
                 }}
+                disabled={tabLoading}
                 className={`py-2 px-4 border-b-2 font-medium text-sm transition-colors duration-200 ${
                   activeTab === tab.key
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
+                } ${tabLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 {tab.label}
               </button>
@@ -176,7 +184,7 @@ const ShopManagement = () => {
       <CRUD
         confirmModalSize="lg"
         mode={mode}
-        content={renderTabContent()}
+        content={tabContent}
         confirmation={null}
         onModalClose={handleCloseModal}
       />
