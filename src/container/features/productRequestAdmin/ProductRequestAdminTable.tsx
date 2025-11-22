@@ -39,6 +39,11 @@ import {
   selectGetUsersProvidersLoading,
 } from "../../../redux/slice/users/UsersSlice";
 import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
+import { 
+  orderStatusOptions,
+  getOrderStatusText,
+  getOrderStatusColor
+} from "../../../types/OrderStatus";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
@@ -128,17 +133,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
     return queryParam.substring(0, queryParam.length - 1);
   };
 
-  // Filter options
-  const statusOptions = [
-    { value: "REGISTERED", label: "ثبت شده" },
-    { value: "WAITING_FOR_OFFERS", label: "در انتظار پیشنهاد" },
-    { value: "SEND_FINAL_OFFER_TO_BUYER", label: "ارسال پیشنهاد نهایی" },
-    { value: "BUYER_WAITFORFINANCE", label: "در انتظار تایید مالی" },
-    { value: "LOADING_ORDER", label: "در حال بارگیری" },
-    { value: "WAITING_UNLOADING", label: "در انتظار تخلیه" },
-    { value: "COMPLETED", label: "تکمیل شده" },
-    { value: "CANCELLED", label: "لغو شده" },
-  ];
+
 
   // Get categories from category API
   const categoryOptions = React.useMemo(() => {
@@ -252,15 +247,15 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
-              {/* <SingleSelect
+              <SingleSelect
                 isLoading={false}
-                options={statusOptions}
+                options={orderStatusOptions}
                 onChange={(value: any) => setStatusFilter(value)}
                 value={statusFilter}
                 placeholder="انتخاب وضعیت..."
                 noBorder
                 isClearable
-              /> */}
+              />
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
@@ -287,7 +282,11 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                       : "_"}
                   </TableCell>
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
-                  <TableCell>{row?.statusTitle ?? "_"}</TableCell>
+                  <TableCell>
+                    <span className={getOrderStatusColor(row?.status)}>
+                      {getOrderStatusText(row?.status) || row?.statusTitle || "_"}
+                    </span>
+                  </TableCell>
 
                   <TableCell>
                     <div className="flex gap-2">

@@ -36,7 +36,7 @@ import BrandFilterSelect from "./filters/BrandFilterSelect";
 import ProviderFilterSelect from "./filters/ProviderFilterSelect";
 import PortFilterSelect from "./filters/PortFilterSelect";
 import PaymentTypeFilterSelect from "./filters/PaymentTypeFilterSelect";
-import StatusFilterSelect from "./filters/StatusFilterSelect";
+
 import { FaCheck, FaTimes } from "react-icons/fa";
 
 interface PurchasePriceItem {
@@ -85,9 +85,6 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
   const [portFilter, setPortFilter] = useState<SelectOptionTypes | null>(null);
   const [paymentTypeFilter, setPaymentTypeFilter] =
     useState<SelectOptionTypes | null>(null);
-  const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(
-    null
-  );
   // State for buy price editing
   const [buyPrices, setBuyPrices] = useState<{ [key: string]: string }>({});
   const [editingRows, setEditingRows] = useState<{ [key: string]: boolean }>(
@@ -107,7 +104,6 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
     Provider: providerFilter,
     Port: portFilter,
     PaymentType: paymentTypeFilter,
-    Status: statusFilter,
   });
 
   const loading = useSelector(selectGetProductPriceLoading);
@@ -137,7 +133,6 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
       Provider: providerFilter,
       Port: portFilter,
       PaymentType: paymentTypeFilter,
-      Status: statusFilter,
     };
 
     const filterString = handleFilterParameters(filterData);
@@ -162,7 +157,6 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
     providerFilter,
     portFilter,
     paymentTypeFilter,
-    statusFilter,
     dispatch,
   ]);
 
@@ -202,24 +196,10 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
     return queryParam.substring(0, queryParam.length - 1);
   };
 
-  // Filter data based on status (frontend filtering since status is calculated)
+  // Get all data without status filtering
   const getFilteredData = () => {
     if (!productPriceData?.data) return [];
-
-    let filteredData = [...productPriceData.data];
-
-    // Filter by status if selected
-    if (statusFilter?.value) {
-      filteredData = filteredData.filter((item: PurchasePriceItem) => {
-        if (item.sellPrice && item.constant) {
-          const status = calculateStatus(item.sellPrice, item.constant);
-          return status.value === statusFilter.value;
-        }
-        return false;
-      });
-    }
-
-    return filteredData;
+    return [...productPriceData.data];
   };
 
   useEffect(() => {
@@ -385,9 +365,7 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
     setPaymentTypeFilter(value);
   };
 
-  const handleStatusFilterChange = (value: SelectOptionTypes | null) => {
-    setStatusFilter(value);
-  };
+
 
   // Get date range for last 10 days
   const getLast10DaysRange = () => {
@@ -469,14 +447,7 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <StatusFilterSelect
-                name="Status"
-                value={statusFilter}
-                onChange={handleStatusFilterChange}
-                placeholder="انتخاب وضعیت..."
-              />
-            </TableFilterCell>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (

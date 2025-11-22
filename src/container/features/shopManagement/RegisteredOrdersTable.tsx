@@ -24,7 +24,6 @@ import { GetOrderAdminAction } from "../../../redux/actions/order/OrderActions";
 import {
   getOrderStatusText,
   getOrderStatusColor,
-  orderStatusOptions,
 } from "../../../types/OrderStatus";
 import CategoryFilterSelect from "../filters/CategoryFilterSelect";
 import ProviderFilterSelect from "../filters/ProviderFilterSelect";
@@ -45,14 +44,9 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
     useState<SelectOptionTypes | null>(null);
   const [providerFilter, setProviderFilter] =
     useState<SelectOptionTypes | null>(null);
-  const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(
-    null
-  );
-
   const filterDefaultInitialValues = {
     Category: categoryFilter,
     Provider: providerFilter,
-    Status: statusFilter,
   };
 
   const loading = useSelector(selectGetOrderAdminLoading);
@@ -67,7 +61,6 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
     const filterData = {
       Category: categoryFilter,
       Provider: providerFilter,
-      Status: statusFilter,
     };
 
     const filterString = handleFilterParameters(filterData);
@@ -79,7 +72,7 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
         size: 20,
       })
     );
-  }, [categoryFilter, providerFilter, statusFilter, dispatch]);
+  }, [categoryFilter, providerFilter, dispatch]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     dispatch(
@@ -92,15 +85,13 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
   };
 
   const handleFilterParameters = (data: unknown) => {
-    const { Category, Provider, Status } = data as {
+    const { Category, Provider } = data as {
       Category?: SelectOptionTypes;
       Provider?: SelectOptionTypes;
-      Status?: SelectOptionTypes;
     };
     let queryParam = "";
     if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
     if (Provider?.value) queryParam += "providerId=" + Provider?.value + ",";
-    if (Status?.value) queryParam += "status=" + Status?.value + ",";
 
     return queryParam.substring(0, queryParam.length - 1);
   };
@@ -197,17 +188,7 @@ const RegisteredOrdersTable: React.FC<RegisteredOrdersTableProps> = ({
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <SingleSelect
-                label=""
-                options={orderStatusOptions}
-                onChange={setStatusFilter}
-                value={statusFilter}
-                placeholder="انتخاب وضعیت..."
-                noBorder
-                isClearable
-              />
-            </TableFilterCell>
+            <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (

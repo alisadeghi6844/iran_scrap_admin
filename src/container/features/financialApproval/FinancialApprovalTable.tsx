@@ -34,6 +34,11 @@ import {
   selectGetUsersProvidersLoading,
 } from "../../../redux/slice/users/UsersSlice";
 import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
+import {
+  orderStatusOptions,
+  getOrderStatusText,
+  getOrderStatusColor,
+} from "../../../types/OrderStatus";
 
 interface FinancialApprovalTableProps {
   onRowClick?: any;
@@ -50,14 +55,21 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   // Filter states
-  const [categoryFilter, setCategoryFilter] = useState<SelectOptionTypes | null>(null);
-  const [providerFilter, setProviderFilter] = useState<SelectOptionTypes | null>(null);
-  const [paymentTypeFilter, setPaymentTypeFilter] = useState<SelectOptionTypes | null>(null);
+  const [categoryFilter, setCategoryFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [providerFilter, setProviderFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [paymentTypeFilter, setPaymentTypeFilter] =
+    useState<SelectOptionTypes | null>(null);
+  const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(
+    null
+  );
 
   const filterDefaultInitialValues = {
     Category: categoryFilter,
     Provider: providerFilter,
     PaymentType: paymentTypeFilter,
+    Status: statusFilter,
   };
 
   const loading = useSelector(selectGetProductRequestAdminLoading);
@@ -93,6 +105,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
       Category: categoryFilter,
       Provider: providerFilter,
       PaymentType: paymentTypeFilter,
+      Status: statusFilter,
     };
 
     const filterString = handleFilterParameters(filterData);
@@ -105,18 +118,27 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
         status: defaultStatuses,
       })
     );
-  }, [categoryFilter, providerFilter, paymentTypeFilter, dispatch]);
+  }, [
+    categoryFilter,
+    providerFilter,
+    paymentTypeFilter,
+    statusFilter,
+    dispatch,
+  ]);
 
   const handleFilterParameters = (data: unknown) => {
-    const { Category, Provider, PaymentType } = data as {
+    const { Category, Provider, PaymentType, Status } = data as {
       Category?: SelectOptionTypes;
       Provider?: SelectOptionTypes;
       PaymentType?: SelectOptionTypes;
+      Status?: SelectOptionTypes;
     };
     let queryParam = "";
     if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
     if (Provider?.value) queryParam += "providerId=" + Provider?.value + ",";
-    if (PaymentType?.value) queryParam += "paymentType=" + PaymentType?.value + ",";
+    if (PaymentType?.value)
+      queryParam += "paymentType=" + PaymentType?.value + ",";
+    if (Status?.value) queryParam += "status=" + Status?.value + ",";
 
     return queryParam.substring(0, queryParam.length - 1);
   };
@@ -223,7 +245,10 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
             <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
             <TableHeadCell className="min-w-[230px]">دسته بندی</TableHeadCell>
             <TableHeadCell>توضیحات</TableHeadCell>
-            <TableHeadCell className="min-w-[230px]"> تامین کننده</TableHeadCell>
+            <TableHeadCell className="min-w-[230px]">
+              {" "}
+              تامین کننده
+            </TableHeadCell>
             <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
             <TableHeadCell className="min-w-[230px]">نوع پرداخت</TableHeadCell>
@@ -274,6 +299,17 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
+            <TableFilterCell>
+              <SingleSelect
+                isLoading={false}
+                options={orderStatusOptions}
+                onChange={(value: any) => setStatusFilter(value)}
+                value={statusFilter}
+                placeholder="انتخاب وضعیت..."
+                noBorder
+                isClearable
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
           </TableRow>
           {!loading ? (
@@ -309,7 +345,13 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
                   <TableCell>
                     {row?.amount ? `${row?.amount} (کیلوگرم)` : "_"}
                   </TableCell>
-                  <TableCell>{row?.statusTitle ?? "_"}</TableCell>
+                  <TableCell>
+                    <span className={getOrderStatusColor(row?.status)}>
+                      {getOrderStatusText(row?.status) ||
+                        row?.statusTitle ||
+                        "_"}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button
