@@ -56,7 +56,7 @@ interface OrderItem {
     driverPhone: string;
   };
   shippings: {
-    digifarm: number;
+    iranscrap: number;
     provider: number;
   };
   shippingPrice: number;

@@ -12,7 +12,7 @@ const MainTheme: React.FC<AdminThemeTypes> = (props) => {
   const getUserData = useSelector(selectGetUserProfileData);
   const navigate = useNavigate();
   useEffect(() => {
-    document.title = title ?? "مدیریت دیجی فارم";
+    document.title = title ?? "مدیریت ایران اسکرپ";
   }, [title]);
 
   useEffect(() => {

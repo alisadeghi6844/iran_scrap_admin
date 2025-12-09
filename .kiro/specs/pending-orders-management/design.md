@@ -74,7 +74,7 @@ interface Order {
   updatedAt: number;
   cheques?: Cheque[];
   shippings: {
-    digifarm: number;
+    iranscrap: number;
     provider: number;
   };
   shippingPrice: number;

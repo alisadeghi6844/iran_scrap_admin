@@ -101,7 +101,7 @@ const Login = () => {
               <img
                 className="w-24 h-24 object-contain drop-shadow-lg"
                 src="/images/core/logo.png"
-                alt="دیجی فارم"
+                alt="ایران اسکرپ"
               />
             </div>
           </div>
@@ -109,7 +109,7 @@ const Login = () => {
           {/* Welcome Text */}
           <div className="text-center lg:text-right">
             <h1 className="font-bold text-2xl lg:text-3xl text-primary-500 mb-2">
-              ورود به پنل ادمین دیجی فارم
+              ورود به پنل ادمین ایران اسکرپ
             </h1>
             <p className="text-gray-600 text-sm lg:text-base">
               لطفاً شماره تلفن خود را وارد کنید
