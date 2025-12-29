@@ -34,7 +34,7 @@ const Category = () => {
         mode={mode}
         content={
           <Suspense>
-            {mode === "content" ? (
+           
               <CategoryTable
                 onRowClick={(name: string, row: any) => {
                   setMode(name);
@@ -44,7 +44,7 @@ const Category = () => {
                   }
                 }}
               />
-            ) : null}
+   
           </Suspense>
         }
         form={
@@ -52,6 +52,7 @@ const Category = () => {
             {mode == "update" || mode == "create" || mode == "edit" ? (
               <CategoryForm
                 id={selectedRow?._id ?? null}
+                selectedRow={selectedRow}
                 mode={mode}
                 onSubmitForm={() => {
                   setMode("content");
@@ -62,23 +63,27 @@ const Category = () => {
         }
         confirmation={
           <Suspense>
-            <CategoryAttributeForm
-              id={selectedRow?._id ?? null}
-              mode={mode}
-              onSubmitForm={() => {
-                setMode("content");
-              }}
-            />
+            {mode === "delete" ? (
+              <CategoryAttributeForm
+                id={selectedRow?._id ?? null}
+                mode={mode}
+                onSubmitForm={() => {
+                  setMode("content");
+                }}
+              />
+            ) : null}
           </Suspense>
         }
         detail={
           <Suspense>
-            <ShowAttributes
-              value={selectedRow ?? {}}
-              onSubmit={() => {
-                setMode("content");
-              }}
-            />
+            {mode === "detail" ? (
+              <ShowAttributes
+                value={selectedRow ?? {}}
+                onSubmit={() => {
+                  setMode("content");
+                }}
+              />
+            ) : null}
           </Suspense>
         }
         onModalClose={() => {

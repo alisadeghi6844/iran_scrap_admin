@@ -61,12 +61,12 @@ const OtpCode = (props: any) => {
             height: window.innerWidth < 768 ? "48px" : "66px",
             textAlign: "center",
             transition: "all 0.2s ease",
-            backgroundColor: "#FAFAFA",
+            backgroundColor: "#f1f5f9",
           }}
           focusStyle={{
-            border: "2px solid #3B82F6",
-            backgroundColor: "#FFFFFF",
-            boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
+            border: "2px solid #64748b",
+            backgroundColor: "#f8fafc",
+            boxShadow: "0 0 0 3px rgba(100, 116, 139, 0.1)",
           }}
           renderInput={(props) => (
             <input 

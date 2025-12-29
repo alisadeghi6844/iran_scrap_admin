@@ -85,9 +85,9 @@ const VerticalMenuItem: React.FC<VerticalMenuItemProps> = (props) => {
           )}
 
           {isNew && (
-            <div className="bg-[#dbf3f7] flex items-center gap-x-1 px-2 py-1 rounded-lg">
+            <div className="bg-slate-100 flex items-center gap-x-1 px-2 py-1 rounded-lg">
               <SmallBellIcon />
-              <Typography className="text-sm text-[#006C9C]">جدید</Typography>
+              <Typography className="text-sm text-primary-600">جدید</Typography>
             </div>
           )}
         </Typography>

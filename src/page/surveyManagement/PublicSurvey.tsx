@@ -104,7 +104,7 @@ const PublicSurvey = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-md mx-auto text-center">
           <div className="bg-white rounded-lg shadow-md p-8">
-            <FiCheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <FiCheckCircle className="w-16 h-16 text-secondary-500 mx-auto mb-4" />
             <Typography className="text-xl font-semibold mb-2">
               با تشکر از شما!
             </Typography>

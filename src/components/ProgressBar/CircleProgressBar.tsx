@@ -106,7 +106,7 @@ const CircleProgressBar = ({
             cx="50%"
             cy="50%"
             r={radius}
-            stroke={type === "simple" ? "#7B68EE" : "white"}
+            stroke={type === "simple" ? "#64748b" : "white"}
             strokeWidth={strokeWidth}
             fill="transparent"
             strokeDasharray={circumference}

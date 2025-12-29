@@ -25,10 +25,6 @@ import { debounce } from "lodash";
 
 interface BuyerTypes {
   onRowClick?: any;
-  id?: any;
-  setCloseModal?: any;
-  setUserIds?: any;
-  setDefaultRolesId?: any;
 }
 
 interface SortState {
@@ -37,8 +33,7 @@ interface SortState {
 }
 
 const BuyerTable: React.FC<BuyerTypes> = (props) => {
-  const { onRowClick, id, setUserIds, setCloseModal, setDefaultRolesId } =
-    props;
+  const { onRowClick } = props;
 
   const dispatch: any = useDispatch();
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
@@ -183,7 +178,7 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
               >
                 نوع کاربر {getSortIcon("userSort")}
               </TableHeadCell>
-              <TableHeadCell />
+              <TableHeadCell className="min-w-[200px]">عملیات</TableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -252,7 +247,7 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
                       onClick={(e: any) => {
                         e.stopPropagation();
                       }}
-                      className="justify-center gap-x-4"
+                      className="justify-center gap-x-2"
                     >
                       <Button
                         startIcon={
@@ -262,8 +257,6 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
                         variant="outline-success"
                         size="sm"
                         onClick={() => {
-                          setUserIds([row?.id]);
-                          setDefaultRolesId(row?.roles);
                           onRowClick && onRowClick("update", row);
                         }}
                       >

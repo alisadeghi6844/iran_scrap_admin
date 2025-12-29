@@ -171,7 +171,6 @@ const ViewPricingTable: React.FC<ViewPricingTypes> = () => {
     let queryParam = "";
     if (Product?.value) queryParam += "productId=" + Product.value + ",";
     if (Brand?.value) queryParam += "brandId=" + Brand.value + ",";
-    if (Provider?.value) queryParam += "providerId=" + Provider.value + ",";
     if (Port?.value) queryParam += "portId=" + Port.value + ",";
     if (PaymentType?.value)
       queryParam += "paymentType=" + PaymentType.value + ",";
@@ -287,7 +286,6 @@ const ViewPricingTable: React.FC<ViewPricingTypes> = () => {
             <TableHeadCell>ردیف</TableHeadCell>
             <TableHeadCell>کالا</TableHeadCell>
             <TableHeadCell>برند</TableHeadCell>
-            <TableHeadCell>تامین کننده</TableHeadCell>
             <TableHeadCell>محل بارگیری</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
             <TableHeadCell>قیمت فروش</TableHeadCell>
@@ -312,14 +310,6 @@ const ViewPricingTable: React.FC<ViewPricingTypes> = () => {
                 value={brandFilter}
                 onChange={handleBrandFilterChange}
                 placeholder="انتخاب برند..."
-              />
-            </TableFilterCell>
-            <TableFilterCell>
-              <ProviderFilterSelect
-                name="Provider"
-                value={providerFilter}
-                onChange={handleProviderFilterChange}
-                placeholder="انتخاب تامین کننده..."
               />
             </TableFilterCell>
             <TableFilterCell>
@@ -362,9 +352,7 @@ const ViewPricingTable: React.FC<ViewPricingTypes> = () => {
                     <TableCell className={statusInfo?.textColor}>
                       {row?.brandId?.name ?? "_"}
                     </TableCell>
-                    <TableCell className={statusInfo?.textColor}>
-                      {row?.providerId?.name ?? "_"}
-                    </TableCell>
+          
                     <TableCell className={statusInfo?.textColor}>
                       {row?.portId?.name ?? "_"}
                     </TableCell>

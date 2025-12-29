@@ -303,16 +303,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                           ویرایش درخواست
                         </Button>
                       )}
-                      <Button
-                        size="sm"
-                        type="button"
-                        variant="primary"
-                        onClick={() => {
-                          onRowClick && onRowClick("update", row);
-                        }}
-                      >
-                        پردازش درخواست
-                      </Button>
+
                       <Button
                         size="sm"
                         type="button"

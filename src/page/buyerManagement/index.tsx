@@ -1,14 +1,11 @@
 import React, { lazy, Suspense, useState } from "react";
 import CRUD from "../../container/organism/CRUD";
-import SimpleRoleTable from "../../container/features/roleManagement/SimpleRoleTable";
 import BuyerTable from "../../container/features/buyer/BuyerTable";
+import BuyerRequestsTable from "../../container/features/buyer/BuyerRequestsTable";
 
 const BuyerManagement = () => {
   const [mode, setMode] = useState<string>("content");
   const [selectedRow, setSelectedRow] = useState<any>({});
-
-  const [userIds, setUserIds] = useState([]);
-  const [defaultRolesId, setDefaultRolesId] = useState([]);
 
   return (
     <div
@@ -18,16 +15,13 @@ const BuyerManagement = () => {
       }}
     >
       <CRUD
-        formModalSize="2xl"
+        formModalSize="6xl"
         mode={mode}
         content={
           <Suspense>
             <BuyerTable
-              setDefaultRolesId={(e: any) => setDefaultRolesId(e)}
-              setUserIds={(e: any) => setUserIds(e)}
               onRowClick={(name: string, row: any) => {
                 setMode(name);
-
                 if (row) {
                   setSelectedRow(row);
                 }
@@ -37,27 +31,11 @@ const BuyerManagement = () => {
         }
         form={
           <Suspense>
-            <SimpleRoleTable
-              defaultRolesId={defaultRolesId}
-              userIds={userIds}
-              value={selectedRow ?? null}
-              mode={mode}
-              onSubmitForm={() => {
-                setMode("content");
-              }}
+            <BuyerRequestsTable
+              userId={selectedRow?.id}
             />
           </Suspense>
         }
-        // confirmation={
-        //   <Suspense>
-        //     <BuyerDeleteConfirmation
-        //       value={selectedRow ?? null}
-        //       onSubmit={() => {
-        //         setMode("content");
-        //       }}
-        //     />
-        //   </Suspense>
-        // }
         onModalClose={() => {
           setMode("content");
         }}

@@ -6,6 +6,7 @@ import {
   GetProductPriceAction,
   GetProductPriceByIdAction,
   UpdateProductPriceAction,
+  UpdatePurchasePriceAction,
 } from "../../actions/productPrice/ProductPriceActions";
 
 interface productPriceState {
@@ -128,6 +129,23 @@ const productPriceSlice = createSlice({
         state.updateProductPriceError = null;
       })
       .addCase(UpdateProductPriceAction.rejected, (state, action) => {
+        state.updateProductPriceLoading = false;
+        state.updateProductPriceError = action.payload;
+        state.updateProductPriceData = [];
+      })
+
+      // update purchase price (same state as update product price)
+      .addCase(UpdatePurchasePriceAction.pending, (state) => {
+        state.updateProductPriceLoading = true;
+        state.updateProductPriceData = [];
+        state.updateProductPriceError = null;
+      })
+      .addCase(UpdatePurchasePriceAction.fulfilled, (state, action) => {
+        state.updateProductPriceLoading = false;
+        state.updateProductPriceData = action.payload;
+        state.updateProductPriceError = null;
+      })
+      .addCase(UpdatePurchasePriceAction.rejected, (state, action) => {
         state.updateProductPriceLoading = false;
         state.updateProductPriceError = action.payload;
         state.updateProductPriceData = [];

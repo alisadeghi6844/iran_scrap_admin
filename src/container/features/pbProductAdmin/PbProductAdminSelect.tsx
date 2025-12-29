@@ -14,8 +14,12 @@ import {
 import { GetPbProductAdminAction } from "../../../redux/actions/pbProductAdmin/PbProductAdminActions";
 import SingleSelect from "../../../components/select/SingleSelect";
 
-const PbProductAdminSelect: React.FC<CategorySelectTypes> = (props) => {
-  const { mode, name, required, ...rest } = props;
+interface PbProductAdminSelectProps extends CategorySelectTypes {
+  onProductChange?: (product: any) => void;
+}
+
+const PbProductAdminSelect: React.FC<PbProductAdminSelectProps> = (props) => {
+  const { mode, name, required, onProductChange, ...rest } = props;
 
   const dispatch: any = useDispatch();
 
@@ -41,6 +45,7 @@ const PbProductAdminSelect: React.FC<CategorySelectTypes> = (props) => {
     const option = pbProductAdminData?.data?.map((item: any) => ({
       value: item._id || item.id,
       label: item.name,
+      data: item, // Store full product data
     }));
     setSelectOptions(option || []);
   }, [pbProductAdminData]);
@@ -54,6 +59,10 @@ const PbProductAdminSelect: React.FC<CategorySelectTypes> = (props) => {
       options={selectOptions}
       onChange={(e: any) => {
         setValue(e);
+        // Call onProductChange with full product data if provided
+        if (onProductChange && e?.data) {
+          onProductChange(e.data);
+        }
       }}
       value={field.value}
       {...props}

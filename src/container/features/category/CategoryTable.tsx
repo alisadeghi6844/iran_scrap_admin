@@ -39,6 +39,7 @@ const CategoryTable: React.FC<CategoryTypes> = (props) => {
   // Filter states
   const [nameFilter, setNameFilter] = useState<string>("");
   const [parentNameFilter, setParentNameFilter] = useState<string>("");
+  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
 
   const filterDefaultInitialValues = {
     name: nameFilter,
@@ -52,25 +53,28 @@ const CategoryTable: React.FC<CategoryTypes> = (props) => {
 
   useEffect(() => {
     dispatch(GetCategoryAction({ page: 0, size: 20 }));
+    setIsInitialLoad(false);
   }, []);
 
   // Debounced filter effect
   useDebounce(
     () => {
-      const filterData = {
-        name: nameFilter,
-        parentName: parentNameFilter,
-      };
+      if (!isInitialLoad) {
+        const filterData = {
+          name: nameFilter,
+          parentName: parentNameFilter,
+        };
 
-      const filterString = handleFilterParameters(filterData);
+        const filterString = handleFilterParameters(filterData);
 
-      dispatch(
-        GetCategoryAction({
-          filter: filterString || undefined,
-          page: 0,
-          size: 20,
-        })
-      );
+        dispatch(
+          GetCategoryAction({
+            filter: filterString || undefined,
+            page: 0,
+            size: 20,
+          })
+        );
+      }
     },
     [nameFilter, parentNameFilter],
     500

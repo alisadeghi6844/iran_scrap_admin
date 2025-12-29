@@ -93,7 +93,7 @@ export const getOrderStatusColor = (status: string): string => {
     case OrderStatus.SEND_FINAL_OFFER_TO_BUYER.toLowerCase():
       return "text-purple-600";
     case OrderStatus.CONFIRMATION_REQUEST_BY_BUYER.toLowerCase():
-      return "text-green-600";
+      return "text-secondary-600";
     case OrderStatus.BUYER_FAILURE_APPROVE.toLowerCase():
       return "text-red-600";
     case OrderStatus.BUYER_CANCELLATION.toLowerCase():
@@ -101,7 +101,7 @@ export const getOrderStatusColor = (status: string): string => {
     case OrderStatus.NOT_RECEIVING_ENOUGH_OFFERS.toLowerCase():
       return "text-red-600";
     case OrderStatus.CLOSED.toLowerCase():
-      return "text-green-800";
+      return "text-secondary-800";
     case OrderStatus.WAITING_UNLOADING.toLowerCase():
       return "text-indigo-600";
     case OrderStatus.BUYER_WAITINGFORPAY.toLowerCase():

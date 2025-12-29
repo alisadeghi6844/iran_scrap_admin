@@ -65,8 +65,8 @@ const SurveyResponseDetail = () => {
         return (
           <div className="flex flex-wrap gap-2">
             {answers.map((ans: string, index: number) => (
-              <div key={index} className="bg-green-50 px-3 py-2 rounded-lg">
-                <Typography className="text-green-800 font-medium">
+              <div key={index} className="bg-secondary-50 px-3 py-2 rounded-lg">
+                <Typography className="text-secondary-800 font-medium">
                   {ans}
                 </Typography>
               </div>
@@ -175,9 +175,9 @@ const SurveyResponseDetail = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${userSurvey?.completed ? 'bg-green-100' : 'bg-yellow-100'}`}>
+            <div className={`p-2 rounded-lg ${userSurvey?.completed ? 'bg-secondary-100' : 'bg-warning-100'}`}>
               {userSurvey?.completed ? (
-                <FiCheckCircle className="text-green-600" />
+                <FiCheckCircle className="text-secondary-600" />
               ) : (
                 <FiClock className="text-yellow-600" />
               )}
@@ -228,9 +228,9 @@ const SurveyResponseDetail = () => {
               {questions.length}
             </Typography>
           </div>
-          <div className="bg-green-50 p-4 rounded-lg">
+          <div className="bg-secondary-50 p-4 rounded-lg">
             <Typography className="text-xs text-gray-600">پاسخ داده شده</Typography>
-            <Typography className="text-2xl font-bold text-green-600">
+            <Typography className="text-2xl font-bold text-secondary-600">
               {userSurvey?.answers?.length || 0}
             </Typography>
           </div>

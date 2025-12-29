@@ -199,7 +199,7 @@ const TicketTable: React.FC<TicketTableTypes> = () => {
                             : row?.priority === "MEDIUM"
                             ? "bg-yellow-100 text-yellow-800"
                             : row?.priority === "LOW"
-                            ? "bg-green-100 text-green-800"
+                            ? "bg-primary-100 text-primary-800"
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >
@@ -223,7 +223,7 @@ const TicketTable: React.FC<TicketTableTypes> = () => {
                             : row?.status === "CLOSED"
                             ? "bg-gray-100 text-gray-800"
                             : row?.status === "OPEN"
-                            ? "bg-green-100 text-green-800"
+                            ? "bg-primary-100 text-primary-800"
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >

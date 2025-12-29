@@ -17,12 +17,12 @@ const LoadingPage: React.FC<LoadingPageProps> = (props) => {
         >
           <defs>
             <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#7B68EE" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="#7B68EE" stopOpacity="0.1" />
+              <stop offset="0%" stopColor="#64748b" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#64748b" stopOpacity="0.1" />
             </linearGradient>
             <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#7B68EE" />
-              <stop offset="100%" stopColor="#9370DB" />
+              <stop offset="0%" stopColor="#64748b" />
+              <stop offset="100%" stopColor="#475569" />
             </linearGradient>
           </defs>
 
@@ -43,9 +43,9 @@ const LoadingPage: React.FC<LoadingPageProps> = (props) => {
               fill="none"
               strokeLinecap="round"
             />
-            <circle cx="60" cy="85" r="5" fill="#7B68EE" />
-            <circle cx="45" cy="100" r="3" fill="#9370DB" />
-            <circle cx="75" cy="100" r="3" fill="#9370DB" />
+            <circle cx="60" cy="85" r="5" fill="#64748b" />
+            <circle cx="45" cy="100" r="3" fill="#475569" />
+            <circle cx="75" cy="100" r="3" fill="#475569" />
           </g>
         </svg>
       </div>

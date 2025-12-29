@@ -69,7 +69,7 @@ const TicketCloseConfirm: React.FC<TicketCloseConfirmProps> = ({
               <span className={`px-2 py-1 rounded-full text-xs ml-2 ${
                 ticket?.status === "WAIT_FOR_ANSWER" ? "bg-orange-100 text-orange-800" :
                 ticket?.status === "ANSWERED" ? "bg-blue-100 text-blue-800" :
-                ticket?.status === "OPEN" ? "bg-green-100 text-green-800" :
+                ticket?.status === "OPEN" ? "bg-primary-100 text-primary-800" :
                 "bg-gray-100 text-gray-800"
               }`}>
                 {ticket?.status === "WAIT_FOR_ANSWER" ? "در انتظار پاسخ" :

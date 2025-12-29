@@ -4,15 +4,15 @@
 
 .system-theme-independent input,
 .system-theme-independent select {
-  background-color: #ffffff !important;
+  background-color: #f8fafc !important;
   color: #000000 !important;
   border-color: #e2e8f0 !important;
 }
 
 .system-theme-independent input:focus,
 .system-theme-independent select:focus {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 1px #3b82f6 !important;
+  border-color: #64748b !important;
+  box-shadow: 0 0 0 1px #64748b !important;
 }
 
 .system-theme-independent input::placeholder {

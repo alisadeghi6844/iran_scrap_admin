@@ -37,9 +37,10 @@ const FileUploader: React.FC<FileUploaderTypes> = ({
   ...rest
 }) => {
   const [files, setFiles] = useState<any>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    if (editImageFile && editImageFile.length > 0) {
+    if (editImageFile && editImageFile.length > 0 && !isInitialized) {
       console.log("editImageFile", editImageFile);
       const newFiles = editImageFile.map((item: any) => {
         if (typeof item.file === "string") {
@@ -51,10 +52,12 @@ const FileUploader: React.FC<FileUploaderTypes> = ({
         return item.file;
       });
       setFiles(mode === "update" ? newFiles : []);
-    } else {
+      setIsInitialized(true);
+    } else if (!editImageFile || editImageFile.length === 0) {
       setFiles([]); // اگر هیچ فایلی وجود نداشت، آرایه فایل‌ها را خالی کنید
+      setIsInitialized(false);
     }
-  }, [editImageFile, mode]);
+  }, [editImageFile, mode, isInitialized]);
 
   useEffect(() => {
     if (setUploaderData) {

@@ -21,10 +21,11 @@ import FileFieldUploader from "../../../components/molcols/formik-fields/FIleFie
 import CategorySelect from "./CategorySelect";
 
 const CategoryForm: React.FC<FormProps> = (props) => {
-  const { mode = "create", onSubmitForm, id, ...rest } = props;
+  const { mode = "create", onSubmitForm, id, selectedRow, ...rest } = props;
 
   const dispatch: any = useDispatch();
   const hasLoadedImage = useRef(false); 
+  const currentImageId = useRef<string | null>(null); 
   const getValue = useSelector(selectGetCategoryByIdData);
   const getLoading = useSelector(selectGetCategoryByIdLoading);
 
@@ -49,6 +50,10 @@ const CategoryForm: React.FC<FormProps> = (props) => {
 
   useEffect(() => {
     loadData();
+    // وقتی id تغییر کنه، state ها رو reset کن
+    hasLoadedImage.current = false;
+    currentImageId.current = null;
+    setEditImageFile([]);
   }, [loadData]);
   const fetchImageAsBlob = async (url: string) => {
     const response = await fetch(url);
@@ -57,35 +62,73 @@ const CategoryForm: React.FC<FormProps> = (props) => {
     return new File([blob], "thumbnail.png", { type: fileType });
   };
   useEffect(() => {
-    console.log("getValue",getValue)
-    if (getValue?.id && mode === "update") {
+    console.log("getValue", getValue);
+    console.log("selectedRow", selectedRow);
+    
+    // اگر selectedRow وجود داره و mode برابر update هست، از selectedRow استفاده کن
+    if (selectedRow && mode === "update") {
+      setInitialValues({
+        Name: selectedRow?.name || "",
+        Code: selectedRow?.code || "",
+        ParentId: selectedRow?.parentId,
+        Image: selectedRow?.image || [],
+      });
+      
+      // فقط اگر تصویر وجود داشته باشه و این id متفاوت از قبلی باشه
+      if (selectedRow?.image && currentImageId.current !== selectedRow._id) {
+        fetchImageAsBlob(selectedRow?.image)
+          .then((file) => {
+            setEditImageFile([
+              {
+                file: file,
+                contentType: "image/png",
+                fileName: "thumbnail.png",
+              },
+            ]);
+            hasLoadedImage.current = true;
+            currentImageId.current = selectedRow._id;
+          });
+      } else if (!selectedRow?.image) {
+        setEditImageFile([]);
+        hasLoadedImage.current = false;
+        currentImageId.current = null;
+      }
+    }
+    // اگر selectedRow نداریم ولی getValue داریم (fallback)
+    else if (getValue?.id && mode === "update") {
       setInitialValues({
         Name: getValue?.name || "",
         Code: getValue?.code || "",
         ParentId: getValue?.parentId,
         Image: getValue?.image || [],
       });
-      if (getValue?.image) {
-        fetchImageAsBlob(getValue?.image).then((file) => {
-          setEditImageFile([
-            {
-              file: file,
-              contentType: "image/png",
-              fileName: "thumbnail.png",
-            },
-          ]);
-          hasLoadedImage.current = true;
-        });
- 
-      } else {
+      
+      // فقط اگر تصویر وجود داشته باشه و این id متفاوت از قبلی باشه
+      if (getValue?.image && currentImageId.current !== getValue.id) {
+        fetchImageAsBlob(getValue?.image)
+          .then((file) => {
+            setEditImageFile([
+              {
+                file: file,
+                contentType: "image/png",
+                fileName: "thumbnail.png",
+              },
+            ]);
+            hasLoadedImage.current = true;
+            currentImageId.current = getValue.id;
+          });
+      } else if (!getValue?.image) {
         setEditImageFile([]);
+        hasLoadedImage.current = false;
+        currentImageId.current = null;
       }
     } else {
       setInitialValues(initialData);
       setEditImageFile([]);
       hasLoadedImage.current = false;
+      currentImageId.current = null;
     }
-  }, [getValue, mode]);
+  }, [getValue, selectedRow, mode]);
 
   const validationSchema = () =>
     Yup.object({

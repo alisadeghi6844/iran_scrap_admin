@@ -92,7 +92,7 @@ const Login = () => {
 
   return (
     <AuthLayout>
-      <div className="w-full h-full flex flex-col justify-center p-6 lg:p-8 lg:pl-[200px]">
+      <div className="w-full h-full flex flex-col justify-center p-6 lg:p-8 lg:pl-[160px]">
         {/* Mobile Logo and Header */}
         <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-12">
           {/* Logo - visible on mobile */}
@@ -101,7 +101,7 @@ const Login = () => {
               <img
                 className="w-24 h-24 object-contain drop-shadow-lg"
                 src="/images/core/logo.png"
-                alt="ایران اسکرپ"
+                alt="ایران‌اسکرپ"
               />
             </div>
           </div>
@@ -109,7 +109,7 @@ const Login = () => {
           {/* Welcome Text */}
           <div className="text-center lg:text-right">
             <h1 className="font-bold text-2xl lg:text-3xl text-primary-500 mb-2">
-              ورود به پنل ادمین ایران اسکرپ
+              ورود به پنل ادمین ایران‌اسکرپ
             </h1>
             <p className="text-gray-600 text-sm lg:text-base">
               لطفاً شماره تلفن خود را وارد کنید

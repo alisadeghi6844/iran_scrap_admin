@@ -35,7 +35,7 @@ const SingleSelect: React.FC<SingleSelectTypes> = (props) => {
       borderRadius: "0px",
       alignItems: "end",
       cursor: `${disabled ? "not-allowed" : "pointer"}`,
-      color: `${color === "primary" ? "#1EAFED" : "rgb(125 125 125)"}`,
+      color: `${color === "primary" ? "#64748b" : "rgb(125 125 125)"}`,
       overflowY: "auto",
       height: isMulti
         ? "2rem"
@@ -98,14 +98,14 @@ const SingleSelect: React.FC<SingleSelectTypes> = (props) => {
         backgroundColor: darkMode === "dark" ? "rgb(38  61  81)" : colors.white,
         color:
           isSelected && darkMode === "dark"
-            ? "rgb(27 107 250)"
+            ? "#64748b"
             : isSelected && darkMode === "light"
-            ? "#82D3F5"
+            ? "#94a3b8"
             : darkMode === "dark"
             ? "rgb(187 195 221)"
             : colors.gray[700],
         ":hover": {
-          backgroundColor: "#50C1F1",
+          backgroundColor: "#475569",
           color: "white",
         },
         justifyContent: "start",
@@ -114,7 +114,7 @@ const SingleSelect: React.FC<SingleSelectTypes> = (props) => {
     },
     dropdownIndicator: (base: any) => ({
       ...base,
-      color: `${color === "primary" ? "#1eafed" : "rgb(125 125 125)"}`,
+      color: `${color === "primary" ? "#64748b" : "rgb(125 125 125)"}`,
       cursor: `${disabled ? "not-allowed" : "pointer"}`,
     }),
   };

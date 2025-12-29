@@ -15,12 +15,12 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "Your App Name",
-        short_name: "App",
+        name: "IranScrap Admin Panel",
+        short_name: "IranScrap",
         start_url: "/",
         display: "standalone",
-        theme_color: "#ffffff",
-        background_color: "#ffffff",
+        theme_color: "#64748b",
+        background_color: "#f8fafc",
         icons: [
           {
             src: "icon.png",

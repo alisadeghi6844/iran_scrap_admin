@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../redux/store";
 import { HandleFilterParams } from "../../../types/FilterParams";
@@ -20,15 +20,22 @@ import {
 } from "../../../redux/slice/productPrice/ProductPriceSlice";
 import {
   GetProductPriceAction,
-  UpdateProductPriceAction,
+  UpdatePurchasePriceAction,
 } from "../../../redux/actions/productPrice/ProductPriceActions";
 
 import { formatNumber } from "../../../utils/NumberFormated";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
 import { convertToJalali } from "../../../utils/MomentConvertor";
+import { calculateProductStatus } from "../../../utils/ProductStatusCalculator";
+import { 
+  calculatePurchasePrice, 
+  safeCalculatePurchasePrice,
+  PurchasePriceCalculation 
+} from "../../../utils/PurchasePriceCalculator";
 
 import moment from "jalali-moment";
 import Input from "../../../components/input";
+import { toast } from "react-toastify";
 
 // Import filter components
 import ProductFilterSelect from "./filters/ProductFilterSelect";
@@ -38,6 +45,23 @@ import PortFilterSelect from "./filters/PortFilterSelect";
 import PaymentTypeFilterSelect from "./filters/PaymentTypeFilterSelect";
 
 import { FaCheck, FaTimes } from "react-icons/fa";
+
+// Custom hook for debouncing
+const useDebounce = (value: any, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
 
 interface PurchasePriceItem {
   _id?: string;
@@ -85,7 +109,7 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
   const [portFilter, setPortFilter] = useState<SelectOptionTypes | null>(null);
   const [paymentTypeFilter, setPaymentTypeFilter] =
     useState<SelectOptionTypes | null>(null);
-  // State for buy price editing
+  // State for buy price editing and calculations
   const [buyPrices, setBuyPrices] = useState<{ [key: string]: string }>({});
   const [editingRows, setEditingRows] = useState<{ [key: string]: boolean }>(
     {}
@@ -93,6 +117,24 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
   const [originalPrices, setOriginalPrices] = useState<{
     [key: string]: string;
   }>({});
+  
+  // State for calculated values and validation
+  const [calculatedValues, setCalculatedValues] = useState<{
+    [key: string]: PurchasePriceCalculation | null;
+  }>({});
+  
+  // State for validation errors and loading
+  const [validationErrors, setValidationErrors] = useState<{
+    [key: string]: string | null;
+  }>({});
+  
+  // State for loading individual rows
+  const [savingRows, setSavingRows] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  // Debounced buy prices for calculation
+  const debouncedBuyPrices = useDebounce(buyPrices, 300);
 
   // Default sort: newest first
   const sortBy = "createdAt";
@@ -196,11 +238,16 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
     return queryParam.substring(0, queryParam.length - 1);
   };
 
-  // Get all data without status filtering
-  const getFilteredData = () => {
+  // Memoized filtered data to prevent unnecessary re-renders
+  const filteredData = useMemo(() => {
     if (!productPriceData?.data) return [];
     return [...productPriceData.data];
-  };
+  }, [productPriceData?.data]);
+
+  // Get all data without status filtering
+  const getFilteredData = useCallback(() => {
+    return filteredData;
+  }, [filteredData]);
 
   useEffect(() => {
     if (updateData?.status == 200) {
@@ -235,6 +282,35 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
     }
   }, [productPriceData]);
 
+  // Cleanup calculation state for rows that are no longer being edited
+  useEffect(() => {
+    const activeRowIds = Object.keys(editingRows).filter(id => editingRows[id]);
+    const calculatedRowIds = Object.keys(calculatedValues);
+    const validationRowIds = Object.keys(validationErrors);
+
+    // Clean up calculated values for inactive rows
+    calculatedRowIds.forEach(rowId => {
+      if (!activeRowIds.includes(rowId)) {
+        setCalculatedValues(prev => {
+          const newState = { ...prev };
+          delete newState[rowId];
+          return newState;
+        });
+      }
+    });
+
+    // Clean up validation errors for inactive rows
+    validationRowIds.forEach(rowId => {
+      if (!activeRowIds.includes(rowId)) {
+        setValidationErrors(prev => {
+          const newState = { ...prev };
+          delete newState[rowId];
+          return newState;
+        });
+      }
+    });
+  }, [editingRows]);
+
   const getPaymentTypeLabel = (type: string) => {
     const types: { [key: string]: string } = {
       CASH: "نقدی",
@@ -248,48 +324,84 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
     return types[type] || type;
   };
 
-  // Calculate status based on sellPrice and constant
-  const calculateStatus = (sellPrice: number, constant: number) => {
-    const S = sellPrice > 0 ? constant / sellPrice : 0;
+  // Memoized validation function for buy price
+  const validateBuyPrice = useCallback((value: string): string | null => {
+    if (!value || value.trim() === '') {
+      return 'قیمت خرید الزامی است';
+    }
 
-    if (S >= 0.12)
-      return {
-        label: "سوپر الماسی",
-        color: "text-purple-600 bg-purple-100",
-        textColor: "text-purple-600",
-        value: "SUPER_DIAMOND",
-      };
-    if (S >= 0.08)
-      return {
-        label: "الماسی",
-        color: "text-blue-600 bg-blue-100",
-        textColor: "text-blue-600",
-        value: "DIAMOND",
-      };
-    if (S >= 0.05)
-      return {
-        label: "طلایی",
-        color: "text-yellow-600 bg-yellow-100",
-        textColor: "text-yellow-600",
-        value: "GOLD",
-      };
-    if (S >= 0.03)
-      return {
-        label: "نقره‌ای",
-        color: "text-gray-600 bg-gray-100",
-        textColor: "text-gray-600",
-        value: "SILVER",
-      };
-    return {
-      label: "برنزی",
-      color: "text-orange-600 bg-orange-100",
-      textColor: "text-orange-600",
-      value: "BRONZE",
-    };
-  };
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) {
+      return 'قیمت خرید باید عدد باشد';
+    }
 
-  // Handle buy price change
-  const handleBuyPriceChange = (rowId: string, value: string) => {
+    if (numValue < 0) {
+      return 'قیمت خرید نمی‌تواند منفی باشد';
+    }
+
+    if (numValue > 999999999) {
+      return 'قیمت خرید خیلی زیاد است';
+    }
+
+    return null;
+  }, []);
+
+  // Memoized calculation function
+  const performCalculation = useCallback((rowId: string, buyPrice: number, row: PurchasePriceItem) => {
+    const constant = row.constant || 0;
+    
+    if (buyPrice >= 0 && constant >= 0) {
+      const calculation = safeCalculatePurchasePrice({
+        buyPrice,
+        constant,
+        paymentType: row.paymentType
+      });
+
+      setCalculatedValues((prev) => ({
+        ...prev,
+        [rowId]: calculation,
+      }));
+    } else {
+      setCalculatedValues((prev) => ({
+        ...prev,
+        [rowId]: null,
+      }));
+    }
+  }, []);
+
+  // Effect for debounced calculations
+  useEffect(() => {
+    const currentData = productPriceData?.data || [];
+    
+    Object.entries(debouncedBuyPrices).forEach(([rowId, value]) => {
+      if (editingRows[rowId] && value) {
+        const row = currentData.find((item: PurchasePriceItem) => 
+          (item._id || item.id) === rowId
+        );
+        
+        if (row) {
+          const validationError = validateBuyPrice(value);
+          setValidationErrors((prev) => ({
+            ...prev,
+            [rowId]: validationError,
+          }));
+
+          if (!validationError) {
+            const buyPrice = parseFloat(value) || 0;
+            performCalculation(rowId, buyPrice, row);
+          } else {
+            setCalculatedValues((prev) => ({
+              ...prev,
+              [rowId]: null,
+            }));
+          }
+        }
+      }
+    });
+  }, [debouncedBuyPrices, editingRows, productPriceData?.data, validateBuyPrice, performCalculation]);
+
+  // Optimized buy price change handler (no immediate calculation)
+  const handleBuyPriceChange = useCallback((rowId: string, value: string, row: PurchasePriceItem) => {
     setBuyPrices((prev) => ({
       ...prev,
       [rowId]: value,
@@ -300,29 +412,104 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
       ...prev,
       [rowId]: true,
     }));
-  };
+  }, []);
 
-  // Handle save (check button)
-  const handleSavePrice = (row: PurchasePriceItem) => {
+  // Handle save (check button) with validation, error handling, and loading states
+  const handleSavePrice = async (row: PurchasePriceItem) => {
     const rowId = row._id || row.id || "";
-    const newPrice = parseFloat(buyPrices[rowId] || "0");
+    const newBuyPrice = parseFloat(buyPrices[rowId] || "0");
+    const calculatedData = calculatedValues[rowId];
+    const validationError = validationErrors[rowId];
 
-    if (!isNaN(newPrice) && newPrice >= 0) {
-      console.log("new price", newPrice);
-      dispatch(
-        UpdateProductPriceAction({
+    // Check validation
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
+    if (!calculatedData) {
+      toast.error('خطا در محاسبه قیمت فروش و وضعیت');
+      return;
+    }
+
+    if (isNaN(newBuyPrice) || newBuyPrice < 0) {
+      toast.error('قیمت خرید نامعتبر است');
+      return;
+    }
+
+    // Set loading state
+    setSavingRows((prev) => ({
+      ...prev,
+      [rowId]: true,
+    }));
+
+    try {
+      console.log("Saving with calculated values:", {
+        buyPrice: newBuyPrice,
+        sellPrice: calculatedData.sellPrice,
+        status: calculatedData.status.value
+      });
+      
+      await dispatch(
+        UpdatePurchasePriceAction({
           id: rowId,
-          credentials: { buyPrice: newPrice },
+          credentials: { 
+            buyPrice: newBuyPrice,
+            sellPrice: calculatedData.sellPrice,
+            status: calculatedData.status.value
+          },
+          sellPrice: calculatedData.sellPrice,
+          constant: row.constant,
         })
       );
 
       // Update original price and clear editing state
       setOriginalPrices((prev) => ({
         ...prev,
-        [rowId]: newPrice.toString(),
+        [rowId]: newBuyPrice.toString(),
       }));
 
       setEditingRows((prev) => ({
+        ...prev,
+        [rowId]: false,
+      }));
+
+      // Clear calculated values and validation errors
+      setCalculatedValues((prev) => ({
+        ...prev,
+        [rowId]: null,
+      }));
+
+      setValidationErrors((prev) => ({
+        ...prev,
+        [rowId]: null,
+      }));
+
+      // Success feedback
+      toast.success('قیمت با موفقیت به‌روزرسانی شد');
+
+    } catch (error) {
+      console.error('Error saving price:', error);
+      toast.error('خطا در ذخیره قیمت');
+      
+      // Restore original values on error
+      setBuyPrices((prev) => ({
+        ...prev,
+        [rowId]: originalPrices[rowId] || "",
+      }));
+
+      setCalculatedValues((prev) => ({
+        ...prev,
+        [rowId]: null,
+      }));
+
+      setValidationErrors((prev) => ({
+        ...prev,
+        [rowId]: null,
+      }));
+    } finally {
+      // Clear loading state
+      setSavingRows((prev) => ({
         ...prev,
         [rowId]: false,
       }));
@@ -341,6 +528,17 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
     setEditingRows((prev) => ({
       ...prev,
       [rowId]: false,
+    }));
+
+    // Clear calculated values and validation errors
+    setCalculatedValues((prev) => ({
+      ...prev,
+      [rowId]: null,
+    }));
+
+    setValidationErrors((prev) => ({
+      ...prev,
+      [rowId]: null,
     }));
   };
 
@@ -454,17 +652,23 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
             getFilteredData().length > 0 ? (
               getFilteredData().map((row: PurchasePriceItem, index: number) => {
                 const rowId = row._id || row.id || "";
-                const statusInfo =
-                  row?.sellPrice && row?.constant
-                    ? calculateStatus(row.sellPrice, row.constant)
-                    : null;
-
+                const calculatedData = calculatedValues[rowId];
                 const isEditing = editingRows[rowId] || false;
+                const validationError = validationErrors[rowId];
+                const isSaving = savingRows[rowId] || false;
+                
+                // Use calculated values if available, otherwise use original values
+                const displaySellPrice = calculatedData ? calculatedData.sellPrice : row.sellPrice;
+                const displayStatus = calculatedData ? calculatedData.status : (
+                  row?.sellPrice && row?.constant
+                    ? calculateProductStatus(row.sellPrice, row.constant)
+                    : null
+                );
 
                 return (
                   <TableRow
                     key={rowId}
-                    className={statusInfo ? statusInfo.textColor : ""}
+                    className={displayStatus ? displayStatus.textColor : ""}
                   >
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{row?.productId?.name ?? "_"}</TableCell>
@@ -475,48 +679,106 @@ const PurchasePriceTable: React.FC<PurchasePriceTypes> = () => {
                       {getPaymentTypeLabel(row?.paymentType) ?? "_"}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2 w-[200px]">
-                        <Input
-                          type="number"
-                          value={buyPrices[rowId] || ""}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            handleBuyPriceChange(rowId, e.target.value)
-                          }
-                          placeholder="قیمت خرید"
-                          className="w-32"
-                        />
-                        {isEditing && (
-                          <>
-                            <button
-                              onClick={() => handleSavePrice(row)}
-                              className="text-green-600 hover:text-green-800 p-1"
-                              title="ذخیره"
-                            >
-                              <FaCheck />
-                            </button>
-                            <button
-                              onClick={() => handleCancelPrice(rowId)}
-                              className="text-red-600 hover:text-red-800 p-1"
-                              title="لغو"
-                            >
-                              <FaTimes />
-                            </button>
-                          </>
+                      <div className="flex flex-col gap-1 w-[200px]">
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="number"
+                            value={buyPrices[rowId] || ""}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                              handleBuyPriceChange(rowId, e.target.value, row)
+                            }
+                            placeholder="قیمت خرید"
+                            className={`w-32 ${validationErrors[rowId] ? 'border-red-500' : ''}`}
+                            disabled={isSaving}
+                          />
+                          {isEditing && (
+                            <>
+                              <button
+                                onClick={() => handleSavePrice(row)}
+                                className={`p-1 ${
+                                  !calculatedData || validationErrors[rowId] || isSaving
+                                    ? 'text-gray-400 cursor-not-allowed'
+                                    : 'text-secondary-600 hover:text-secondary-800'
+                                }`}
+                                title={isSaving ? "در حال ذخیره..." : "ذخیره"}
+                                disabled={!calculatedData || !!validationErrors[rowId] || isSaving}
+                              >
+                                {isSaving ? (
+                                  <div className="animate-spin w-4 h-4 border-2 border-secondary-600 border-t-transparent rounded-full"></div>
+                                ) : (
+                                  <FaCheck />
+                                )}
+                              </button>
+                              <button
+                                onClick={() => handleCancelPrice(rowId)}
+                                className={`p-1 ${
+                                  isSaving 
+                                    ? 'text-gray-400 cursor-not-allowed'
+                                    : 'text-red-600 hover:text-red-800'
+                                }`}
+                                title="لغو"
+                                disabled={isSaving}
+                              >
+                                <FaTimes />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                        {validationErrors[rowId] && (
+                          <span className="text-xs text-red-500">
+                            {validationErrors[rowId]}
+                          </span>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
-                      {row?.sellPrice
-                        ? formatNumber(row?.sellPrice) + " تومان"
-                        : "_"}
+                      <div className="flex flex-col">
+                        <span className={`transition-all duration-300 ${
+                          isEditing && calculatedData 
+                            ? "font-bold text-secondary-600 transform scale-105" 
+                            : ""
+                        }`}>
+                          {displaySellPrice
+                            ? formatNumber(displaySellPrice) + " تومان"
+                            : "_"}
+                        </span>
+                        {isEditing && calculatedData && (
+                          <span className="text-xs text-secondary-500 animate-pulse">
+                            💰 محاسبه شده
+                          </span>
+                        )}
+                        {isEditing && !calculatedData && validationError && (
+                          <span className="text-xs text-red-500">
+                            ❌ خطا در محاسبه
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
-                      {statusInfo ? (
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}
-                        >
-                          {statusInfo.label}
-                        </span>
+                      {displayStatus ? (
+                        <div className="flex flex-col">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
+                              displayStatus.color
+                            } ${
+                              isEditing && calculatedData 
+                                ? "ring-2 ring-secondary-300 transform scale-105 shadow-lg" 
+                                : ""
+                            }`}
+                          >
+                            {displayStatus.label}
+                          </span>
+                          {isEditing && calculatedData && (
+                            <span className="text-xs text-secondary-500 mt-1 animate-pulse">
+                              ✨ محاسبه شده
+                            </span>
+                          )}
+                          {isEditing && !calculatedData && validationError && (
+                            <span className="text-xs text-red-500 mt-1">
+                              ❌ خطا در محاسبه
+                            </span>
+                          )}
+                        </div>
                       ) : (
                         "_"
                       )}

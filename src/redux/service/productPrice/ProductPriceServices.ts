@@ -1,6 +1,7 @@
 import { BASE_URL } from "../../../api/config";
 import HttpServises from "../../../api/HttpServises";
 import { AxiosQueryCustom } from "../../../utils/AxiosQuery";
+import { ProductPriceUpdatePayload } from "../../types/productPrice/ProductPriceTypes";
 import {
   CREATE_PRODUCT_PRICE_POINT,
   DELETE_PRODUCT_PRICE_POINT,
@@ -34,6 +35,14 @@ export const createProductPriceService = async (items: any) => {
 
 export const updateProductPriceService = async (items: any, id: any) => {
   console.log("item", items);
+  return await HttpServises.patch(
+    `${BASE_URL}${UPDATE_PRODUCT_PRICE_POINT}/${id}`,
+    items
+  );
+};
+
+export const updatePurchasePriceService = async (items: ProductPriceUpdatePayload, id: any) => {
+  console.log("purchase price item", items);
   return await HttpServises.patch(
     `${BASE_URL}${UPDATE_PRODUCT_PRICE_POINT}/${id}`,
     items

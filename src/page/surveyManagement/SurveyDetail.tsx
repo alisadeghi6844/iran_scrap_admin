@@ -209,7 +209,7 @@ const SurveyDetail = () => {
                   <Button
                     onClick={handleUpdateSettings}
                     loading={updateLoading}
-                    className="bg-green-500 text-white px-4 py-2 rounded"
+                    className="bg-secondary-500 text-white px-4 py-2 rounded"
                   >
                     <FiSave className="ml-1" />
                     ذخیره تغییرات
@@ -246,7 +246,7 @@ const SurveyDetail = () => {
                   <span
                     className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                       survey.published
-                        ? "bg-green-100 text-green-800"
+                        ? "bg-secondary-100 text-secondary-800"
                         : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
@@ -304,7 +304,7 @@ const SurveyDetail = () => {
           <span
             className={`px-3 py-1 text-sm font-semibold rounded-full ${
               survey.published
-                ? "bg-green-100 text-green-800"
+                ? "bg-secondary-100 text-secondary-800"
                 : "bg-yellow-100 text-yellow-800"
             }`}
           >

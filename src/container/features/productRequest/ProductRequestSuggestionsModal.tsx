@@ -156,7 +156,7 @@ const ProductRequestSuggestionsModal: React.FC<
         return "px-2 py-1 rounded text-sm bg-yellow-100 text-yellow-800";
       case "APPROVED":
       case "BUYER_CONFIRMED":
-        return "px-2 py-1 rounded text-sm bg-green-100 text-green-800";
+        return "px-2 py-1 rounded text-sm bg-secondary-100 text-secondary-800";
       case "REJECTED":
         return "px-2 py-1 rounded text-sm bg-red-100 text-red-800";
       case "CONFIRMATION_REQUEST_BY_BUYER":
@@ -246,7 +246,7 @@ const ProductRequestSuggestionsModal: React.FC<
                   {winner ? (
                     <Typography
                       variant="body2"
-                      className="font-medium text-green-600"
+                      className="font-medium text-secondary-600"
                     >
                       {formatPrice(winner.price)}
                     </Typography>
@@ -498,7 +498,7 @@ const ProductRequestSuggestionsModal: React.FC<
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 shadow-lg">
+              <div className="bg-gradient-to-br from-secondary-50 to-secondary-100 border-2 border-secondary-200 rounded-xl p-6 shadow-lg">
                 {/* Header with Provider Info */}
                 <div className="mb-6">
                   {(() => {
@@ -510,13 +510,13 @@ const ProductRequestSuggestionsModal: React.FC<
                         <div>
                           <Typography
                             variant="h6"
-                            className="text-green-800 font-bold"
+                            className="text-secondary-800 font-bold"
                           >
                             {getProviderName(winnerProvider)}
                           </Typography>
                           <Typography
                             variant="body2"
-                            className="text-green-600"
+                            className="text-secondary-600"
                           >
                             {winnerProvider.mobile}
                           </Typography>

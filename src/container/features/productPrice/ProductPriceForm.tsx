@@ -133,7 +133,7 @@ const SellPriceDisplay = () => {
   const sellPrice = buyPrice + constant;
 
   return (
-    <div className="p-4 rounded-xl border-2 border-green-300 bg-green-50 transition-all duration-300">
+    <div className="p-4 rounded-xl border-2 border-secondary-300 bg-secondary-50 transition-all duration-300">
       <div className="flex items-center justify-between mb-3">
         <Typography className="text-sm font-medium text-gray-700">
           قیمت فروش محاسبه شده
@@ -142,7 +142,7 @@ const SellPriceDisplay = () => {
       </div>
 
       <div className="space-y-2">
-        <Typography className="text-2xl font-bold text-green-600">
+        <Typography className="text-2xl font-bold text-secondary-600">
           {sellPrice > 0 ? sellPrice.toLocaleString("fa-IR") : "0"} تومان
         </Typography>
 
@@ -163,6 +163,16 @@ const ProductPriceForm: React.FC<FormProps> = (props) => {
 
   const createLoading = useSelector(selectCreateProductPriceLoading);
   const updateLoading = useSelector(selectUpdateProductPriceLoading);
+
+  // Add state for categoryId
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+
+  // Handler for product selection change
+  const handleProductChange = (product: any) => {
+    // Extract categoryId from selected product
+    const categoryId = product?.categoryId?.id || product?.categoryId?._id || null;
+    setSelectedCategoryId(categoryId);
+  };
 
   const initialData = {
     Product: null as any,
@@ -199,6 +209,11 @@ const ProductPriceForm: React.FC<FormProps> = (props) => {
         booleanShowInApp: Boolean(value?.showInApp),
         booleanShowInPanel: Boolean(value?.showInPanel),
       });
+      
+      // Extract categoryId from existing product data for edit mode
+      const existingCategoryId = value?.productId?.categoryId?.id || value?.productId?.categoryId?._id || null;
+      setSelectedCategoryId(existingCategoryId);
+      
       setInitialValues({
         Product: value?.productId
           ? {
@@ -236,6 +251,7 @@ const ProductPriceForm: React.FC<FormProps> = (props) => {
       });
     } else {
       setInitialValues(initialData);
+      setSelectedCategoryId(null);
     }
   }, [value, mode]);
 
@@ -317,6 +333,7 @@ const ProductPriceForm: React.FC<FormProps> = (props) => {
                   label="کالا"
                   mode={mode}
                   required
+                  onProductChange={handleProductChange}
                 />
               </div>
             ),
@@ -329,6 +346,7 @@ const ProductPriceForm: React.FC<FormProps> = (props) => {
                   label="برند"
                   mode={mode}
                   required
+                  categoryId={selectedCategoryId}
                 />
               </div>
             ),
