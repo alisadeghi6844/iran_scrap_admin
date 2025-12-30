@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CRUD from "../../container/organism/CRUD";
 import OpenRequestDetail from "../../container/features/openRequest/OpenRequestDetail";
@@ -13,97 +13,27 @@ import {
   selectVerifyPaymentLoading,
   selectVerifyPaymentData,
 } from "../../redux/slice/product-request-offer-admin/ProductRequestOfferAdminSlice";
-
-const ProductRequestAdminTable = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "ProductRequestAdmin" */ "../../container/features/productRequestAdmin/ProductRequestAdminTable"
-    )
-);
-const CloseRequestTable = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "closeRequest" */ "../../container/features/closeRequest/CloseRequestTable"
-    )
-);
-const OpenRequestTable = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "openRequest" */ "../../container/features/openRequest/OpenRequestTable"
-    )
-);
-const ProductRequestAdminForm = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "ProductRequestAdmin" */ "../../container/features/productRequestAdmin/ProductRequestAdminForm"
-    )
-);
-const ProductRequestEditForm = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "ProductRequestEdit" */ "../../container/features/productRequestAdmin/ProductRequestEditForm"
-    )
-);
-const CloseRequestForm = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "closeRequest" */ "../../container/features/closeRequest/CloseRequestForm"
-    )
-);
-const OpenRequestForm = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "openRequest" */ "../../container/features/openRequest/OpenRequestForm"
-    )
-);
-const RequestOrderPaymentModal = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "RequestOrderPayment" */ "../../container/features/requestOrder/RequestOrderPaymentModal"
-    )
-);
-const TenderRequestEditModal = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "TenderRequest" */ "../../container/features/tenderRequest/TenderRequestEditModal"
-    )
-);
-const FinancialApprovalTable = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "FinancialApproval" */ "../../container/features/financialApproval/FinancialApprovalTable"
-    )
-);
-const PendingDeliveryTable = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "PendingDelivery" */ "../../container/features/pendingDelivery/PendingDeliveryTable"
-    )
-);
-const ProductRequestApprovalModal = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "ProductRequestApproval" */ "../../container/features/productRequest/ProductRequestApprovalModal"
-    )
-);
-const ProductRequestRejectionModal = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "ProductRequestRejection" */ "../../container/features/productRequest/ProductRequestRejectionModal"
-    )
-);
-const ProductRequestDetailsModal = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "ProductRequestDetails" */ "../../container/features/productRequest/ProductRequestDetailsModal"
-    )
-);
+import {
+  CloseRequestForm,
+  CloseRequestTable,
+  FinancialApprovalTable,
+  OpenRequestForm,
+  OpenRequestTable,
+  PendingDeliveryTable,
+  ProductRequestAdminForm,
+  ProductRequestAdminTable,
+  ProductRequestApprovalModal,
+  ProductRequestDetailsModal,
+  ProductRequestEditForm,
+  ProductRequestRejectionModal,
+  RequestOrderPaymentModal,
+  TenderRequestEditModal,
+} from "./allRequests.lazies";
+import AllRequestsTabs, { AllRequestsTabKey } from "./AllRequestsTabs";
 
 const AllRequests = () => {
   const dispatch: unknown = useDispatch();
-  const [activeTab, setActiveTab] = useState<
-    "new" | "processing" | "closed" | "financial" | "delivery"
-  >("new");
+  const [activeTab, setActiveTab] = useState<AllRequestsTabKey>("new");
   const [mode, setMode] = useState<string>("content");
   const [selectedRow, setSelectedRow] = useState<unknown>({});
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
@@ -179,13 +109,20 @@ const AllRequests = () => {
     }
   }, [verifyPaymentData]);
 
-  const tabs = [
+  const tabs: { key: AllRequestsTabKey; label: string }[] = [
     { key: "new", label: "درخواست های ثبت شده" },
     { key: "processing", label: "درخواست های دارای پیشنهاد" },
     { key: "closed", label: " درخواست های در انتظار بارگیری" },
     { key: "financial", label: "درخواست های در انتظار تائید مالی" },
     { key: "delivery", label: "درخواست های در انتظار تحویل" },
   ];
+
+  const handleTabClick = (tabKey: AllRequestsTabKey) => {
+    dispatch(clearAllProductRequestAdminData());
+    setActiveTab(tabKey);
+    setMode("content");
+    setSelectedRow({});
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -334,42 +271,11 @@ const AllRequests = () => {
       }}
     >
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">
-          درخواست های مناقصه
-        </h1>
-
-        {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8 rtl:space-x-reverse">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => {
-                  dispatch(clearAllProductRequestAdminData());
-                  setActiveTab(
-                    tab.key as
-                      | "new"
-                      | "processing"
-                      | "closed"
-                      | "financial"
-                      | "delivery"
-                  );
-                  setMode("content");
-                  setSelectedRow({});
-                }}
-                className={`py-2 px-4 border-b-2 font-medium text-sm transition-colors duration-200 ${
-                  activeTab === tab.key
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
+      <AllRequestsTabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabClick={handleTabClick}
+      />
 
       {/* Content */}
       <CRUD

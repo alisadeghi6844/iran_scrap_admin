@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { Formik } from "formik";
-import { toast } from "react-toastify";
 import { FormProps } from "../../../types/organism/Form";
 import {
   selectEditProductAdminLoading,
@@ -12,10 +10,6 @@ import {
   selectDeleteProductImageLoading,
 } from "../../../redux/slice/product/ProductSlice";
 import { EditProductAdminAction } from "../../../redux/actions/product/ProductActions";
-import {
-  UploadProductImageAction,
-  DeleteProductImageAction,
-} from "../../../redux/actions/product/ProductImageActions";
 import FormSkeleton from "../../organism/skeleton/FormSkeleton";
 import Input from "../../../components/input";
 import Button from "../../../components/button";
@@ -25,6 +19,11 @@ import ProductCategorySelectField from "./ProductCategorySelectField";
 import Typography from "../../../components/typography/Typography";
 import InstallmentPriceManager from "./InstallmentPriceManager";
 import ImageGallery from "./ImageGallery";
+import { useProductImages } from "./hooks/useProductImages";
+import {
+  createProductEditInitialData,
+  productEditValidationSchema,
+} from "./ProductEditModal.utils";
 
 interface ProductEditFormProps extends FormProps {
   product?: {
@@ -56,35 +55,18 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
   const deleteImageLoading = useSelector(selectDeleteProductImageLoading);
 
   const initialData = React.useMemo(
-    () => ({
-      productName: "",
-      description: "",
-      Price: "",
-      minOrder: "",
-      minimumOrderQuantity: "",
-      Time: "",
-      priceExpire: "",
-      categoryId: "",
-      paymentType: "CASH",
-      installmentPrice: [] as Array<{ duration: number; price: number }>,
-      images: [] as string[],
-      isSpecialOffer: false,
-    }),
+    () => createProductEditInitialData(),
     []
   );
 
   const [initialValues, setInitialValues] = useState(initialData);
-  const [imageURLs, setImageURLs] = useState<string[]>([]);
-  const [imageIds, setImageIds] = useState<string[]>([]);
-
-  const [uploadingImages, setUploadingImages] = useState<Set<string>>(
-    new Set()
-  );
-
-  // Debug log for imageURLs changes
-  React.useEffect(() => {
-    console.log('imageURLs changed:', imageURLs);
-  }, [imageURLs]);
+  const { imageURLs, uploadingImages, uploadNewImage, removeImage } =
+    useProductImages({
+      dispatch,
+      id,
+      product,
+      getValue,
+    });
 
   useEffect(() => {
     if (getValue?.data && mode === "update") {
@@ -139,226 +121,7 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
     }
   }, [getValue, product, mode, initialData]);
 
-  // Update imageURLs when initialValues change
-  useEffect(() => {
-    if (getValue?.data?.images) {
-      const urls = getValue.data.images.map((img: any) => img.url || img.path);
-      const ids = getValue.data.images.map((img: unknown) => img._id || img.id);
-      setImageURLs(urls);
-      setImageIds(ids);
-    } else if (product?.images) {
-      const urls = product.images.map((img: unknown) => img.url || img.path);
-      const ids = product.images.map((img: unknown) => img._id || img.id);
-      setImageURLs(urls);
-      setImageIds(ids);
-    }
-  }, [getValue?.data?.images, product?.images]);
 
-  // Cleanup preview URLs on unmount
-  useEffect(() => {
-    return () => {
-      // Clean up any remaining uploading URLs
-      uploadingImages.forEach((url) => {
-        if (url.startsWith("blob:")) {
-          URL.revokeObjectURL(url);
-        }
-      });
-    };
-  }, [uploadingImages]);
-
-  // Image management functions
-  const uploadNewImage = async (file: File) => {
-    console.log("uploadNewImage called with file:", file.name); // Debug log
-    const productId = id || product?._id;
-    console.log("Product ID:", productId); // Debug log
-
-    if (!productId) {
-      toast.error("شناسه محصول یافت نشد. لطفا صفحه را رفرش کنید.");
-      return;
-    }
-
-    // Create preview URL for the file
-    const previewUrl = URL.createObjectURL(file);
-    console.log("Created preview URL:", previewUrl); // Debug log
-
-    // Store the index where we're adding this image
-    const newImageIndex = imageURLs.length;
-    console.log("New image will be at index:", newImageIndex);
-
-    // Add to image URLs immediately (hard-coded display)
-    setImageURLs((prev) => {
-      const updated = [...prev, previewUrl];
-      console.log("Added preview to imageURLs:", updated);
-      return updated;
-    });
-    setImageIds((prev) => [...prev, ""]); // Empty ID for uploading image
-    setUploadingImages((prev) => new Set([...prev, previewUrl]));
-
-    dispatch(
-      UploadProductImageAction({
-        productId,
-        imageFile: file,
-        onSuccess: (response) => {
-          console.log("Upload response full:", response); // Debug log
-          console.log("Response data:", response?.data); // Debug log
-
-          // Try multiple possible response structures
-          let newImageUrl: string | null = null;
-          let newImageId: string | null = null;
-
-          if (response?.data?.image) {
-            // Structure: { data: { image: { url, _id } } }
-            newImageUrl = response.data.image.url || response.data.image.path;
-            newImageId = response.data.image._id || response.data.image.id;
-          } else if (response?.data?.url || response?.data?.path) {
-            // Structure: { data: { url, _id } }
-            newImageUrl = response.data.url || response.data.path;
-            newImageId = response.data._id || response.data.id;
-          } else if (response?.image) {
-            // Structure: { image: { url, _id } }
-            newImageUrl = response.image.url || response.image.path;
-            newImageId = response.image._id || response.image.id;
-          } else if (response?.url || response?.path) {
-            // Structure: { url, _id }
-            newImageUrl = response.url || response.path;
-            newImageId = response._id || response.id;
-          }
-
-          console.log("Extracted image URL:", newImageUrl);
-          console.log("Extracted image ID:", newImageId);
-
-          if (newImageUrl) {
-            // Replace preview URL with actual URL at the specific index
-            setImageURLs((prevUrls) => {
-              const previewIndex = prevUrls.findIndex(url => url === previewUrl);
-              if (previewIndex !== -1) {
-                const updated = [...prevUrls];
-                updated[previewIndex] = newImageUrl;
-                console.log("Updated image URLs:", updated);
-                return updated;
-              }
-              return prevUrls;
-            });
-            
-            // Update the corresponding ID at the same index
-            setImageIds((prevIds) => {
-              const updated = [...prevIds];
-              updated[newImageIndex] = newImageId || "";
-              console.log("Updated image IDs:", updated);
-              return updated;
-            });
-
-            // Remove from uploading set
-            setUploadingImages((prev) => {
-              const updated = new Set(prev);
-              updated.delete(previewUrl);
-              return updated;
-            });
-
-            // Clean up the preview URL
-            URL.revokeObjectURL(previewUrl);
-
-            toast.success("تصویر با موفقیت آپلود شد");
-          } else {
-            console.error("Could not extract image URL from response");
-            toast.error(
-              "تصویر آپلود شد اما نمایش داده نشد. لطفا صفحه را رفرش کنید."
-            );
-          }
-        },
-        onError: (error) => {
-          console.error("Error uploading image:", error);
-          console.log("Removing failed upload:", previewUrl);
-
-          // Remove failed upload from all states
-          setImageURLs((prev) => {
-            const updated = prev.filter((url) => url !== previewUrl);
-            console.log("Removed from imageURLs:", updated);
-            return updated;
-          });
-          setImageIds((prev) => {
-            const updated = [...prev];
-            updated.splice(newImageIndex, 1); // Remove at the specific index
-            return updated;
-          });
-          setUploadingImages((prev) => {
-            const updated = new Set(prev);
-            updated.delete(previewUrl);
-            return updated;
-          });
-
-          // Clean up the preview URL
-          URL.revokeObjectURL(previewUrl);
-
-          toast.error("خطا در آپلود تصویر. لطفا دوباره تلاش کنید.");
-        },
-      })
-    );
-  };
-
-  const removeImage = (index: number) => {
-    const productId = id || product?._id;
-    const imageId = imageIds[index];
-
-    if (!productId) {
-      toast.error("شناسه محصول یافت نشد. لطفا صفحه را رفرش کنید.");
-      return;
-    }
-
-    if (!imageId) {
-      // If no imageId, just remove from local state (for newly uploaded images)
-      setImageURLs((prev) => prev.filter((_, i) => i !== index));
-      setImageIds((prev) => prev.filter((_, i) => i !== index));
-      return;
-    }
-
-    dispatch(
-      DeleteProductImageAction({
-        productId,
-        imageId,
-        onSuccess: () => {
-          // Remove image from local state
-          setImageURLs((prev) => prev.filter((_, i) => i !== index));
-          setImageIds((prev) => prev.filter((_, i) => i !== index));
-        },
-        onError: (error) => {
-          console.error("Error deleting image:", error);
-        },
-      })
-    );
-  };
-
-  const validationSchema = Yup.object({
-    productName: Yup.string().required("نام محصول الزامی است"),
-    description: Yup.string().required("توضیحات محصول الزامی است"),
-    Price: Yup.number()
-      .required("قیمت محصول الزامی است")
-      .min(0, "قیمت نمی‌تواند منفی باشد"),
-    minOrder: Yup.number()
-      .required("موجودی الزامی است")
-      .min(0, "موجودی نمی‌تواند منفی باشد"),
-    minimumOrderQuantity: Yup.number()
-      .required("حداقل سفارش الزامی است")
-      .min(0, "حداقل سفارش نمی‌تواند منفی باشد"),
-    Time: Yup.number()
-      .required("زمان تحویل الزامی است")
-      .min(0, "زمان تحویل نمی‌تواند منفی باشد"),
-    priceExpire: Yup.string().required("تاریخ انقضای قیمت الزامی است"),
-    categoryId: Yup.string().required("دسته بندی الزامی است"),
-    paymentType: Yup.string().required("نوع پرداخت الزامی است"),
-    installmentPrice: Yup.array().when("paymentType", {
-      is: (val: string) =>
-        val === "INSTALLMENTS" || val === "CASH_AND_INSTALLMENTS",
-      then: (schema) =>
-        schema.min(1, "حداقل یک قسط باید تعریف شود").of(
-          Yup.object({
-            duration: Yup.number().required().min(1),
-            price: Yup.number().required().min(0),
-          })
-        ),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-  });
 
   const handleSubmit = (values: typeof initialData) => {
     const requestBody = {
@@ -397,7 +160,7 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
       ) : (
         <Formik
           initialValues={initialValues}
-          validationSchema={validationSchema}
+          validationSchema={productEditValidationSchema}
           enableReinitialize
           onSubmit={handleSubmit}
         >

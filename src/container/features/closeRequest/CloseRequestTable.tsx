@@ -3,16 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { HandleFilterParams } from "../../../types/FilterParams";
 import CollectionControls from "../../organism/CollectionControls";
 import Table from "../../../components/table";
-import TableHead from "../../../components/table/TableHead";
-import TableHeadCell from "../../../components/table/TableHeadCell";
 import TableRow from "../../../components/table/TableRow";
 import TableBody from "../../../components/table/TableBody";
-import TableFilterCell from "../../../components/table/TableFilterCell";
 import TableCell from "../../../components/table/TableCell";
-import Button from "../../../components/button";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
-import SingleSelect from "../../../components/select/SingleSelect";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
 import {
   selectGetProductRequestAdminData,
@@ -20,7 +15,6 @@ import {
   selectUpdateProductRequestProviderAdminData,
 } from "../../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
-import { convertToJalali } from "../../../utils/MomentConvertor";
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
 import RequestDetailModal from "./RequestDetailModal";
 import {
@@ -33,11 +27,11 @@ import {
   selectGetUsersProvidersLoading,
 } from "../../../redux/slice/users/UsersSlice";
 import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
-import { 
-  orderStatusOptions,
-  getOrderStatusText,
-  getOrderStatusColor
-} from "../../../types/OrderStatus";
+import {
+  CloseRequestTableDataRow,
+  CloseRequestTableFilterRow,
+  CloseRequestTableHead,
+} from "./CloseRequestTable.parts";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
@@ -201,6 +195,11 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
     }
   }, [updateData, updateData_2, dispatch, selectedStatus]);
 
+  const handleOpenDetail = (row: any) => {
+    setSelectedRequest(row);
+    setIsDetailModalOpen(true);
+  };
+
   return (
     <CollectionControls
       title="درخواست های  دارای پیشنهاد"
@@ -216,162 +215,31 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       }}
     >
       <Table className="w-full" isLoading={false} shadow={false}>
-        <TableHead className="w-full" isLoading={false} shadow={false}>
-          <TableRow>
-            <TableHeadCell>نام درخواست کننده</TableHeadCell>
-            <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
-            <TableHeadCell className="min-w-[230px]">دسته بندی</TableHeadCell>
-            <TableHeadCell>توضیحات</TableHeadCell>
-            <TableHeadCell className="min-w-[230px]">
-              {" "}
-              تامین کننده
-            </TableHeadCell>
-            <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
-            <TableHeadCell>آدرس</TableHeadCell>
-            <TableHeadCell className="min-w-[230px]">نوع پرداخت</TableHeadCell>
-            <TableHeadCell>مقدار درخواستی</TableHeadCell>
-            <TableHeadCell className="min-w-[170px]">وضعیت</TableHeadCell>
-            <TableHeadCell />
-          </TableRow>
-        </TableHead>
+        <CloseRequestTableHead />
         <TableBody>
-          <TableRow>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <SingleSelect
-                isLoading={categoryLoading}
-                options={categoryOptions}
-                onChange={(value: any) => setCategoryFilter(value)}
-                value={categoryFilter}
-                placeholder="انتخاب دسته‌بندی..."
-                noBorder
-                isClearable
-              />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <SingleSelect
-                isLoading={providersLoading}
-                options={providerOptions}
-                onChange={(value: any) => setProviderFilter(value)}
-                value={providerFilter}
-                placeholder="انتخاب تامین‌کننده..."
-                noBorder
-                isClearable
-              />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <SingleSelect
-                isLoading={false}
-                options={paymentTypeOptions}
-                onChange={(value: any) => setPaymentTypeFilter(value)}
-                value={paymentTypeFilter}
-                placeholder="انتخاب نوع پرداخت..."
-                noBorder
-                isClearable
-              />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <SingleSelect
-                isLoading={false}
-                options={orderStatusOptions}
-                onChange={(value: any) => setStatusFilter(value)}
-                value={statusFilter}
-                placeholder="انتخاب وضعیت..."
-                noBorder
-                isClearable
-              />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-          </TableRow>
+          <CloseRequestTableFilterRow
+            categoryLoading={categoryLoading}
+            categoryOptions={categoryOptions}
+            categoryFilter={categoryFilter}
+            onCategoryChange={(value: any) => setCategoryFilter(value)}
+            providersLoading={providersLoading}
+            providerOptions={providerOptions}
+            providerFilter={providerFilter}
+            onProviderChange={(value: any) => setProviderFilter(value)}
+            paymentTypeOptions={paymentTypeOptions}
+            paymentTypeFilter={paymentTypeFilter}
+            onPaymentTypeChange={(value: any) => setPaymentTypeFilter(value)}
+            statusFilter={statusFilter}
+            onStatusChange={(value: any) => setStatusFilter(value)}
+          />
           {!loading ? (
             productAdminData?.data?.length > 0 ? (
               productAdminData?.data?.map((row: any) => (
-                <TableRow key={row?.id}>
-                  <TableCell>
-                    {row?.user?.firstName
-                      ? row?.user?.firstName + " " + row?.user?.lastName
-                      : "_"}
-                  </TableCell>
-                  <TableCell>{row?.user?.mobile ?? "_"}</TableCell>
-                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
-                  <TableCell>{row?.description ?? "_"}</TableCell>
-                  <TableCell>
-                    {row?.user?.firstName && row?.user?.lastName
-                      ? `${row.user.firstName} ${row.user.lastName}`
-                      : row?.user?.mobile ?? "_"}
-                  </TableCell>
-                  <TableCell>
-                    {row?.createdAt ? convertToJalali(row?.createdAt) : "_"}
-                  </TableCell>
-                  <TableCell>{row?.province + " , " + row?.city}</TableCell>
-                  <TableCell>
-                    {row?.paymentType
-                      ? row?.paymentType === "INSTALLMENTS"
-                        ? "مدت دار"
-                        : row?.paymentType === "CASH_AND_INSTALLMENTS"
-                        ? "نقد و مدت دار"
-                        : "نقد"
-                      : "_"}
-                  </TableCell>
-                  <TableCell>
-                    {row?.amount ? `${row?.amount} (کیلوگرم)` : "_"}
-                  </TableCell>
-
-                  <TableCell>
-                    <span className={getOrderStatusColor(row?.status)}>
-                      {getOrderStatusText(row?.status) || row?.statusTitle || "_"}
-                    </span>
-                  </TableCell>
-                  {/* <TableCell className="flex justify-center">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        onRowClick && onRowClick("detail", row);
-                      }}
-                      variant="outline-warning"
-                    >
-                      تغییر وضعیت
-                    </Button>
-                  </TableCell> */}
-                  <TableCell className="flex justify-center gap-2">
-                    <Button
-                      onClick={() => {
-                        setSelectedRequest(row);
-                        setIsDetailModalOpen(true);
-                      }}
-                      variant="outline-primary"
-                    >
-                      مشاهده درخواست
-                    </Button>
-                    {/* <Button
-                      onClick={() => {
-                        onRowClick && onRowClick("update", row);
-                      }}
-                      variant="outline-success"
-                      size="sm"
-                    >
-                      پیشنهادات
-                    </Button> */}
-                  </TableCell>
-                  {/* {row?.status === "SEND_FINAL_OFFER_TO_BUYER" && (
-                    <TableCell className="flex justify-center">
-                      <Button
-                        onClick={() => {
-                          onRowClick && onRowClick("payment", row);
-                        }}
-                        variant="outline-success"
-                      >
-                        پرداخت هزینه
-                      </Button>
-                    </TableCell>
-                  )} */}
-                </TableRow>
+                <CloseRequestTableDataRow
+                  key={row?.id}
+                  row={row}
+                  onOpenDetail={handleOpenDetail}
+                />
               ))
             ) : (
               <TableRow>

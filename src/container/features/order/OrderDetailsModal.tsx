@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../redux/store";
 import Modal from "../../../components/modal";
-import Typography from "../../../components/typography/Typography";
-import Input from "../../../components/input";
-import Button from "../../../components/button";
 import {
   getOrderStatusText,
   getOrderStatusColor,
@@ -18,6 +15,14 @@ import {
   convertGregorianToPersian,
 } from "../../../utils/MomentConvertor";
 import moment from "jalali-moment";
+import OrderHeaderSection from "./components/OrderDetailsModal/OrderHeaderSection";
+import ProductInfoSection from "./components/OrderDetailsModal/ProductInfoSection";
+import PaymentInfoSection from "./components/OrderDetailsModal/PaymentInfoSection";
+import ShippingInfoSection from "./components/OrderDetailsModal/ShippingInfoSection";
+import ChequesSection from "./components/OrderDetailsModal/ChequesSection";
+import LoadingDateSection from "./components/OrderDetailsModal/LoadingDateSection";
+import UnloadingDateSection from "./components/OrderDetailsModal/UnloadingDateSection";
+import DriverSection from "./components/OrderDetailsModal/DriverSection";
 
 interface OrderItem {
   id: string;
@@ -340,368 +345,51 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   return (
     <Modal open={isOpen} onClose={onClose} size="xl" headerTitle="جزئیات سفارش">
       <div className="space-y-6">
-        {/* Order Header */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Typography className="text-sm text-gray-600">
-                تاریخ ایجاد
-              </Typography>
-              <Typography className="font-bold">
-                {formatDate(order.createdAt)}
-              </Typography>
-            </div>
-            {order?.status==="CLOSED"?(<div>
-              <Typography className="text-sm text-gray-600">
-             تاریخ تخلیه
-              </Typography>
-              <Typography className="font-bold">
-                {formatDate(order.unloadingDate)}
-              </Typography>
-            </div>):null}
-            <div>
-              <Typography className="text-sm text-gray-600">وضعیت</Typography>
-              <Typography
-                className={`font-bold ${getOrderStatusColor(order.status)}`}
-              >
-                {getOrderStatusText(order.status)}
-              </Typography>
-            </div>
-          </div>
-        </div>
+        <OrderHeaderSection
+          order={order}
+          formatDate={formatDate}
+          getOrderStatusColor={getOrderStatusColor}
+          getOrderStatusText={getOrderStatusText}
+        />
 
-        {/* Product Information */}
-        <div>
-          <Typography className="text-lg font-bold mb-3">
-            اطلاعات محصول
-          </Typography>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  نام محصول
-                </Typography>
-                <Typography className="font-bold">
-                  {order.product?.name || "_"}
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">مقدار</Typography>
-                <Typography className="font-bold">
-                  {order.quantity}{" "}
-                  {getInventoryUnit(order.product?.inventoryType)}
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  قیمت واحد
-                </Typography>
-                <Typography className="font-bold">
-                  {order.price?.toLocaleString()} تومان
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  قیمت نهایی
-                </Typography>
-                <Typography className="font-bold">
-                  {order.finalPrice?.toLocaleString()} تومان
-                </Typography>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProductInfoSection order={order} getInventoryUnit={getInventoryUnit} />
 
-        {/* Payment Information */}
-        <div>
-          <Typography className="text-lg font-bold mb-3">
-            اطلاعات پرداخت
-          </Typography>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  نوع پرداخت
-                </Typography>
-                <Typography className="font-bold">
-                  {getPaymentTypeText(order.paymentType)}
-                </Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  مبلغ قابل پرداخت
-                </Typography>
-                <Typography className="font-bold">
-                  {order.payingPrice?.toLocaleString()} تومان
-                </Typography>
-              </div>
-              {order.installmentMonths > 0 && (
-                <div>
-                  <Typography className="text-sm text-gray-600">
-                    تعداد اقساط
-                  </Typography>
-                  <Typography className="font-bold">
-                    {order.installmentMonths} ماه
-                  </Typography>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <PaymentInfoSection order={order} getPaymentTypeText={getPaymentTypeText} />
 
-        {/* Shipping Information */}
-        <div>
-          <Typography className="text-lg font-bold mb-3">
-            اطلاعات ارسال
-          </Typography>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Typography className="text-sm text-gray-600">شهر</Typography>
-                <Typography className="font-bold">{order.city}</Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">استان</Typography>
-                <Typography className="font-bold">{order.province}</Typography>
-              </div>
-              <div>
-                <Typography className="text-sm text-gray-600">
-                  هزینه ارسال
-                </Typography>
-                <Typography className="font-bold">
-                  {order.shippingPrice?.toLocaleString()} تومان
-                </Typography>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ShippingInfoSection order={order} />
 
-        {/* Cheques Section */}
-        <div>
-          <div className="flex justify-between items-center mb-3">
-            <Typography className="text-lg font-bold">چک‌ها</Typography>
-            {editableCheques && editableCheques.length > 0 && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleSaveCheques}
-                loading={updateLoading}
-                disabled={updateLoading}
-              >
-                ویرایش چک‌ها
-              </Button>
-            )}
-          </div>
-          {editableCheques && editableCheques.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {editableCheques.map((cheque, index) => (
-                <div key={index} className="bg-gray-50 p-4 rounded-lg border">
-                  <div className="space-y-4">
-                    <div>
-                      <Input
-                        label="بانک"
-                        value={cheque.bank}
-                        onChange={(e) =>
-                          handleChequeChange(index, "bank", e.target.value)
-                        }
-                        size="md"
-                        errorMessage={validationErrors[`${index}-bank`]}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Input
-                        label="شماره چک"
-                        value={cheque.no}
-                        onChange={(e) =>
-                          handleChequeChange(index, "no", e.target.value)
-                        }
-                        size="md"
-                        errorMessage={validationErrors[`${index}-no`]}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Input
-                        label="شماره صیاد"
-                        value={cheque.sayyad}
-                        onChange={(e) =>
-                          handleChequeChange(index, "sayyad", e.target.value)
-                        }
-                        size="md"
-                        errorMessage={validationErrors[`${index}-sayyad`]}
-                        helperText="باید 16 رقم باشد"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Input
-                        label="تاریخ"
-                        value={cheque.date}
-                        onChange={(e) =>
-                          handleChequeChange(index, "date", e.target.value)
-                        }
-                        size="md"
-                        errorMessage={validationErrors[`${index}-date`]}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-gray-50 p-4 rounded-lg text-center">
-              <Typography className="text-gray-500">چکی موجود نیست</Typography>
-            </div>
-          )}
-        </div>
+        <ChequesSection
+          editableCheques={editableCheques}
+          validationErrors={validationErrors}
+          updateLoading={updateLoading}
+          onSaveCheques={handleSaveCheques}
+          onChequeChange={handleChequeChange}
+        />
 
-        {/* Loading Date Section - Only show if loadingDate exists in DTO */}
         {order.loadingDate && (
-          <div>
-            <div className="flex justify-between items-center mb-3">
-              <Typography className="text-lg font-bold">تاریخ بارگیری</Typography>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleSaveLoadingDate}
-                loading={updateLoading}
-                disabled={
-                  updateLoading ||
-                  !editableLoadingDate.trim() ||
-                  !!loadingDateError
-                }
-              >
-                ذخیره تاریخ بارگیری
-              </Button>
-            </div>
-
-            <div className="bg-blue-50 p-4 rounded-lg border mb-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Input
-                    label="تاریخ بارگیری"
-                    value={editableLoadingDate}
-                    onChange={handleLoadingDateChange}
-                    size="md"
-                    errorMessage={loadingDateError}
-                    placeholder="مثال: 1403/09/15"
-                    helperText="تاریخ بارگیری محصول"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <LoadingDateSection
+            editableLoadingDate={editableLoadingDate}
+            loadingDateError={loadingDateError}
+            updateLoading={updateLoading}
+            onSaveLoadingDate={handleSaveLoadingDate}
+            onLoadingDateChange={handleLoadingDateChange}
+          />
         )}
 
-        {/* Unloading Date Display (only when status is delivered) */}
         {order.status === "DELIVERED" && order.unloadingDate && (
-          <div>
-            <Typography className="text-lg font-bold mb-3">
-              تاریخ تخلیه
-            </Typography>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <Typography className="font-bold">
-                {convertGregorianToPersianLocal(new Date(order.unloadingDate))}
-              </Typography>
-            </div>
-          </div>
+          <UnloadingDateSection
+            unloadingDate={order.unloadingDate}
+            convertGregorianToPersianLocal={convertGregorianToPersianLocal}
+          />
         )}
 
-        {/* Driver Section */}
-        <div>
-          <div className="flex justify-between items-center mb-3">
-            <Typography className="text-lg font-bold">
-              اطلاعات راننده
-            </Typography>
-            {editableDriver && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleSaveDriver}
-                loading={updateLoading}
-                disabled={updateLoading}
-              >
-                ویرایش اطلاعات راننده
-              </Button>
-            )}
-          </div>
-
-          {editableDriver ? (
-            <div className="bg-gray-50 p-4 rounded-lg border">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Input
-                    label="شماره بارنامه"
-                    value={editableDriver.billNumber}
-                    onChange={(e) =>
-                      handleDriverChange("billNumber", e.target.value)
-                    }
-                    size="md"
-                    errorMessage={driverValidationErrors.billNumber}
-                    required
-                  />
-                </div>
-                <div>
-                  <Input
-                    label="شماره پلاک"
-                    value={editableDriver.licensePlate}
-                    onChange={(e) =>
-                      handleDriverChange("licensePlate", e.target.value)
-                    }
-                    size="md"
-                    errorMessage={driverValidationErrors.licensePlate}
-                    required
-                  />
-                </div>
-                <div>
-                  <Input
-                    label="نام وسیله نقلیه"
-                    value={editableDriver.vehicleName}
-                    onChange={(e) =>
-                      handleDriverChange("vehicleName", e.target.value)
-                    }
-                    size="md"
-                    errorMessage={driverValidationErrors.vehicleName}
-                    required
-                  />
-                </div>
-                <div>
-                  <Input
-                    label="نام راننده"
-                    value={editableDriver.driverName}
-                    onChange={(e) =>
-                      handleDriverChange("driverName", e.target.value)
-                    }
-                    size="md"
-                    errorMessage={driverValidationErrors.driverName}
-                    required
-                  />
-                </div>
-                <div>
-                  <Input
-                    label="شماره تلفن راننده"
-                    value={editableDriver.driverPhone}
-                    onChange={(e) =>
-                      handleDriverChange("driverPhone", e.target.value)
-                    }
-                    size="md"
-                    errorMessage={driverValidationErrors.driverPhone}
-                    helperText="مثال: 09123456789"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-gray-50 p-4 rounded-lg text-center">
-              <Typography className="text-gray-500">
-                اطلاعات راننده موجود نیست
-              </Typography>
-            </div>
-          )}
-        </div>
+        <DriverSection
+          editableDriver={editableDriver}
+          driverValidationErrors={driverValidationErrors}
+          updateLoading={updateLoading}
+          onSaveDriver={handleSaveDriver}
+          onDriverChange={handleDriverChange}
+        />
       </div>
     </Modal>
   );

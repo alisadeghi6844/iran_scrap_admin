@@ -91,6 +91,8 @@ const MenuSelect: React.FC<MenuSelectProps> = ({
       { value: "/purchase-price-management", label: "مدیریت قیمت خرید (مسیر)" },
       { value: "view-pricing-management", label: "مشاهده قیمت گذاری" },
       { value: "/view-pricing-management", label: "مشاهده قیمت گذاری (مسیر)" },
+      { value: "price-scrap", label: "مشاهده قیمت های بروز" },
+      { value: "/price-scrap", label: "مشاهده قیمت های بروز (مسیر)" },
       { value: "shipment-management", label: "محاسبه کرایه ناوگان" },
       { value: "/shipment-management", label: "محاسبه کرایه ناوگان (مسیر)" },
 

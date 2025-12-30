@@ -17,144 +17,14 @@ import { SelectValidation } from "../../../utils/SelectValidation";
 import SelectField from "../../../components/molcols/formik-fields/SelectField";
 import CheckboxField from "../../../components/molcols/formik-fields/CheckboxField";
 import Typography from "../../../components/typography/Typography";
-import { useFormikContext } from "formik";
+import StatusDisplay from "./components/ProductPriceForm/StatusDisplay";
+import SellPriceDisplay from "./components/ProductPriceForm/SellPriceDisplay";
 
 // Import the select components we created
 import PbProductAdminSelect from "../pbProductAdmin/PbProductAdminSelect";
 import PbBrandAdminSelect from "../pbBrandAdmin/PbBrandAdminSelect";
 import PbProviderAdminSelect from "../pbProviderAdmin/PbProviderAdminSelect";
 import PbPortAdminSelect from "../pbPortAdmin/PbPortAdminSelect";
-
-// Enhanced Status Display Component
-const StatusDisplay = () => {
-  const { values } = useFormikContext<any>();
-
-  const calculateStatus = () => {
-    const sellPrice = Number(values.SellPrice) || 0;
-    const constant = Number(values.Constant) || 0;
-
-    // فرمول: S = (قیمت ثابت) / (قیمت فروش)
-    const S = sellPrice > 0 ? constant / sellPrice : 0;
-
-    // تعیین وضعیت بر اساس فرمول جدید
-    if (S >= 0.12)
-      return {
-        label: "سوپر الماسی",
-        color: "text-purple-600",
-        bgColor: "bg-purple-100",
-        borderColor: "border-purple-300",
-        icon: "💎",
-        value: S,
-      };
-    if (S >= 0.08)
-      return {
-        label: "الماسی",
-        color: "text-blue-600",
-        bgColor: "bg-blue-100",
-        borderColor: "border-blue-300",
-        icon: "💍",
-        value: S,
-      };
-    if (S >= 0.05)
-      return {
-        label: "طلایی",
-        color: "text-yellow-600",
-        bgColor: "bg-yellow-100",
-        borderColor: "border-yellow-300",
-        icon: "🥇",
-        value: S,
-      };
-    if (S >= 0.03)
-      return {
-        label: "نقره‌ای",
-        color: "text-gray-600",
-        bgColor: "bg-gray-100",
-        borderColor: "border-gray-300",
-        icon: "🥈",
-        value: S,
-      };
-    return {
-      label: "برنزی",
-      color: "text-orange-600",
-      bgColor: "bg-orange-100",
-      borderColor: "border-orange-300",
-      icon: "🥉",
-      value: S,
-    };
-  };
-
-  const status = calculateStatus();
-  const sellPrice = Number(values.SellPrice) || 0;
-  const constant = Number(values.Constant) || 0;
-
-  return (
-    <div
-      className={`p-4 rounded-xl border-2 ${status.borderColor} ${status.bgColor} transition-all duration-300`}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <Typography className="text-sm font-medium text-gray-700">
-          وضعیت محصول
-        </Typography>
-        <span className="text-2xl">{status.icon}</span>
-      </div>
-
-      <div className="space-y-2">
-        <Typography className={`text-xl font-bold ${status.color}`}>
-          {status.label}
-        </Typography>
-
-        {(!sellPrice || !constant) && (
-          <Typography className="text-sm text-gray-500 italic">
-            برای محاسبه وضعیت، قیمت فروش و ثابت را وارد کنید
-          </Typography>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Enhanced Sell Price Display Component
-const SellPriceDisplay = () => {
-  const { values, setFieldValue } = useFormikContext<any>();
-
-  useEffect(() => {
-    const buyPrice = Number(values.BuyPrice) || 0;
-    const constant = Number(values.Constant) || 0;
-
-    // فرمول: قیمت خرید + قیمت ثابت = قیمت فروش
-    if (buyPrice > 0 || constant > 0) {
-      const calculatedSellPrice = buyPrice + constant;
-      setFieldValue("SellPrice", calculatedSellPrice.toString());
-    }
-  }, [values.BuyPrice, values.Constant, setFieldValue]);
-
-  const buyPrice = Number(values.BuyPrice) || 0;
-  const constant = Number(values.Constant) || 0;
-  const sellPrice = buyPrice + constant;
-
-  return (
-    <div className="p-4 rounded-xl border-2 border-secondary-300 bg-secondary-50 transition-all duration-300">
-      <div className="flex items-center justify-between mb-3">
-        <Typography className="text-sm font-medium text-gray-700">
-          قیمت فروش محاسبه شده
-        </Typography>
-        <span className="text-2xl">💰</span>
-      </div>
-
-      <div className="space-y-2">
-        <Typography className="text-2xl font-bold text-secondary-600">
-          {sellPrice > 0 ? sellPrice.toLocaleString("fa-IR") : "0"} تومان
-        </Typography>
-
-        {!buyPrice && !constant && (
-          <Typography className="text-sm text-gray-500 italic">
-            برای محاسبه قیمت فروش، قیمت خرید و ثابت را وارد کنید
-          </Typography>
-        )}
-      </div>
-    </div>
-  );
-};
 
 const ProductPriceForm: React.FC<FormProps> = (props) => {
   const { mode = "create", onSubmitForm, value, ...rest } = props;

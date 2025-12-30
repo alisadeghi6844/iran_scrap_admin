@@ -39,6 +39,8 @@ import {
   getOrderStatusText,
   getOrderStatusColor,
 } from "../../../types/OrderStatus";
+import FiltersRow from "./components/FinancialApprovalTable/FiltersRow";
+import RequestRow from "./components/FinancialApprovalTable/RequestRow";
 
 interface FinancialApprovalTableProps {
   onRowClick?: any;
@@ -258,140 +260,39 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <SingleSelect
-                isLoading={categoryLoading}
-                options={categoryOptions}
-                onChange={(value: any) => setCategoryFilter(value)}
-                value={categoryFilter}
-                placeholder="انتخاب دسته‌بندی..."
-                noBorder
-                isClearable
-              />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <SingleSelect
-                isLoading={providersLoading}
-                options={providerOptions}
-                onChange={(value: any) => setProviderFilter(value)}
-                value={providerFilter}
-                placeholder="انتخاب تامین‌کننده..."
-                noBorder
-                isClearable
-              />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <SingleSelect
-                isLoading={false}
-                options={paymentTypeOptions}
-                onChange={(value: any) => setPaymentTypeFilter(value)}
-                value={paymentTypeFilter}
-                placeholder="انتخاب نوع پرداخت..."
-                noBorder
-                isClearable
-              />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <SingleSelect
-                isLoading={false}
-                options={orderStatusOptions}
-                onChange={(value: any) => setStatusFilter(value)}
-                value={statusFilter}
-                placeholder="انتخاب وضعیت..."
-                noBorder
-                isClearable
-              />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-          </TableRow>
+          <FiltersRow
+            categoryLoading={categoryLoading}
+            categoryOptions={categoryOptions}
+            categoryFilter={categoryFilter}
+            onCategoryChange={(value: any) => setCategoryFilter(value)}
+            providersLoading={providersLoading}
+            providerOptions={providerOptions}
+            providerFilter={providerFilter}
+            onProviderChange={(value: any) => setProviderFilter(value)}
+            paymentTypeOptions={paymentTypeOptions}
+            paymentTypeFilter={paymentTypeFilter}
+            onPaymentTypeChange={(value: any) => setPaymentTypeFilter(value)}
+            orderStatusOptions={orderStatusOptions}
+            statusFilter={statusFilter}
+            onStatusChange={(value: any) => setStatusFilter(value)}
+          />
           {!loading ? (
             productAdminData?.data?.length > 0 ? (
               productAdminData?.data?.map((row: unknown) => (
-                <TableRow key={row?.id}>
-                  <TableCell>
-                    {row?.user?.firstName
-                      ? row?.user?.firstName + " " + row?.user?.lastName
-                      : "_"}
-                  </TableCell>
-                  <TableCell>{row?.user?.mobile ?? "_"}</TableCell>
-                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
-                  <TableCell>{row?.description ?? "_"}</TableCell>
-                  <TableCell>
-                    {row?.user?.firstName && row?.user?.lastName
-                      ? `${row.user.firstName} ${row.user.lastName}`
-                      : row?.user?.mobile ?? "_"}
-                  </TableCell>
-                  <TableCell>
-                    {row?.createdAt ? convertToJalali(row?.createdAt) : "_"}
-                  </TableCell>
-                  <TableCell>{row?.province + " , " + row?.city}</TableCell>
-                  <TableCell>
-                    {row?.paymentType
-                      ? row?.paymentType === "INSTALLMENTS"
-                        ? "مدت دار"
-                        : row?.paymentType === "CASH_AND_INSTALLMENTS"
-                        ? "نقد و مدت دار"
-                        : "نقد"
-                      : "_"}
-                  </TableCell>
-                  <TableCell>
-                    {row?.amount ? `${row?.amount} (کیلوگرم)` : "_"}
-                  </TableCell>
-                  <TableCell>
-                    <span className={getOrderStatusColor(row?.status)}>
-                      {getOrderStatusText(row?.status) ||
-                        row?.statusTitle ||
-                        "_"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        type="button"
-                        variant="primary"
-                        onClick={() => {
-                          setSelectedRequest(row);
-                          setIsDetailModalOpen(true);
-                        }}
-                      >
-                        مشاهده درخواست
-                      </Button>
-                      {row?.status === "BUYER_WAITFORFINANCE" && (
-                        <>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="success"
-                            onClick={() => {
-                              onRowClick && onRowClick("approve", row);
-                            }}
-                          >
-                            تایید
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="error"
-                            onClick={() => {
-                              onRowClick && onRowClick("reject", row);
-                            }}
-                          >
-                            رد
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <RequestRow
+                  key={row?.id}
+                  row={row}
+                  onViewRequest={() => {
+                    setSelectedRequest(row);
+                    setIsDetailModalOpen(true);
+                  }}
+                  onApprove={() => {
+                    onRowClick && onRowClick("approve", row);
+                  }}
+                  onReject={() => {
+                    onRowClick && onRowClick("reject", row);
+                  }}
+                />
               ))
             ) : (
               <TableRow>

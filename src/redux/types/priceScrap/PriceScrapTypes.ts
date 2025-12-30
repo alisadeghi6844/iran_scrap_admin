@@ -1,0 +1,4 @@
+export const PRICE_SCRAP = "PRICE_SCRAP";
+
+export const GET_PRICE_SCRAP_PRODUCTS = "GET_PRICE_SCRAP_PRODUCTS";
+

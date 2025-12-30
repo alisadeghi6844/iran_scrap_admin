@@ -13,12 +13,22 @@ import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import Button from "../../../components/button";
-import {
-  getOrderStatusText,
-  getOrderStatusColor,
-} from "../../../types/OrderStatus";
+
 import SingleSelect from "../../../components/select/SingleSelect";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
+import {
+  ProductRequestItem,
+  ProductRequestsTableFilterData,
+  ProductRequestsTableProps,
+} from "./ProductRequestsTable.types";
+import {
+  formatDate,
+  getAmountTypeText,
+  getPaymentTypeText,
+  getStatusDisplay,
+  paymentTypeOptions,
+  statusOptions,
+} from "./ProductRequestsTable.utils";
 
 import {
   selectGetProductRequestOfferAdminData,
@@ -35,128 +45,6 @@ import {
   selectGetUsersProvidersLoading,
 } from "../../../redux/slice/users/UsersSlice";
 import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
-
-interface ProductRequestItem {
-  _id: string;
-  id?: string;
-  address: string;
-  amount: number;
-  amountType: string;
-  category: {
-    _id: string;
-    name: string;
-    code: string;
-    image: string;
-  };
-  catRoute: string;
-  categoryId: {
-    id: string;
-    name: string;
-    code: string;
-    isLast: boolean;
-    catRoute: string;
-    createdAt: number;
-    image: string;
-    parentId: string;
-    updatedAt: number;
-  };
-  city: string;
-  createdAt: number;
-  description: string;
-  expectedDate: number;
-  expireDate: number;
-  installmentMonths: number;
-  invoiceId?: {
-    id: string;
-    offerId: string;
-    code: string;
-    cheques: Array<{
-      date: string;
-      bank: string;
-      no: string;
-      sayyad: string;
-    }>;
-    comments: string[];
-    createdAt: number;
-    finalPrice: number;
-    payingPrice: number;
-    paymentType: string;
-    price: number;
-    selectedShipping: string;
-    shippingPrice: number;
-    totalprice: number;
-    updatedAt: number;
-  };
-  paymentType: string;
-  postalCode: string;
-  providerIds: Array<{
-    id: string;
-    mobile: string;
-    phone?: string;
-    companyName?: string;
-    agentName?: string;
-    agentPhone?: string;
-    firstName?: string;
-    lastName?: string;
-  }>;
-  province: string;
-  requestType: string;
-  status: string;
-  statusTitle: string;
-  updatedAt: number;
-  user: {
-    id: string;
-    mobile: string;
-    firstName: string;
-    lastName: string;
-    authCode: string;
-    authCodeExpireTime: number;
-    createdAt: number;
-    extraImages: unknown[];
-    isWelcomeComplete: boolean;
-    lastLoginAt: number;
-    permissions: unknown[];
-    productCategories: string[];
-    roles: string[];
-    updatedAt: number;
-    updatedBy: string;
-    updatedFields: string;
-    userSort: string;
-    usertype: string;
-  };
-  userId: {
-    id: string;
-    mobile: string;
-    firstName: string;
-    lastName: string;
-    authCode: string;
-    authCodeExpireTime: number;
-    createdAt: number;
-    extraImages: unknown[];
-    isWelcomeComplete: boolean;
-    lastLoginAt: number;
-    permissions: unknown[];
-    productCategories: string[];
-    roles: string[];
-    updatedAt: number;
-    updatedBy: string;
-    updatedFields: string;
-    userSort: string;
-    usertype: string;
-  };
-  winner?: {
-    id: string;
-    requestId: string;
-    [key: string]: unknown;
-  };
-  winnerId?: string;
-  __v: number;
-}
-
-interface ProductRequestsTableProps {
-  onRowClick?: (action: string, row: ProductRequestItem) => void;
-  refreshTrigger?: number;
-}
 
 const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
   const { onRowClick, refreshTrigger } = props;
@@ -231,12 +119,8 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
   };
 
   const handleFilterParameters = (data: unknown) => {
-    const { Status, Category, PaymentType, Provider } = data as {
-      Status?: SelectOptionTypes;
-      Category?: SelectOptionTypes;
-      PaymentType?: SelectOptionTypes;
-      Provider?: SelectOptionTypes;
-    };
+    const { Status, Category, PaymentType, Provider } =
+      data as ProductRequestsTableFilterData;
     let queryParam = "";
     if (Status?.value) queryParam += "status=" + Status?.value + ",";
     if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
@@ -273,56 +157,6 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
     paymentTypeFilter,
     providerFilter,
   ]);
-
-  const formatDate = (timestamp: number) => {
-    if (!timestamp) return "_";
-    const date = new Date(timestamp);
-    return date.toLocaleDateString("fa-IR");
-  };
-
-  const getPaymentTypeText = (paymentType: string) => {
-    switch (paymentType?.toUpperCase()) {
-      case "CASH":
-        return "نقدی";
-      case "INSTALLMENTS":
-        return "مدت دار";
-      case "CASH_AND_INSTALLMENTS":
-        return "نقدی و مدت دار";
-      default:
-        return paymentType || "_";
-    }
-  };
-
-  const getAmountTypeText = (amountType: string) => {
-    switch (amountType?.toUpperCase()) {
-      case "KILOGRAM":
-        return "کیلوگرم";
-      case "GRAM":
-        return "گرم";
-      case "LITER":
-        return "لیتر";
-      case "PIECE":
-        return "عدد";
-      default:
-        return amountType || "_";
-    }
-  };
-
-  // Options for filters
-  const statusOptions = [
-    { value: "PENDING", label: "در انتظار" },
-    { value: "APPROVED", label: "تایید شده" },
-    { value: "REJECTED", label: "رد شده" },
-    { value: "COMPLETED", label: "تکمیل شده" },
-    { value: "BUYER_WAITFORFINANCE", label: "در انتظار تایید مالی" },
-    { value: "WAITING_UNLOADING", label: "در انتظار تخلیه" },
-  ];
-
-  const paymentTypeOptions = [
-    { value: "CASH", label: "نقدی" },
-    { value: "INSTALLMENTS", label: "مدت دار" },
-    { value: "CASH_AND_INSTALLMENTS", label: "نقدی و مدت دار" },
-  ];
 
   // Get categories from category API
   const categoryOptions = React.useMemo(() => {
@@ -366,33 +200,7 @@ const ProductRequestsTable: React.FC<ProductRequestsTableProps> = (props) => {
     setProviderFilter(value);
   };
 
-  const getStatusDisplay = (row: ProductRequestItem) => {
-    let statusText;
-    let statusValue;
 
-    if (row?.statusTitle) {
-      statusValue = row.status || "";
-      statusText = row.statusTitle;
-    } else if (row?.status) {
-      statusValue = row.status;
-      statusText = getOrderStatusText(statusValue);
-    } else {
-      statusValue = "";
-      statusText = "_";
-    }
-
-    const colorClass = getOrderStatusColor(statusValue);
-
-    return {
-      text: statusText,
-      className: `px-2 py-1 rounded text-sm bg-opacity-20 ${colorClass
-        .replace("text-", "bg-")
-        .replace("-600", "-100")
-        .replace("-500", "-100")
-        .replace("-700", "-100")
-        .replace("-800", "-100")} ${colorClass}`,
-    };
-  };
 
   return (
     <CollectionControls

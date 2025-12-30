@@ -66,6 +66,8 @@ const getMenuLabel = (value: string): string => {
     "/purchase-price-management": "مدیریت قیمت خرید (مسیر)",
     "view-pricing-management": "مشاهده قیمت گذاری",
     "/view-pricing-management": "مشاهده قیمت گذاری (مسیر)",
+    "price-scrap": "مشاهده قیمت های بروز",
+    "/price-scrap": "مشاهده قیمت های بروز (مسیر)",
     "shipment-management": "محاسبه کرایه ناوگان",
     "/shipment-management": "محاسبه کرایه ناوگان (مسیر)",
     "pb-product-admin-management": "تعریف کالا",

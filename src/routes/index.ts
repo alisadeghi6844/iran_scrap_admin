@@ -181,6 +181,13 @@ const routes = [
     layout: "admin",
     role: ["admin", "client", "reservation"],
   },
+  {
+    path: "/price-scrap",
+    breadCrumb: "قیمت واقعی بازار",
+    component: lazy(() => import("../page/priceScrap")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
 ];
 
 export const privateRoutes = [

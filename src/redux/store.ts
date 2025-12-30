@@ -22,6 +22,7 @@ import pbProductAdminSlice from "./slice/pbProductAdmin/PbProductAdminSlice";
 import pbBrandAdminSlice from "./slice/pbBrandAdmin/PbBrandAdminSlice";
 import pbProviderAdminSlice from "./slice/pbProviderAdmin/PbProviderAdminSlice";
 import pbPortAdminSlice from "./slice/pbPortAdmin/PbPortAdminSlice";
+import priceScrapSlice from "./slice/priceScrap/PriceScrapSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -46,6 +47,7 @@ export const store = configureStore({
     pbBrandAdmin: pbBrandAdminSlice,
     pbProviderAdmin: pbProviderAdminSlice,
     pbPortAdmin: pbPortAdminSlice,
+    priceScrap: priceScrapSlice,
   },
 });
 

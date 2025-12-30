@@ -8,7 +8,6 @@ import TableHead from "../../../components/table/TableHead";
 import TableHeadCell from "../../../components/table/TableHeadCell";
 import TableRow from "../../../components/table/TableRow";
 import TableBody from "../../../components/table/TableBody";
-import TableFilterCell from "../../../components/table/TableFilterCell";
 import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
@@ -22,22 +21,17 @@ import {
 } from "../../../redux/slice/productPrice/ProductPriceSlice";
 import { GetProductPriceAction } from "../../../redux/actions/productPrice/ProductPriceActions";
 
-import Button from "../../../components/button";
-import { FaRegEdit } from "react-icons/fa";
-import { BiTrash } from "react-icons/bi";
-import { formatNumber } from "../../../utils/NumberFormated";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
-import { convertToJalali } from "../../../utils/MomentConvertor";
-
-import moment from "jalali-moment";
+import {
+  buildProductPriceFilterQuery,
+  calculateStatus,
+  getLast10DaysRange,
+  getPaymentTypeLabel,
+} from "./components/ProductPriceTable/utils";
 
 // Import filter components
-import ProductFilterSelect from "./filters/ProductFilterSelect";
-import BrandFilterSelect from "./filters/BrandFilterSelect";
-import ProviderFilterSelect from "./filters/ProviderFilterSelect";
-import PortFilterSelect from "./filters/PortFilterSelect";
-import PaymentTypeFilterSelect from "./filters/PaymentTypeFilterSelect";
-import StatusFilterSelect from "./filters/StatusFilterSelect";
+import FiltersRow from "./components/ProductPriceTable/FiltersRow";
+import ProductPriceRow from "./components/ProductPriceTable/ProductPriceRow";
 
 interface ProductPriceItem {
   _id?: string;
@@ -138,7 +132,7 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
       Status: statusFilter,
     };
 
-    const filterString = handleFilterParameters(filterData);
+    const filterString = buildProductPriceFilterQuery(filterData);
     const dateRange = getLast10DaysRange();
 
     // Always dispatch the action - if no filters are applied, it will load all data
@@ -178,26 +172,6 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
         datet: dateRange.datet,
       })
     );
-  };
-
-  const handleFilterParameters = (data: unknown) => {
-    const { Product, Brand, Provider, Port, PaymentType } = data as {
-      Product?: SelectOptionTypes;
-      Brand?: SelectOptionTypes;
-      Provider?: SelectOptionTypes;
-      Port?: SelectOptionTypes;
-      PaymentType?: SelectOptionTypes;
-    };
-
-    let queryParam = "";
-    if (Product?.value) queryParam += "productId=" + Product.value + ",";
-    if (Brand?.value) queryParam += "brandId=" + Brand.value + ",";
-    if (Provider?.value) queryParam += "providerId=" + Provider.value + ",";
-    if (Port?.value) queryParam += "portId=" + Port.value + ",";
-    if (PaymentType?.value)
-      queryParam += "paymentType=" + PaymentType.value + ",";
-
-    return queryParam.substring(0, queryParam.length - 1);
   };
 
   // Filter data based on status (frontend filtering since status is calculated)
@@ -241,59 +215,6 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
     }
   }, [updateData, createData, deleteData, dispatch]);
 
-  const getPaymentTypeLabel = (type: string) => {
-    const types: { [key: string]: string } = {
-      CASH: "نقدی",
-      INSTALLMENT1: "1 ماهه",
-      INSTALLMENT2: "2 ماهه",
-      INSTALLMENT3: "3 ماهه",
-      INSTALLMENT4: "4 ماهه",
-      INSTALLMENT5: "5 ماهه",
-      INSTALLMENT6: "6 ماهه",
-    };
-    return types[type] || type;
-  };
-
-  const calculateStatus = (sellPrice: number, constant: number) => {
-    // فرمول: S = (قیمت ثابت) / (قیمت فروش)
-    const S = sellPrice > 0 ? constant / sellPrice : 0;
-
-    if (S >= 0.12)
-      return {
-        label: "سوپر الماسی",
-        color: "text-purple-600 bg-purple-100",
-        textColor: "text-purple-600",
-        value: "SUPER_DIAMOND",
-      };
-    if (S >= 0.08)
-      return {
-        label: "الماسی",
-        color: "text-blue-600 bg-blue-100",
-        textColor: "text-blue-600",
-        value: "DIAMOND",
-      };
-    if (S >= 0.05)
-      return {
-        label: "طلایی",
-        color: "text-yellow-600 bg-yellow-100",
-        textColor: "text-yellow-600",
-        value: "GOLD",
-      };
-    if (S >= 0.03)
-      return {
-        label: "نقره‌ای",
-        color: "text-gray-600 bg-gray-100",
-        textColor: "text-gray-600",
-        value: "SILVER",
-      };
-    return {
-      label: "برنزی",
-      color: "text-orange-600 bg-orange-100",
-      textColor: "text-orange-600",
-      value: "BRONZE",
-    };
-  };
-
   // Handle filter changes
   const handleProductFilterChange = (value: SelectOptionTypes | null) => {
     setProductFilter(value);
@@ -319,26 +240,13 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
     setStatusFilter(value);
   };
 
-  // Get date range for last 10 days
-  const getLast10DaysRange = () => {
-    const today = moment();
-    const tenDaysAgo = moment().subtract(10, "days");
-
-    return {
-      datef: tenDaysAgo.valueOf().toString(), // 10 روز قبل
-      datet: today.valueOf().toString(), // امروز
-    };
-  };
-
-
-
   return (
     <CollectionControls
       buttons={["create"]}
       createTitle="ساخت قیمت گذاری جدید"
       hasBox={false}
       filterInitialValues={getFilterInitialValues()}
-      onFilter={handleFilterParameters}
+      onFilter={buildProductPriceFilterQuery}
       data={productPriceData}
       onMetaChange={handleFilter}
       onButtonClick={(button) => {
@@ -367,62 +275,20 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <ProductFilterSelect
-                name="Product"
-                value={productFilter}
-                onChange={handleProductFilterChange}
-                placeholder="انتخاب کالا..."
-              />
-            </TableFilterCell>
-            <TableFilterCell>
-              <BrandFilterSelect
-                name="Brand"
-                value={brandFilter}
-                onChange={handleBrandFilterChange}
-                placeholder="انتخاب برند..."
-              />
-            </TableFilterCell>
-            <TableFilterCell>
-              <ProviderFilterSelect
-                name="Provider"
-                value={providerFilter}
-                onChange={handleProviderFilterChange}
-                placeholder="انتخاب تامین کننده..."
-              />
-            </TableFilterCell>
-            <TableFilterCell>
-              <PortFilterSelect
-                name="Port"
-                value={portFilter}
-                onChange={handlePortFilterChange}
-                placeholder="انتخاب محل بارگیری..."
-              />
-            </TableFilterCell>
-            <TableFilterCell>
-              <PaymentTypeFilterSelect
-                name="PaymentType"
-                value={paymentTypeFilter}
-                onChange={handlePaymentTypeFilterChange}
-                placeholder="انتخاب نوع پرداخت..."
-              />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell>
-              <StatusFilterSelect
-                name="Status"
-                value={statusFilter}
-                onChange={handleStatusFilterChange}
-                placeholder="انتخاب وضعیت..."
-              />
-            </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-          </TableRow>
+          <FiltersRow
+            productFilter={productFilter}
+            onProductChange={handleProductFilterChange}
+            brandFilter={brandFilter}
+            onBrandChange={handleBrandFilterChange}
+            providerFilter={providerFilter}
+            onProviderChange={handleProviderFilterChange}
+            portFilter={portFilter}
+            onPortChange={handlePortFilterChange}
+            paymentTypeFilter={paymentTypeFilter}
+            onPaymentTypeChange={handlePaymentTypeFilterChange}
+            statusFilter={statusFilter}
+            onStatusChange={handleStatusFilterChange}
+          />
           {!loading ? (
             getFilteredData().length > 0 ? (
               getFilteredData().map((row: ProductPriceItem, index: number) => {
@@ -432,81 +298,22 @@ const ProductPriceTable: React.FC<ProductPriceTypes> = (props) => {
                     : null;
 
                 return (
-                  <TableRow
-                    key={row?._id || row?.id}
-                    className={statusInfo ? statusInfo.textColor : ""}
-                  >
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{row?.productId?.name ?? "_"}</TableCell>
-                    <TableCell>{row?.brandId?.name ?? "_"}</TableCell>
-                    <TableCell>{row?.providerId?.name ?? "_"}</TableCell>
-                    <TableCell>{row?.portId?.name ?? "_"}</TableCell>
-                    <TableCell>
-                      {getPaymentTypeLabel(row?.paymentType) ?? "_"}
-                    </TableCell>
-                    <TableCell>
-                      {row?.constant
-                        ? formatNumber(row?.constant) + " تومان"
-                        : "_"}
-                    </TableCell>
-                    <TableCell>
-                      {row?.buyPrice
-                        ? formatNumber(row?.buyPrice) + " تومان"
-                        : "_"}
-                    </TableCell>
-                    <TableCell>
-                      {row?.sellPrice
-                        ? formatNumber(row?.sellPrice) + " تومان"
-                        : "_"}
-                    </TableCell>
-                    <TableCell>
-                      {statusInfo ? (
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}
-                        >
-                          {statusInfo.label}
-                        </span>
-                      ) : (
-                        "_"
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {row?.createdAt ? convertToJalali(row.createdAt) : "_"}
-                    </TableCell>
-                    <TableCell
-                      onClick={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                      }}
-                      className="justify-center gap-x-4"
-                    >
-                      <Button
-                        startIcon={<FaRegEdit className="text-xl" />}
-                        type="button"
-                        variant="outline-success"
-                        size="sm"
-                        onClick={() => {
-                          if (onRowClick) {
-                            onRowClick("update", row);
-                          }
-                        }}
-                      >
-                        ویرایش
-                      </Button>
-                      <Button
-                        startIcon={<BiTrash className="text-xl" />}
-                        type="button"
-                        variant="outline-error"
-                        size="sm"
-                        onClick={() => {
-                          if (onRowClick) {
-                            onRowClick("delete", row);
-                          }
-                        }}
-                      >
-                        حذف
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <ProductPriceRow
+                    row={row}
+                    index={index}
+                    statusInfo={statusInfo}
+                    getPaymentTypeLabel={getPaymentTypeLabel}
+                    onEdit={() => {
+                      if (onRowClick) {
+                        onRowClick("update", row);
+                      }
+                    }}
+                    onDelete={() => {
+                      if (onRowClick) {
+                        onRowClick("delete", row);
+                      }
+                    }}
+                  />
                 );
               })
             ) : (

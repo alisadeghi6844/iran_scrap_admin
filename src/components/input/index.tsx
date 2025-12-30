@@ -1,72 +1,127 @@
-import React, { forwardRef } from "react";
-import Typography from "../typography/Typography";
-import { InputTypes } from "../../types/components/InputTypes";
+import React from 'react';
+import Typography from '../typography/Typography';
+import { Tooltip } from 'react-tooltip';
+import 'react-tooltip/dist/react-tooltip.css'; 
 
-const Input = forwardRef<HTMLInputElement, InputTypes>((props, ref) => {
+interface InputProps {
+  errorMessage?: any;
+  helperText?: string;
+  noCol?: boolean;
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full' | 'auto';
+  label?: string;
+  leftAdornment?: React.ReactNode;
+  required?: boolean;
+  startAdornment?: React.ReactNode;
+  className?: string;
+  position?: 'bottom' | string;
+  placeholder?: string;
+  labelBg?: string;
+  noBorder?: boolean;
+  [key: string]: any;
+}
+
+const Input: React.FC<InputProps> = props => {
   const {
+    labelBg = 'bg-white',
     errorMessage,
     helperText,
     noCol,
-    size = "full",
+    size = 'full',
     label,
     leftAdornment,
     required,
     startAdornment,
+    placeholder,
     className,
-    position = "bottom",
+    position = 'bottom',
+    noBorder = false,
     ...rest
   } = props;
 
+  const hasError = !!errorMessage;
+
+  const tooltipId = label ? `tooltip-${label.replace(/\s+/g, '-')}` : undefined;
+
   return (
-    <div className="w-full">
-      <div className="relative z-0">
-        <input 
+    <div className={`w-full relative ${noBorder ? 'mt-0 h-full' : 'mt-2'}`}>
+      <div className={`relative ${noBorder ? 'h-full' : ''}`}>
+        <input
           id={label}
-          placeholder=" "
-          ref={ref} // انتقال ref به input
-          className={`block p-2 w-full text-sm text-gray-900
-            bg-transparent border-0 border-b-2 border-gray-300 appearance-none
-            focus:outline-none focus:ring-0 focus:border-primary-600 peer
-            ${!!errorMessage ? "text-error-500 focus:text-error-500" : "border-gray-300"} 
-            ${startAdornment && "pr-9"} 
-            ${leftAdornment && "pl-9"} 
-            ${{
-              xs: "h-7 text-xs",
-              sm: "h-8 text-sm",
-              md: "h-10 text-sm",
-              lg: "h-11 text-lg",
-              xl: "h-14 text-xl",
-              full: "h-11 w-full",
-              auto: "h-auto w-auto",
-            }[size]} 
-            ${className ?? ""}
+          className={`block w-full text-xs sm:text-sm md:text-md
+          bg-white ${noBorder ? 'border-0' : 'border rounded-lg sm:rounded-xl'} ${noBorder ? 'px-2' : 'py-2 sm:py-3 md:py-4 lg:py-6 px-3 sm:px-4'} placeholder:text-xs sm:placeholder:text-sm
+          appearance-none focus:outline-none ${noBorder ? '' : 'focus:ring-1'} 
+          ${
+            hasError && !noBorder
+              ? 'text-error-500 border-error-500 focus:border-error-500 focus:ring-error-500 placeholder:text-error-500/70'
+              : hasError && noBorder
+              ? 'text-error-500 placeholder:text-error-500/70'
+              : noBorder
+              ? 'text-gray-900 placeholder:text-gray-300'
+              : 'text-gray-900 border-gray-300 focus:ring-primary-500 focus:border-primary-500 placeholder:text-gray-300'
+          } 
+          placeholder:text-right
+          ${startAdornment ? 'pr-8 sm:pr-9' : ''} ${leftAdornment ? 'pl-8 sm:pl-9' : ''} ${
+            noBorder
+              ? 'h-full'
+              : {
+                  xs: 'h-6 sm:h-7 text-xs',
+                  sm: 'h-7 sm:h-8 text-xs sm:text-sm',
+                  md: 'h-9 sm:h-10 text-xs sm:text-sm',
+                  lg: 'h-10 sm:h-11 text-sm sm:text-base lg:text-lg',
+                  xl: 'h-12 sm:h-14 text-base sm:text-lg lg:text-xl',
+                  full: 'h-10 sm:h-11 w-full',
+                  auto: 'h-auto w-auto',
+                }[size]
+          } ${className ?? ''}
           `}
+          placeholder={placeholder}
           {...rest}
         />
-       
-        <label
-          className="absolute flex gap-x-2 text-sm lg:text-base text-gray-400
-            duration-300 transform -translate-y-7 top-2 -z-10 origin-right scale-90
-            peer-focus:right-0 peer-focus:text-blue-600
-            peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75
-            peer-focus:-translate-y-7"
-        >
-          {label}
-          {    required?(<div className=" text-error">*</div>):null}
-        </label>
-        <div className="pointer-events-none absolute inset-y-0 left-2 flex items-center">
-          {leftAdornment}
-        </div>
+        {leftAdornment && (
+          <div className="absolute inset-y-0 left-2 sm:left-3 flex items-center pointer-events-none">
+            {leftAdornment}
+          </div>
+        )}
+        {startAdornment && (
+          <div className="absolute inset-y-0 right-2 sm:right-3 flex items-center pointer-events-none">
+            {startAdornment}
+          </div>
+        )}
       </div>
-      <Typography
-        className={`text-xs ${
-          !!errorMessage ? "text-error-500" : "text-text-secondary"
-        }`}
-      >
-        {!!errorMessage ? errorMessage : helperText}
-      </Typography>
+
+      {label && (
+        <>
+          <div
+            data-tooltip-id={tooltipId}
+            className={`absolute -top-[9px] right-3 sm:right-4 px-1 ${labelBg} max-w-[90%] truncate cursor-help`}
+          >
+            <label
+              className={`block text-[11px] sm:text-[13.5px] z-20 text-right whitespace-nowrap overflow-hidden text-ellipsis ${
+                hasError ? 'text-error-500' : 'text-gray-400'
+              }`}
+              htmlFor={label}
+            >
+              {label}
+              {required ? (
+                <Typography tag="span" className="text-error-500 text-[10px] sm:text-xs mr-1">
+                  *
+                </Typography>
+              ) : null}
+            </label>
+          </div>
+          <Tooltip id={tooltipId} place="top" content={label} />
+        </>
+      )}
+
+      {(hasError || helperText) && (
+        <Typography
+          className={`text-[10px] sm:text-xs mt-1 ${hasError ? 'text-error-500' : 'text-text-secondary'}`}
+        >
+          {hasError ? errorMessage : helperText}
+        </Typography>
+      )}
     </div>
   );
-});
+};
 
 export default Input;
