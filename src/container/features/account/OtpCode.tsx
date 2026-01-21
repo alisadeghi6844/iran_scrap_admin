@@ -13,7 +13,7 @@ const OtpCode = (props: any) => {
     status,
   } = props;
   const [otp, setOtp] = useState("");
-  const [timeLeft, actions] = useCountdown(300000, 1000); // 5 دقیقه برای status send
+  const [timeLeft, actions] = useCountdown(20000, 1000); // 5 دقیقه برای status send
 
   useEffect(() => {
       actions.reset();
@@ -22,7 +22,7 @@ const OtpCode = (props: any) => {
   }, [status, date]);
 
   useEffect(() => {
-    if (otp?.length == 5) {
+    if (otp?.length == 6) {
       handleSendOtp && handleSendOtp(otp);
     }
   }, [otp]);
@@ -31,7 +31,7 @@ const OtpCode = (props: any) => {
     <div className="space-y-6">
       {phoneNumber && (
         <div className="text-center lg:text-right text-gray-600 text-sm lg:text-base">
-          کد فعالسازی 5 رقمی به شماره همراه{" "}
+          کد فعالسازی 6 رقمی به شماره همراه{" "}
           <span className="text-primary-500 font-bold">{phoneNumber}</span> ارسال شد.
         </div>
       )}
@@ -43,7 +43,7 @@ const OtpCode = (props: any) => {
         <OtpInput
           value={otp}
           onChange={setOtp}
-          numInputs={5}
+          numInputs={6}
           shouldAutoFocus
           containerStyle={{
             width: "100%",

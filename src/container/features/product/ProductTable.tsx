@@ -33,6 +33,7 @@ import ProductCategoryFilter from "./ProductCategoryFilter";
 import RadioGroup from "../../../components/radio/RadioGroup";
 import Button from "../../../components/button";
 import { FaRegEdit } from "react-icons/fa";
+import { NormalizeBaseUrl } from "../../../utils/NormalizeBaseUrl";
 
 interface ProductItem {
   _id: string;
@@ -251,7 +252,7 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
                       className="w-[60px] h-[60px] rounded-lg"
                       src={
                         row?.images?.[0]?.path
-                          ? row?.images[0].path
+                          ? NormalizeBaseUrl + row?.images[0].path
                           : "/images/core/default-image.png"
                       }
                     />

@@ -21,8 +21,8 @@
 
 
 - [ ] 3. Update authentication page branding
-  - Replace "ورود به پنل ادمین دیجی فارم" with "ورود به پنل ادمین ایران‌اسکرپ" in src/page/auth/Login/index.tsx
-  - Update alt text from "دیجی فارم" to "ایران‌اسکرپ" for logo image
+  - Replace "ورود به پنل ادمین ایران اسکرپ" with "ورود به پنل ادمین ایران‌اسکرپ" in src/page/auth/Login/index.tsx
+  - Update alt text from "ایران اسکرپ" to "ایران‌اسکرپ" for logo image
 
 
   - _Requirements: 2.1, 2.2_
@@ -30,7 +30,7 @@
 - [x] 4. Update theme configuration and document titles
 
 
-  - Replace "مدیریت دیجی فارم" with "مدیریت ایران‌اسکرپ" in src/container/themes/MainTheme.tsx
+  - Replace "مدیریت ایران اسکرپ" with "مدیریت ایران‌اسکرپ" in src/container/themes/MainTheme.tsx
   - Ensure dynamic title updates reflect new branding
   - _Requirements: 2.1, 2.2_
 

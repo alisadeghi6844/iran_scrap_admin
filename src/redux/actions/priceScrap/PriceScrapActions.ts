@@ -14,7 +14,8 @@ export const GetPriceScrapProductsAction = createAsyncThunk(
     try {
       const response = await getPriceScrapProductsService(query);
       if (response?.status === 200) {
-        return response.data;
+        // Return the full response object with pagination metadata (page, size, totalCount, etc.)
+        return response.data || {};
       } else {
         return rejectWithValue(response.data);
       }

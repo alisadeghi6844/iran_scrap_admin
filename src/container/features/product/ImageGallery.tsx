@@ -4,6 +4,7 @@ import { FiTrash2 } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa";
 import Typography from "../../../components/typography/Typography";
 import { toast } from "react-toastify";
+import { NormalizeBaseUrl } from "../../../utils/NormalizeBaseUrl";
 
 interface ImageGalleryProps {
   imageURLs: string[];
@@ -24,14 +25,16 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
 }) => {
   const [isDragOver, setIsDragOver] = React.useState(false);
 
-  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = Array.from(event.target.files || []);
-    console.log('Files selected:', files.length); // Debug log
-    console.log('Current image count:', imageURLs.length); // Debug log
-    console.log('Current imageURLs:', imageURLs); // Debug log
-    
+    console.log("Files selected:", files.length); // Debug log
+    console.log("Current image count:", imageURLs.length); // Debug log
+    console.log("Current imageURLs:", imageURLs); // Debug log
+
     let uploadedCount = 0;
-    
+
     for (const file of files) {
       // Check if we haven't exceeded max images (including files being uploaded in this batch)
       if (imageURLs.length + uploadedCount >= maxImages) {
@@ -40,11 +43,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
       }
 
       // Validate file type
-      if (!file.type.match("image/jpeg") &&
-          !file.type.match("image/png") &&
-          !file.type.match("image/gif") &&
-          !file.type.match("image/webp")) {
-        toast.error(`فرمت فایل ${file.name} پشتیبانی نمی‌شود. لطفا فایل‌های JPG، PNG، GIF یا WebP انتخاب کنید.`);
+      if (
+        !file.type.match("image/jpeg") &&
+        !file.type.match("image/png") &&
+        !file.type.match("image/gif") &&
+        !file.type.match("image/webp")
+      ) {
+        toast.error(
+          `فرمت فایل ${file.name} پشتیبانی نمی‌شود. لطفا فایل‌های JPG، PNG، GIF یا WebP انتخاب کنید.`
+        );
         continue;
       }
 
@@ -54,14 +61,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
         continue;
       }
 
-      console.log('About to upload image:', file.name); // Debug log
+      console.log("About to upload image:", file.name); // Debug log
       // Upload image immediately
       uploadNewImage(file);
       uploadedCount++;
     }
 
     // Clear the input
-    event.target.value = '';
+    event.target.value = "";
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -77,12 +84,12 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragOver(false);
-    
+
     const files = Array.from(event.dataTransfer.files);
-    console.log('Files dropped:', files.length); // Debug log
-    
+    console.log("Files dropped:", files.length); // Debug log
+
     let uploadedCount = 0;
-    
+
     for (const file of files) {
       // Check if we haven't exceeded max images (including files being uploaded in this batch)
       if (imageURLs.length + uploadedCount >= maxImages) {
@@ -91,11 +98,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
       }
 
       // Validate file type
-      if (!file.type.match("image/jpeg") &&
-          !file.type.match("image/png") &&
-          !file.type.match("image/gif") &&
-          !file.type.match("image/webp")) {
-        toast.error(`فرمت فایل ${file.name} پشتیبانی نمی‌شود. لطفا فایل‌های JPG، PNG، GIF یا WebP انتخاب کنید.`);
+      if (
+        !file.type.match("image/jpeg") &&
+        !file.type.match("image/png") &&
+        !file.type.match("image/gif") &&
+        !file.type.match("image/webp")
+      ) {
+        toast.error(
+          `فرمت فایل ${file.name} پشتیبانی نمی‌شود. لطفا فایل‌های JPG، PNG، GIF یا WebP انتخاب کنید.`
+        );
         continue;
       }
 
@@ -105,7 +116,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
         continue;
       }
 
-      console.log('About to upload dropped image:', file.name); // Debug log
+      console.log("About to upload dropped image:", file.name); // Debug log
       // Upload image immediately
       uploadNewImage(file);
       uploadedCount++;
@@ -117,14 +128,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
       <Typography className="text-[14px] text-[#272B30] pb-4">
         تصاویر محصول
       </Typography>
-      
+
       {/* Upload Area */}
       <div className="flex justify-center mb-4">
         <div
           className={`w-full max-w-md rounded-lg h-[200px] border-2 border-dashed ${
-            isDragOver 
-              ? 'border-blue-400 bg-blue-50' 
-              : 'border-[#CED4DA] bg-[#F8F9FA]'
+            isDragOver
+              ? "border-blue-400 bg-blue-50"
+              : "border-[#CED4DA] bg-[#F8F9FA]"
           } flex flex-col justify-center items-center gap-y-2 cursor-pointer hover:bg-gray-50 transition-colors`}
           onClick={() => document.getElementById("fileInput")?.click()}
           onDragOver={handleDragOver}
@@ -144,12 +155,10 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
             بارگذاری تصویر
           </div>
           <div className="text-[14px] text-[#ADB5BD] text-center px-4">
-            لطفا تصویر مورد نظر را{" "}
-            <span className="text-blue-500">انتخاب</span> و یا درگ کنید
+            لطفا تصویر مورد نظر را <span className="text-blue-500">انتخاب</span>{" "}
+            و یا درگ کنید
           </div>
-          <div className="text-xs text-gray-500">
-            حداکثر {maxImages} تصویر
-          </div>
+          <div className="text-xs text-gray-500">حداکثر {maxImages} تصویر</div>
           <FaPlus className="text-2xl text-gray-400" />
         </div>
       </div>
@@ -166,21 +175,23 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {imageURLs.map((imagePath, index) => {
             const isUploading = uploadingImages.has(imagePath);
-            console.log(`Image ${index}: ${imagePath}, isUploading: ${isUploading}`); // Debug log
+            console.log(
+              `Image ${index}: ${imagePath}, isUploading: ${isUploading}`
+            ); // Debug log
             return (
               <div key={`image-${index}`} className="relative group">
                 <img
-                  src={imagePath}
+                  src={NormalizeBaseUrl + imagePath}
                   alt={`product-image-${index}`}
                   className={`w-full h-[120px] object-cover rounded-lg border border-[#CED4DA] transition-opacity ${
-                    isUploading 
-                      ? 'opacity-50' 
-                      : 'group-hover:opacity-75'
+                    isUploading ? "opacity-50" : "group-hover:opacity-75"
                   }`}
                   onLoad={() => console.log(`Image loaded: ${imagePath}`)}
-                  onError={(e) => console.error(`Image failed to load: ${imagePath}`, e)}
+                  onError={(e) =>
+                    console.error(`Image failed to load: ${imagePath}`, e)
+                  }
                 />
-                
+
                 {/* Loading overlay for uploading images */}
                 {isUploading && (
                   <div className="absolute inset-0 bg-black bg-opacity-30 rounded-lg flex items-center justify-center">
@@ -189,14 +200,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                     </div>
                   </div>
                 )}
-                
+
                 {/* Spinner for uploading images */}
                 {isUploading && (
                   <div className="absolute top-2 left-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                   </div>
                 )}
-                
+
                 {/* Delete button - only show for uploaded images */}
                 {!isUploading && (
                   <Button
@@ -210,7 +221,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                     <FiTrash2 />
                   </Button>
                 )}
-                
+
                 {index === 0 && imageURLs.length > 0 && !isUploading && (
                   <div className="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
                     تصویر اصلی

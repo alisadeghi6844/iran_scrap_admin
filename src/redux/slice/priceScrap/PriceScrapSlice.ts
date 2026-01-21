@@ -5,13 +5,13 @@ import { GetPriceScrapProductsAction } from "../../actions/priceScrap/PriceScrap
 interface PriceScrapState {
   getPriceScrapProductsError: string | null;
   getPriceScrapProductsLoading: boolean;
-  getPriceScrapProductsData: any[];
+  getPriceScrapProductsData: any; // Changed from array to object to support pagination
 }
 
 const initialState: PriceScrapState = {
   getPriceScrapProductsError: null,
   getPriceScrapProductsLoading: false,
-  getPriceScrapProductsData: [],
+  getPriceScrapProductsData: {},
 };
 
 const priceScrapSlice = createSlice({
@@ -23,7 +23,7 @@ const priceScrapSlice = createSlice({
       // Get price scrap products
       .addCase(GetPriceScrapProductsAction.pending, (state) => {
         state.getPriceScrapProductsLoading = true;
-        state.getPriceScrapProductsData = [];
+        state.getPriceScrapProductsData = {};
         state.getPriceScrapProductsError = null;
       })
       .addCase(
@@ -39,7 +39,7 @@ const priceScrapSlice = createSlice({
         (state, action: PayloadAction<any>) => {
           state.getPriceScrapProductsLoading = false;
           state.getPriceScrapProductsError = action.payload?.message || "خطای ناشناخته";
-          state.getPriceScrapProductsData = [];
+          state.getPriceScrapProductsData = {};
         }
       );
   },

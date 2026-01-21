@@ -1,9 +1,7 @@
 import HttpServises from "../../../api/HttpServises";
 import { AxiosQueryCustom } from "../../../utils/AxiosQuery";
 import { GET_PRICE_SCRAP_PRODUCTS_POINT } from "../../api/priceScrap/PriceScrapApi";
-
-// Base URL for price scrap API
-const PRICE_SCRAP_BASE_URL = "http://localhost:3004";
+import { BASE_URL } from "../../../api/config";
 
 export const getPriceScrapProductsService = async (query: any) => {
   let queryText;
@@ -11,7 +9,7 @@ export const getPriceScrapProductsService = async (query: any) => {
     queryText = AxiosQueryCustom(query);
   }
   return await HttpServises.get(
-    `${PRICE_SCRAP_BASE_URL}/${GET_PRICE_SCRAP_PRODUCTS_POINT}${queryText ? `?${queryText}` : ""}`
+    `${BASE_URL}${GET_PRICE_SCRAP_PRODUCTS_POINT}${queryText ? `?${queryText}` : ""}`
   );
 };
 

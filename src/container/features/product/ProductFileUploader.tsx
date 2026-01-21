@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { NormalizeBaseUrl } from "../../../utils/NormalizeBaseUrl";
 
 interface ProductFileUploaderProps {
   label?: string;
@@ -120,7 +121,7 @@ const ProductFileUploader: React.FC<ProductFileUploaderProps> = ({
         ) : (
           <div className="relative rounded-md overflow-hidden border border-gray-200">
             <img
-              src={previewUrl}
+              src={ previewUrl}
               alt="پیش‌نمایش تصویر"
               className="w-full h-48 object-cover"
             />

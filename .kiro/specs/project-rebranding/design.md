@@ -16,7 +16,7 @@ The rebranding will follow a systematic approach to replace all instances of the
    - `DIGIFARM` → `IRANSCRAP`
 
 2. **Persian text replacements**:
-   - `دیجی فارم` → `ایران اسکرپ`
+   - `ایران اسکرپ` → `ایران اسکرپ`
    - `دیجیفارم` → `ایران‌اسکرپ`
    - `دیجی‌فارم` → `ایران‌اسکرپ`
 

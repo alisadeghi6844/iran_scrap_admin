@@ -38,11 +38,11 @@ const Button:React.FC<ButtonTypes> = (props) => {
           light: ` bg-white focus:outline-none hover:shadow-none ${
             !disable && "hover:bg-gray-100"
           }`,
-          success: `focus:outline-none text-white bg-secondary-500 ${
-            !disable && "hover:bg-secondary-600"
+          success: `focus:outline-none text-white bg-success-500 ${
+            !disable && "hover:bg-success-600"
           }`,
-          "outline-success": `focus:outline-none border-2 border-secondary-500 text-secondary-500 bg-transparent ${
-            !disable && "hover:bg-secondary-500 hover:text-white"
+          "outline-success": `focus:outline-none border-2 border-success-500 text-success-500 bg-transparent ${
+            !disable && "hover:bg-success-500 hover:text-white"
           }`,
           error: `focus:outline-none text-white bg-error-500 ${
             !disable && "hover:bg-error-700"
@@ -62,10 +62,10 @@ const Button:React.FC<ButtonTypes> = (props) => {
           "outline-gray": `focus:outline-none border-2 border-gray-400  text-gray-400  bg-transparent ${
             !disable && "hover:bg-gray-400 hover:text-white"
           }`,
-          secondary: `focus:outline-none text-gray-700 border-2  bg-secondary-500  ${
+          secondary: `focus:outline-none text-white  bg-secondary-500  ${
             !disable && "hover:bg-secondary-500"
           }`,
-          "outline-secondary": `focus:outline-none border-2 border-gray-400  text-gray-700  bg-transparent transition-colors ${
+          "outline-secondary": `focus:outline-none border-2 border-secondary-500  text-secondary-500  bg-transparent transition-colors ${
             !disable && "hover:bg-gray-100 hover:border-gray-500 hover:text-gray-800"
           }`,
           info: `focus:outline-none text-white bg-blue-500 ${

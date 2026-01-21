@@ -22,6 +22,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
   className = "",
 }) => {
   const getButtonVariant = (optionValue: string, isSelected: boolean) => {
+    console.log("optionValue",optionValue)
     if (isSelected) {
       switch (optionValue) {
         case "PENDING":
