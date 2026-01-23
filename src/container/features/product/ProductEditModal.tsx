@@ -60,6 +60,7 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
   );
 
   const [initialValues, setInitialValues] = useState(initialData);
+
   const { imageURLs, uploadingImages, uploadNewImage, removeImage } =
     useProductImages({
       dispatch,
@@ -71,9 +72,9 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
   useEffect(() => {
     if (getValue?.data && mode === "update") {
       const productData = getValue.data;
-      // Use installmentPrice as is with duration field
+
       const convertedinstallmentPrice =
-        productData?.installmentPrice?.map((item: unknown) => ({
+        productData?.installmentPrice?.map((item: any) => ({
           duration: item.duration,
           price: item.price,
         })) || [];
@@ -95,7 +96,6 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
         isSpecialOffer: productData?.tags?.includes("special") || false,
       });
     } else if (product && mode === "update") {
-      // Use installmentPrice as is with duration field
       const convertedinstallmentPrice =
         product?.installmentPrice?.map((item: any) => ({
           duration: item.duration,
@@ -120,8 +120,6 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
       setInitialValues(initialData);
     }
   }, [getValue, product, mode, initialData]);
-
-
 
   const handleSubmit = (values: typeof initialData) => {
     const requestBody = {
@@ -252,11 +250,12 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
                   />
                 </div>
 
-                <div className="col-span-12">
+                <div className="col-span-12 mb-4">
                   <Typography className="text-[14px] text-[#272B30] pb-4">
                     نوع پرداخت
                   </Typography>
                   <div className="flex flex-wrap gap-6">
+                    {/* رادیوها بدون تغییر */}
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
@@ -264,10 +263,10 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
                         value="CASH"
                         checked={values.paymentType === "CASH"}
                         onChange={handleChange}
-                        className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 focus:ring-primary-500"
                       />
-                      <span className="text-sm text-gray-700">نقدی</span>
+                      نقدی
                     </label>
+
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
@@ -275,39 +274,23 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
                         value="INSTALLMENTS"
                         checked={values.paymentType === "INSTALLMENTS"}
                         onChange={handleChange}
-                        className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 focus:ring-primary-500"
                       />
-                      <span className="text-sm text-gray-700">اقساطی</span>
+                      اقساطی
                     </label>
+
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
                         name="paymentType"
                         value="CASH_AND_INSTALLMENTS"
-                        checked={values.paymentType === "CASH_AND_INSTALLMENTS"}
+                        checked={
+                          values.paymentType === "CASH_AND_INSTALLMENTS"
+                        }
                         onChange={handleChange}
-                        className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 focus:ring-primary-500"
                       />
-                      <span className="text-sm text-gray-700">
-                        نقدی و اقساطی
-                      </span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="isSpecialOffer"
-                        checked={values.isSpecialOffer}
-                        onChange={handleChange}
-                        className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 focus:ring-primary-500 rounded"
-                      />
-                      <span className="text-sm text-gray-700">پیشنهاد ویژه</span>
+                      نقدی و اقساطی
                     </label>
                   </div>
-                  {errors.paymentType && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.paymentType}
-                    </p>
-                  )}
                 </div>
 
                 {(values.paymentType === "INSTALLMENTS" ||
@@ -328,24 +311,22 @@ const ProductEditModal: React.FC<ProductEditFormProps> = (props) => {
                 <Typography className="text-[14px] text-[#272B30] pb-4">
                   توضیحات محصول
                 </Typography>
-                <div className="md:w-[75%] w-full">
-                  <TextArea
-                    onChange={handleChange}
-                    value={values.description || ""}
-                    name="description"
-                    label="لطفا توضیحات مربوط به محصول خود را وارد کنید"
-                    error={errors.description as string}
-                    rows={4}
-                  />
-                </div>
+                <TextArea
+                  onChange={handleChange}
+                  value={values.description || ""}
+                  name="description"
+                  error={errors.description as string}
+                  rows={4}
+                />
               </div>
 
-              {/* Image Gallery */}
               <ImageGallery
                 imageURLs={imageURLs}
                 removeImage={removeImage}
                 uploadNewImage={uploadNewImage}
-                imageActionLoading={uploadImageLoading || deleteImageLoading}
+                imageActionLoading={
+                  uploadImageLoading || deleteImageLoading
+                }
                 maxImages={5}
                 uploadingImages={uploadingImages}
               />

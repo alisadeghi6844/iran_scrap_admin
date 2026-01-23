@@ -24,10 +24,13 @@ import {
   selectChangeProductStatusData,
   selectEditProductAdminData,
 } from "../../../redux/slice/product/ProductSlice";
+
 import {
   GetProductAction,
   ChangeProductStatusAction,
+  EditProductAdminAction,
 } from "../../../redux/actions/product/ProductActions";
+
 import SearchInputField from "../../../components/molcols/formik-fields/SearchInputField";
 import ProductCategoryFilter from "./ProductCategoryFilter";
 import RadioGroup from "../../../components/radio/RadioGroup";
@@ -39,7 +42,7 @@ interface ProductItem {
   _id: string;
   providerId: string;
   name: string;
-  images?: Array<{ url: string }>;
+  images?: Array<{ path: string }>;
   category?: { name: string; _id: string };
   provider?: {
     name?: string;
@@ -49,18 +52,11 @@ interface ProductItem {
   };
   address?: { city: string };
   price?: number;
-  priceExpire?: string;
   inventory?: number;
   inventoryType?: string;
-  minimumOrderQuantity?: number;
-  minimumOrderType?: string;
   paymentType?: string;
-  installmentPrice?: Array<{ duration: number; price: number }>;
-  deliveryTime?: number;
-  deliveryTimeType?: string;
-  displayType?: Array<any>;
-  attributes?: Array<any>;
   status: string;
+  tags?: string[];
   createdAt: number;
   updatedAt: number;
 }
@@ -69,10 +65,9 @@ interface ProductTypes {
   onRowClick?: (action: string, row: ProductItem) => void;
 }
 
-const ProductTable: React.FC<ProductTypes> = (props) => {
-  const { onRowClick } = props;
-
+const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
   const dispatch = useDispatch<AppDispatch>();
+
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(
     null
   );
@@ -109,37 +104,25 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
   };
 
   const handleFilterParameters = (data: unknown) => {
-    const { ProductName, Category, Status, Provider, City } = data as {
-      ProductName?: string;
-      Category?: { label: string; value: string };
-      Status?: { label: string; value: string };
-      Provider?: { label: string; value: string };
-      City?: { label: string; value: string };
-    };
+    const { ProductName, Category, Status, Provider, City } = data as any;
     let queryParam = "";
     if (ProductName) queryParam += "name=" + ProductName + ",";
-    if (Category?.label) queryParam += "categoryId=" + Category?.value + ",";
-    if (Status?.label) queryParam += "status=" + Status?.value + ",";
-    if (Provider?.label) queryParam += "providerId=" + Provider?.value + ",";
-    if (City?.label) queryParam += "city=" + City?.value + ",";
-
-    return queryParam.substring(0, queryParam.length - 1);
+    if (Category?.value) queryParam += "categoryId=" + Category.value + ",";
+    if (Status?.value) queryParam += "status=" + Status.value + ",";
+    if (Provider?.value) queryParam += "providerId=" + Provider.value + ",";
+    if (City?.value) queryParam += "city=" + City.value + ",";
+    return queryParam.slice(0, -1);
   };
 
   useEffect(() => {
     if (
-      updateData?.status == 200 ||
-      createData?.status == 201 ||
-      updateStatusData?.status == 200 ||
-      changeStatusData?.status == 200 ||
-      editProductAdminData?.status == 200
+      updateData?.status === 200 ||
+      createData?.status === 201 ||
+      updateStatusData?.status === 200 ||
+      changeStatusData?.status === 200 ||
+      editProductAdminData?.status === 200
     ) {
-      dispatch(
-        GetProductAction({
-          page: 0,
-          size: 20,
-        })
-      );
+      dispatch(GetProductAction({ page: 0, size: 20 }));
     }
   }, [
     updateData,
@@ -150,9 +133,8 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
     dispatch,
   ]);
 
-  const getInventoryUnit = (inventoryType?: string) => {
-    if (!inventoryType) return "";
-    switch (inventoryType.toUpperCase()) {
+  const getInventoryUnit = (type?: string) => {
+    switch (type) {
       case "KILOGRAM":
       case "KG":
         return "کیلوگرم";
@@ -167,9 +149,9 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
     }
   };
 
-  const getPaymentTypeLabel = (paymentType?: string) => {
-    if (!paymentType) return "_";
-    switch (paymentType) {
+  const getPaymentTypeLabel = (type?: string) => {
+    if (!type) return "_";
+    switch (type) {
       case "CASH":
         return "نقدی";
       case "INSTALLMENTS":
@@ -177,26 +159,18 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
       case "CASH_AND_INSTALLMENTS":
         return "نقدی و مدت دار";
       default:
-        return paymentType;
+        return type;
     }
   };
 
-  const handleStatusChange = (productId: string, newStatus: string) => {
-    dispatch(
-      ChangeProductStatusAction({
-        productId,
-        status: newStatus,
-        onSuccess: () => {
-          // Status will be updated automatically via useEffect
-        },
-      })
-    );
+  const handleStatusChange = (productId: string, status: string) => {
+    dispatch(ChangeProductStatusAction({ productId, status }));
   };
 
   const statusOptions = [
     { value: "PENDING", label: "در حال بررسی" },
-    { value: "CONFIRM", label: "تایید شده" },
-    { value: "REJECT", label: "رد شده" },
+    { value: "CONFIRM", label: "تایید محصول" },
+    { value: "REJECT", label: "رد محصول" },
   ];
 
   return (
@@ -208,8 +182,8 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
       data={productData}
       onMetaChange={handleFilter}
     >
-      <Table className="w-full" isLoading={false} shadow={false}>
-        <TableHead className="w-full" isLoading={false} shadow={false}>
+      <Table className="w-full">
+        <TableHead>
           <TableRow>
             <TableHeadCell>تصویر محصول</TableHeadCell>
             <TableHeadCell>نام محصول</TableHeadCell>
@@ -219,13 +193,18 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
             <TableHeadCell>قیمت</TableHeadCell>
             <TableHeadCell>موجودی</TableHeadCell>
             <TableHeadCell>نوع پرداخت</TableHeadCell>
+
+            {/* ⭐ فقط همین ستون اضافه شده */}
+            <TableHeadCell>پیشنهاد ویژه</TableHeadCell>
+
             <TableHeadCell>وضعیت</TableHeadCell>
             <TableHeadCell>عملیات</TableHeadCell>
           </TableRow>
         </TableHead>
+
         <TableBody>
           <TableRow>
-            <TableFilterCell></TableFilterCell>
+            <TableFilterCell />
             <TableFilterCell>
               <SearchInputField
                 name="ProductName"
@@ -236,71 +215,117 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
             <TableFilterCell>
               <ProductCategoryFilter name="Category" />
             </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
+            <TableFilterCell />
+            <TableFilterCell />
+            <TableFilterCell />
+            <TableFilterCell />
+            <TableFilterCell />
+
+            {/* فیلتر پیشنهاد ویژه (خالی) */}
+            <TableFilterCell />
+
+            <TableFilterCell />
+            <TableFilterCell />
           </TableRow>
+
           {!loading ? (
             productData?.data?.length > 0 ? (
-              productData?.data?.map((row: ProductItem) => (
-                <TableRow key={row?._id}>
+              productData.data.map((row: ProductItem) => (
+                <TableRow key={row._id}>
                   <TableCell>
                     <Image
                       className="w-[60px] h-[60px] rounded-lg"
                       src={
                         row?.images?.[0]?.path
-                          ? NormalizeBaseUrl + row?.images[0].path
+                          ? NormalizeBaseUrl + row.images[0].path
                           : "/images/core/default-image.png"
                       }
                     />
                   </TableCell>
-                  <TableCell>{row?.name ?? "_"}</TableCell>
-                  <TableCell>{row?.category?.name ?? "_"}</TableCell>
+
+                  <TableCell>{row.name ?? "_"}</TableCell>
+                  <TableCell>{row.category?.name ?? "_"}</TableCell>
                   <TableCell>
-                    {row?.provider?.firstName && row?.provider?.lastName
-                      ? row?.provider?.firstName + " " + row?.provider?.lastName
-                      : row?.provider?.agentName}
+                    {row.provider?.firstName
+                      ? `${row.provider.firstName} ${row.provider.lastName}`
+                      : row.provider?.agentName}
                   </TableCell>
-                  <TableCell>{row?.address?.city ?? "_"}</TableCell>
+                  <TableCell>{row.address?.city ?? "_"}</TableCell>
                   <TableCell>
-                    {row?.price ? `${row.price.toLocaleString()} تومان` : "_"}
+                    {row.price ? `${row.price.toLocaleString()} تومان` : "_"}
                   </TableCell>
                   <TableCell>
-                    {row?.inventory
+                    {row.inventory
                       ? `${row.inventory} ${getInventoryUnit(
-                          row?.inventoryType || ""
+                          row.inventoryType
                         )}`
                       : "_"}
                   </TableCell>
-                  <TableCell>{getPaymentTypeLabel(row?.paymentType)}</TableCell>
+                  <TableCell>{getPaymentTypeLabel(row.paymentType)}</TableCell>
+
+                  {/* ⭐ تنها منطق اضافه‌شده */}
+                  <TableCell>
+                    <div
+                      className="flex items-center gap-3"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <label className="flex items-center gap-1 cursor-pointer text-sm">
+                        <input
+                          type="radio"
+                          name={`special-${row._id}`}
+                          checked={row?.tags?.includes("special")}
+                          onChange={() => {
+                            dispatch(
+                              EditProductAdminAction({
+                                productId: row._id,
+                                credentials: {
+                                  tags: ["special"],
+                                },
+                              })
+                            );
+                          }}
+                        />
+                        فعال
+                      </label>
+
+                      <label className="flex items-center gap-1 cursor-pointer text-sm">
+                        <input
+                          type="radio"
+                          name={`special-${row._id}`}
+                          checked={!row?.tags?.includes("special")}
+                          onChange={() => {
+                            dispatch(
+                              EditProductAdminAction({
+                                productId: row._id,
+                                credentials: {
+                                  tags: [],
+                                },
+                              })
+                            );
+                          }}
+                        />
+                        غیرفعال
+                      </label>
+                    </div>
+                  </TableCell>
+
                   <TableCell>
                     <RadioGroup
-                      name={`status-${row?._id}`}
-                      value={row?.status || "PENDING"}
+                      name={`status-${row._id}`}
+                      value={row.status}
                       options={statusOptions}
-                      onChange={(newStatus) =>
-                        handleStatusChange(row?._id, newStatus)
-                      }
+                      onChange={(s) => handleStatusChange(row._id, s)}
                       className="flex-row gap-1"
                     />
                   </TableCell>
-                  <TableCell
-                    onClick={(e: unknown) => {
-                      e.stopPropagation();
-                    }}
-                    className="justify-center gap-x-4"
-                  >
+
+                  <TableCell className="justify-center gap-x-4">
                     <Button
-                      startIcon={<FaRegEdit className="text-xl" />}
+                      startIcon={<FaRegEdit />}
                       type="button"
                       variant="outline-success"
                       size="sm"
-                      onClick={() => {
-                        onRowClick && onRowClick("update", row);
-                      }}
+                      onClick={() => onRowClick && onRowClick("update", row)}
                     >
                       ویرایش
                     </Button>
@@ -309,14 +334,14 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colspan="11" className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="9" className="flex justify-center !py-4">
+              <TableCell colspan="11" className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>
@@ -324,7 +349,6 @@ const ProductTable: React.FC<ProductTypes> = (props) => {
         </TableBody>
       </Table>
 
-      {/* مودال جزئیات محصول */}
       <ProductDetailModal
         product={selectedProduct}
         open={showDetailModal}
