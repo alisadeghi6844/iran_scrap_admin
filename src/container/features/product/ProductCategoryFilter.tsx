@@ -10,11 +10,13 @@ import SelectField from "../../../components/molcols/formik-fields/SelectField";
 interface ProductCategoryFilterProps {
   name: string;
   placeholder?: string;
+  [key: string]: any;
 }
 
 const ProductCategoryFilter: React.FC<ProductCategoryFilterProps> = ({
   name,
-  placeholder = "انتخاب دسته بندی...",
+  placeholder = "انتخاب دسته بندی",
+  ...rest
 }) => {
   const dispatch: any = useDispatch();
 
@@ -45,6 +47,9 @@ const ProductCategoryFilter: React.FC<ProductCategoryFilterProps> = ({
       options={selectOptions}
       placeholder={placeholder}
       isLoading={categoryLoading}
+      noBorder
+      isClearable
+      {...rest}
     />
   );
 };

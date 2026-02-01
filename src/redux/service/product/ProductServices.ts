@@ -20,13 +20,13 @@ export const getProductService = async (query: any) => {
     queryText = AxiosQueryCustom(query);
   }
   return await HttpServises.get(
-    `${BASE_URL}${GET_PRODUCT_POINT}?${queryText ? queryText : null}`
+    `${BASE_URL}${GET_PRODUCT_POINT}?${queryText ? queryText : null}`,
   );
 };
 
 export const getProductByIdService = async (items: any) => {
   return await HttpServises.get(
-    `${BASE_URL}${GET_PRODUCT_BY_ID_POINT}/${items.credentials}`
+    `${BASE_URL}${GET_PRODUCT_BY_ID_POINT}/${items.credentials}`,
   );
 };
 
@@ -37,7 +37,7 @@ export const createProductService = async (items: any) => {
 export const updateProductService = async (items: any, id: any) => {
   return await HttpServises.patch(
     `${BASE_URL}${UPDATE_PRODUCT_POINT}/${id}`,
-    items
+    items,
   );
 };
 
@@ -48,25 +48,31 @@ export const deleteProductService = async (id: any) => {
 export const updateProductStatusService = async (items: any, id: any) => {
   return await HttpServises.patch(
     `${BASE_URL}${UPDATE_PRODUCT_STATUS_POINT}/${id}`,
-    items
+    items,
   );
 };
 
 export const changeProductStatusService = async (items: unknown) => {
   return await HttpServises.patch(
     `${BASE_URL}${CHANGE_PRODUCT_STATUS_POINT}/${items.productId}/change-status`,
-    { status: items.status }
+    { items },
   );
 };
 
-export const editProductAdminService = async (productId: string, items: any) => {
+export const editProductAdminService = async (
+  productId: string,
+  items: any,
+) => {
   return await HttpServises.patch(
     `${BASE_URL}${EDIT_PRODUCT_ADMIN_POINT}/${productId}`,
-    items
+    items,
   );
 };
 
-export const uploadProductImageService = async (productId: string, formData: FormData) => {
+export const uploadProductImageService = async (
+  productId: string,
+  formData: FormData,
+) => {
   return await HttpServises.patch(
     `${BASE_URL}${UPLOAD_PRODUCT_IMAGE_POINT}/${productId}/image`,
     formData,
@@ -74,12 +80,15 @@ export const uploadProductImageService = async (productId: string, formData: For
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
 };
 
-export const deleteProductImageService = async (productId: string, imageId: string) => {
+export const deleteProductImageService = async (
+  productId: string,
+  imageId: string,
+) => {
   return await HttpServises.delete(
-    `${BASE_URL}${DELETE_PRODUCT_IMAGE_POINT}/${productId}/image/${imageId}`
+    `${BASE_URL}${DELETE_PRODUCT_IMAGE_POINT}/${productId}/image/${imageId}`,
   );
 };

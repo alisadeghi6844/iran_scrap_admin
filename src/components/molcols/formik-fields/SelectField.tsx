@@ -9,6 +9,7 @@ interface SelectFieldProps {
   options: Array<{ value: string | number; label: string }>;
   required?: boolean;
   isLoading?: boolean;
+  [key: string]: any;
 }
 
 const SelectField: React.FC<SelectFieldProps> = ({
@@ -18,10 +19,11 @@ const SelectField: React.FC<SelectFieldProps> = ({
   options,
   required = false,
   isLoading = false,
+  ...rest
 }) => {
   const [field, meta, helpers] = useField(name);
 
-  const selectedOption = options.find(option => option.value === field.value);
+  const selectedOption = options.find((option) => option.value === field.value);
 
   return (
     <SingleSelect
@@ -35,6 +37,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
       placeholder={placeholder}
       required={required}
       isLoading={isLoading}
+      {...rest}
     />
   );
 };
