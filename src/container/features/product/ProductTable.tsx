@@ -180,11 +180,24 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
     }
   };
 
-  const statusOptions = [
-    { value: "PENDING", label: "در حال بررسی" },
-    { value: "CONFIRM", label: "تایید محصول" },
-    { value: "REJECT", label: "رد محصول" },
-  ];
+  // const statusOptions = [
+  //   { value: "PENDING", label: "در حال بررسی" },
+  //   { value: "CONFIRM", label: "تایید محصول" },
+  //   { value: "REJECT", label: "رد محصول" },
+  // ];
+  const handelStatusOptions = (rowData: any) => {
+    return [
+      { value: "PENDING", label: "در حال بررسی" },
+      { value: "CONFIRM", label: "تایید محصول" },
+      {
+        value: "REJECT",
+        label:
+          rowData?.status === "REJECT" && rowData?.description
+            ? "مشاهده علت رد"
+            : "رد محصول",
+      },
+    ];
+  };
   const handelReject = () => {
     if (statusDescription) {
       const items = {
@@ -192,12 +205,15 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
         status: rowData?.status,
         description: statusDescription,
       };
+
       dispatch(ChangeProductStatusAction(items));
+
       setShowStatusDescription(false);
       setStatusDescription("");
-    } else {
-      toast.error("لطفا علت رد محصول را توضیح دهید.");
     }
+    // else {
+    //   toast.error("لطفا علت رد محصول را توضیح دهید.");
+    // }
   };
   return (
     <CollectionControls
@@ -339,7 +355,8 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
                     <RadioGroup
                       name={`status-${row._id}`}
                       value={row.status}
-                      options={statusOptions}
+                      // options={statusOptions}
+                      options={handelStatusOptions(row)}
                       onChange={(s) => handleStatusChange(row._id, s)}
                       className="flex-row gap-1"
                     />
@@ -393,7 +410,10 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
           <p className="text-gray-500 text-sm">
             لطفا علت رد محصول را توضیح دهید
           </p>
-          <TextArea onChange={(e: any) => setStatusDescription(e)} />
+          <TextArea
+            onChange={(e: any) => setStatusDescription(e)}
+            value={statusDescription}
+          />
           <div className="w-full flex justify-end">
             <Button
               variant="light"
