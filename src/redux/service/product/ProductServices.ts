@@ -52,10 +52,10 @@ export const updateProductStatusService = async (items: any, id: any) => {
   );
 };
 
-export const changeProductStatusService = async (items: unknown) => {
+export const changeProductStatusService = async (items: any) => {
   return await HttpServises.patch(
     `${BASE_URL}${CHANGE_PRODUCT_STATUS_POINT}/${items.productId}/change-status`,
-    { items },
+     items as any,
   );
 };
 
