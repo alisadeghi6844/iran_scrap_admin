@@ -37,10 +37,10 @@ export const GetProductAction = createAsyncThunk(
       }
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data || { message: "خطای ناشناخته" }
+        error.response?.data || { message: "خطای ناشناخته" },
       );
     }
-  }
+  },
 );
 
 export const GetProductByIdAction = createAsyncThunk(
@@ -55,10 +55,10 @@ export const GetProductByIdAction = createAsyncThunk(
       }
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data || { message: "خطای ناشناخته" }
+        error.response?.data || { message: "خطای ناشناخته" },
       );
     }
-  }
+  },
 );
 
 export const CreateProductAction = createAsyncThunk(
@@ -74,10 +74,10 @@ export const CreateProductAction = createAsyncThunk(
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || { message: "خطای ناشناخته" }
+        error.response?.data || { message: "خطای ناشناخته" },
       );
     }
-  }
+  },
 );
 
 export const UpdateProductAction = createAsyncThunk(
@@ -93,10 +93,10 @@ export const UpdateProductAction = createAsyncThunk(
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || { message: "خطای ناشناخته" }
+        error.response?.data || { message: "خطای ناشناخته" },
       );
     }
-  }
+  },
 );
 
 export const DeleteProductAction = createAsyncThunk(
@@ -111,10 +111,10 @@ export const DeleteProductAction = createAsyncThunk(
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || { message: "خطای ناشناخته" }
+        error.response?.data || { message: "خطای ناشناخته" },
       );
     }
-  }
+  },
 );
 
 export const UpdateProductStatusAction = createAsyncThunk(
@@ -129,17 +129,21 @@ export const UpdateProductStatusAction = createAsyncThunk(
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || { message: "خطای ناشناخته" }
+        error.response?.data || { message: "خطای ناشناخته" },
       );
     }
-  }
+  },
 );
 
 export const ChangeProductStatusAction = createAsyncThunk(
   `${PRODUCT}/${CHANGE_PRODUCT_STATUS}`,
-  async ({ productId, status, onSuccess }: any, thunkAPI) => {
+  async ({ productId, status, description, onSuccess }: any, thunkAPI) => {
     try {
-      const response = await changeProductStatusService({ productId, status });
+      const response = await changeProductStatusService({
+        productId,
+        status,
+        description: description ?? "",
+      });
       if (response?.status == 200) {
         toast.success("وضعیت محصول با موفقیت تغییر کرد");
         onSuccess && onSuccess();
@@ -147,15 +151,18 @@ export const ChangeProductStatusAction = createAsyncThunk(
       return response;
     } catch (error: unknown) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || { message: "خطای ناشناخته" }
+        error.response?.data || { message: "خطای ناشناخته" },
       );
     }
-  }
+  },
 );
 
 export const EditProductAdminAction = createAsyncThunk(
   `${PRODUCT}/${EDIT_PRODUCT_ADMIN}`,
-  async ({ productId, credentials, onSubmitForm, resetForm }: any, thunkAPI) => {
+  async (
+    { productId, credentials, onSubmitForm, resetForm }: any,
+    thunkAPI,
+  ) => {
     try {
       const response = await editProductAdminService(productId, credentials);
       if (response?.status == 200) {
@@ -166,8 +173,8 @@ export const EditProductAdminAction = createAsyncThunk(
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || { message: "خطای ناشناخته" }
+        error.response?.data || { message: "خطای ناشناخته" },
       );
     }
-  }
+  },
 );

@@ -37,6 +37,10 @@ import RadioGroup from "../../../components/radio/RadioGroup";
 import Button from "../../../components/button";
 import { FaRegEdit } from "react-icons/fa";
 import { NormalizeBaseUrl } from "../../../utils/NormalizeBaseUrl";
+import Modal from "../../../components/modal";
+import TextAreaField from "../../../components/molcols/formik-fields/TextAreaField";
+import TextArea from "../../../components/textArea";
+import { toast } from "react-toastify";
 
 interface ProductItem {
   _id: string;
@@ -69,9 +73,12 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(
-    null
+    null,
   );
+  const [showStatusDescription, setShowStatusDescription] = useState(false);
+  const [statusDescription, setStatusDescription] = useState("");
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [rowData, setRowData] = useState({ productId: "", status: "" });
 
   const filterDefaultInitialValues = {
     ProductName: "",
@@ -99,15 +106,16 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
         filter,
         page: page ?? 0,
         size: pageSize ?? 20,
-      })
+      }),
     );
   };
 
   const handleFilterParameters = (data: unknown) => {
     const { ProductName, Category, Status, Provider, City } = data as any;
     let queryParam = "";
+
     if (ProductName) queryParam += "name=" + ProductName + ",";
-    if (Category?.value) queryParam += "categoryId=" + Category.value + ",";
+    if (Category) queryParam += "categoryId=" + Category + ",";
     if (Status?.value) queryParam += "status=" + Status.value + ",";
     if (Provider?.value) queryParam += "providerId=" + Provider.value + ",";
     if (City?.value) queryParam += "city=" + City.value + ",";
@@ -164,15 +172,49 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
   };
 
   const handleStatusChange = (productId: string, status: string) => {
-    dispatch(ChangeProductStatusAction({ productId, status }));
+    if (status === "REJECT") {
+      setShowStatusDescription(true);
+      setRowData({ productId, status });
+    } else {
+      dispatch(ChangeProductStatusAction({ productId, status }));
+    }
   };
 
-  const statusOptions = [
-    { value: "PENDING", label: "در حال بررسی" },
-    { value: "CONFIRM", label: "تایید محصول" },
-    { value: "REJECT", label: "رد محصول" },
-  ];
+  // const statusOptions = [
+  //   { value: "PENDING", label: "در حال بررسی" },
+  //   { value: "CONFIRM", label: "تایید محصول" },
+  //   { value: "REJECT", label: "رد محصول" },
+  // ];
+  const handelStatusOptions = (rowData: any) => {
+    return [
+      { value: "PENDING", label: "در حال بررسی" },
+      { value: "CONFIRM", label: "تایید محصول" },
+      {
+        value: "REJECT",
+        label:
+          rowData?.status === "REJECT" && rowData?.description
+            ? "مشاهده علت رد"
+            : "رد محصول",
+      },
+    ];
+  };
+  const handelReject = () => {
+    if (statusDescription) {
+      const items = {
+        productId: rowData?.productId,
+        status: rowData?.status,
+        description: statusDescription,
+      };
 
+      dispatch(ChangeProductStatusAction(items));
+
+      setShowStatusDescription(false);
+      setStatusDescription("");
+    }
+    // else {
+    //   toast.error("لطفا علت رد محصول را توضیح دهید.");
+    // }
+  };
   return (
     <CollectionControls
       buttons={[]}
@@ -257,7 +299,7 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
                   <TableCell>
                     {row.inventory
                       ? `${row.inventory} ${getInventoryUnit(
-                          row.inventoryType
+                          row.inventoryType,
                         )}`
                       : "_"}
                   </TableCell>
@@ -281,7 +323,7 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
                                 credentials: {
                                   tags: ["special"],
                                 },
-                              })
+                              }),
                             );
                           }}
                         />
@@ -300,7 +342,7 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
                                 credentials: {
                                   tags: [],
                                 },
-                              })
+                              }),
                             );
                           }}
                         />
@@ -313,7 +355,8 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
                     <RadioGroup
                       name={`status-${row._id}`}
                       value={row.status}
-                      options={statusOptions}
+                      // options={statusOptions}
+                      options={handelStatusOptions(row)}
                       onChange={(s) => handleStatusChange(row._id, s)}
                       className="flex-row gap-1"
                     />
@@ -357,6 +400,40 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
           setSelectedProduct(null);
         }}
       />
+      <Modal
+        size="lg"
+        open={showStatusDescription}
+        onClose={() => setShowStatusDescription(false)}
+      >
+        <div className="p-2 flex flex-col gap-y-2">
+          <p className="font-bold text-lg text-error-600">علت رد محصول</p>
+          <p className="text-gray-500 text-sm">
+            لطفا علت رد محصول را توضیح دهید
+          </p>
+          <TextArea
+            onChange={(e: any) => setStatusDescription(e)}
+            value={statusDescription}
+          />
+          <div className="w-full flex justify-end">
+            <Button
+              variant="light"
+              size="lg"
+              className="!text-[#4F575E]"
+              onClick={() => setShowStatusDescription(false)}
+            >
+              انصراف
+            </Button>
+            <Button
+              // loading={deleteProductLoading}
+              onClick={handelReject}
+              variant="error"
+              size="lg"
+            >
+              رد محصول
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </CollectionControls>
   );
 };
