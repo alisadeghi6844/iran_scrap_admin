@@ -22,7 +22,6 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
   className = "",
 }) => {
   const getButtonVariant = (optionValue: string, isSelected: boolean) => {
-    console.log("optionValue",optionValue)
     if (isSelected) {
       switch (optionValue) {
         case "PENDING":
@@ -53,7 +52,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
       {options.map((option) => (
         <Button
           key={option.value}
-          variant={getButtonVariant(option.value, value === option.value)}
+          variant={getButtonVariant(option.value, option.value === value)}
           size="xs"
           onClick={() => onChange(option.value)}
           className="min-w-[70px] text-xs"

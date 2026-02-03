@@ -101,58 +101,60 @@ const SelectComponent: React.FC<SelectProps> = (props) => {
       height: isMulti
         ? "auto"
         : noBorder
-        ? "47px"
-        : {
-            xs: "1.75rem",
-            sm: "2rem",
-            md: "2.5rem",
-            lg: "2.75rem",
-            xl: "3.5rem",
-            full: "42px",
-            auto: "auto",
-          }[size],
-      maxHeight: isMulti ? "230px" : undefined,
+          ? "47px"
+          : {
+              xs: "1.75rem",
+              sm: "2rem",
+              md: "2.5rem",
+              lg: "2.75rem",
+              xl: "3.5rem",
+              full: "42px",
+              auto: "auto",
+            }[size],
+      // maxHeight: isMulti ? "230px" : undefined,
+      // overflowY: isMulti ? "auto" : undefined,
       overflowY: isMulti ? "auto" : undefined,
+      maxHeight: isMulti ? "230px" : undefined,
       borderRadius: noBorder ? "0" : "0.5rem",
       backgroundColor: "white",
       borderColor: noBorder
         ? "transparent"
         : hasError
-        ? "rgb(239, 68, 68)"
-        : state.isFocused
-        ? primaryColors[500]
-        : "#BDBDBD",
+          ? "rgb(239, 68, 68)"
+          : state.isFocused
+            ? primaryColors[500]
+            : "#BDBDBD",
       borderWidth: noBorder ? "0" : "1px",
       boxShadow: noBorder
         ? "none"
         : state.isFocused
-        ? hasError
-          ? "0 0 0 1px rgb(239, 68, 68)"
-          : `0 0 0 1px ${primaryColors[500]}`
-        : "none",
+          ? hasError
+            ? "0 0 0 1px rgb(239, 68, 68)"
+            : `0 0 0 1px ${primaryColors[500]}`
+          : "none",
       "&:hover": {
         borderColor: noBorder
           ? "transparent"
           : state.isFocused
-          ? hasError
-            ? "rgb(239, 68, 68)"
-            : primaryColors[500]
-          : "#BDBDBD",
+            ? hasError
+              ? "rgb(239, 68, 68)"
+              : primaryColors[500]
+            : "#BDBDBD",
       },
       paddingRight: noBorder
         ? startAdornment
           ? "1.25rem"
           : "0.5rem"
         : startAdornment
-        ? "2rem"
-        : "0.75rem",
+          ? "2rem"
+          : "0.75rem",
       paddingLeft: noBorder
         ? leftAdornment
           ? "0.75rem"
           : "0.25rem"
         : leftAdornment
-        ? "1rem"
-        : "0.5rem",
+          ? "1rem"
+          : "0.5rem",
       fontSize: "0.75rem",
       display: "flex",
       alignItems: isMulti ? "flex-start" : "center",
@@ -166,15 +168,15 @@ const SelectComponent: React.FC<SelectProps> = (props) => {
             ? "1.5rem"
             : "0.5rem"
           : startAdornment
-          ? "2.25rem"
-          : "1rem",
+            ? "2.25rem"
+            : "1rem",
         paddingLeft: noBorder
           ? leftAdornment
             ? "1rem"
             : "0.25rem"
           : leftAdornment
-          ? "2.25rem"
-          : "1rem",
+            ? "2.25rem"
+            : "1rem",
         minHeight: noBorder
           ? "47px"
           : {
@@ -189,16 +191,16 @@ const SelectComponent: React.FC<SelectProps> = (props) => {
         height: isMulti
           ? "auto"
           : noBorder
-          ? "47px"
-          : {
-              xs: "1.75rem",
-              sm: "2rem",
-              md: "2.5rem",
-              lg: "2.75rem",
-              xl: "3.5rem",
-              full: "50px",
-              auto: "auto",
-            }[size],
+            ? "47px"
+            : {
+                xs: "1.75rem",
+                sm: "2rem",
+                md: "2.5rem",
+                lg: "2.75rem",
+                xl: "3.5rem",
+                full: "50px",
+                auto: "auto",
+              }[size],
       },
     }),
 
@@ -209,10 +211,13 @@ const SelectComponent: React.FC<SelectProps> = (props) => {
       direction: "rtl",
       display: "flex",
       alignItems: "center",
-      justifyContent: "flex-end",
-      flexWrap: "wrap",
-      overflowY: "auto",
-      maxHeight: "230px",
+      // justifyContent: "flex-end",
+      // flexWrap: "wrap",
+      // overflowY: "auto",
+      // maxHeight: "230px",
+      flexWrap: noBorder ? "nowrap" : "wrap",
+      overflow: "hidden",
+      maxHeight: "none",
       wordBreak: "break-word",
       overflowWrap: "break-word",
     }),
@@ -227,10 +232,14 @@ const SelectComponent: React.FC<SelectProps> = (props) => {
     placeholder: (base) => ({
       ...base,
       marginRight: "0",
-      marginLeft: "auto",
+      marginLeft: noBorder ? "" : "auto",
       color: hasError ? "rgba(239, 68, 68, 0.7)" : "#D1D5DB",
       alignSelf: "center",
       textAlign: "right",
+      direction: "rtl",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
     }),
     singleValue: (base) => ({
       ...base,
@@ -238,9 +247,12 @@ const SelectComponent: React.FC<SelectProps> = (props) => {
       marginLeft: "auto",
       marginRight: "0",
       direction: "rtl",
-      whiteSpace: "normal",
+      // whiteSpace: "normal",
       wordBreak: "break-word",
       overflowWrap: "break-word",
+      whiteSpace: noBorder ? "nowrap" : "normal",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
     }),
     multiValue: (base) => ({
       ...base,
@@ -297,8 +309,8 @@ const SelectComponent: React.FC<SelectProps> = (props) => {
           ? "rgba(239, 68, 68, 0.1)"
           : primaryColors[30]
         : state.isFocused
-        ? "rgba(243, 244, 246, 0.5)"
-        : "transparent",
+          ? "rgba(243, 244, 246, 0.5)"
+          : "transparent",
       color: state.isSelected
         ? hasError
           ? "rgb(239, 68, 68)"
@@ -355,8 +367,8 @@ const SelectComponent: React.FC<SelectProps> = (props) => {
   };
 
   return (
-    <div className={`w-full relative ${noBorder ? 'mt-0 h-full' : 'mt-2'}`}>
-      <div className={`relative ${noBorder ? 'h-full' : ''}`}>
+    <div className={`w-full relative ${noBorder ? "mt-0 h-full" : "mt-2"}`}>
+      <div className={`relative ${noBorder ? "h-full" : ""}`}>
         <Select
           ref={selectRef}
           options={options}
@@ -391,7 +403,9 @@ const SelectComponent: React.FC<SelectProps> = (props) => {
       </div>
 
       {label && (
-        <div className={`absolute -top-[9px] right-3 sm:right-4 px-1 ${labelBg}`}>
+        <div
+          className={`absolute -top-[9px] right-3 sm:right-4 px-1 ${labelBg}`}
+        >
           <label
             className={`block text-[11px] sm:text-[13.5px] z-20 text-right ${
               hasError ? "text-error-500" : "text-[#BDBDBD]"
@@ -401,7 +415,10 @@ const SelectComponent: React.FC<SelectProps> = (props) => {
           >
             {label}
             {required ? (
-              <Typography tag="span" className="text-error-500 text-[10px] sm:text-xs mr-1">
+              <Typography
+                tag="span"
+                className="text-error-500 text-[10px] sm:text-xs mr-1"
+              >
                 *
               </Typography>
             ) : null}
