@@ -78,7 +78,7 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
   const [showStatusDescription, setShowStatusDescription] = useState(false);
   const [statusDescription, setStatusDescription] = useState("");
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [rowData, setRowData] = useState({ productId: "", status: "" });
+  const [rowData, setRowData] = useState<any>(null);
 
   const filterDefaultInitialValues = {
     ProductName: "",
@@ -171,12 +171,17 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
     }
   };
 
-  const handleStatusChange = (productId: string, status: string) => {
+  const handleStatusChange = (status: string, data: any) => {
     if (status === "REJECT") {
       setShowStatusDescription(true);
-      setRowData({ productId, status });
+      setRowData(data);
     } else {
-      dispatch(ChangeProductStatusAction({ productId, status }));
+      dispatch(
+        ChangeProductStatusAction({
+          productId: data?._id,
+          status: status,
+        }),
+      );
     }
   };
 
@@ -185,24 +190,26 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
   //   { value: "CONFIRM", label: "تایید محصول" },
   //   { value: "REJECT", label: "رد محصول" },
   // ];
-  const handelStatusOptions = (rowData: any) => {
+  const handelStatusOptions = (data: any) => {
     return [
       { value: "PENDING", label: "در حال بررسی" },
       { value: "CONFIRM", label: "تایید محصول" },
       {
         value: "REJECT",
         label:
-          rowData?.status === "REJECT" && rowData?.description
+          data?.status === "REJECT" && data?.reviewInfo?.rejectReason
             ? "مشاهده علت رد"
             : "رد محصول",
       },
     ];
   };
   const handelReject = () => {
+    console.log({ rowData, statusDescription });
+
     if (statusDescription) {
       const items = {
-        productId: rowData?.productId,
-        status: rowData?.status,
+        productId: rowData?._id,
+        status: "REJECT",
         description: statusDescription,
       };
 
@@ -357,7 +364,7 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
                       value={row.status}
                       // options={statusOptions}
                       options={handelStatusOptions(row)}
-                      onChange={(s) => handleStatusChange(row._id, s)}
+                      onChange={(s) => handleStatusChange(s, row)}
                       className="flex-row gap-1"
                     />
                   </TableCell>
@@ -407,31 +414,51 @@ const ProductTable: React.FC<ProductTypes> = ({ onRowClick }) => {
       >
         <div className="p-2 flex flex-col gap-y-2">
           <p className="font-bold text-lg text-error-600">علت رد محصول</p>
-          <p className="text-gray-500 text-sm">
-            لطفا علت رد محصول را توضیح دهید
-          </p>
-          <TextArea
-            onChange={(e: any) => setStatusDescription(e)}
-            value={statusDescription}
-          />
-          <div className="w-full flex justify-end">
-            <Button
-              variant="light"
-              size="lg"
-              className="!text-[#4F575E]"
-              onClick={() => setShowStatusDescription(false)}
-            >
-              انصراف
-            </Button>
-            <Button
-              // loading={deleteProductLoading}
-              onClick={handelReject}
-              variant="error"
-              size="lg"
-            >
-              رد محصول
-            </Button>
-          </div>
+          {rowData?.reviewInfo?.rejectReason ? (
+            <>
+              <div className="bg-gray-100 border-2 min-h-[120px] p-4 rounded-lg">
+                {rowData?.reviewInfo?.rejectReason}
+              </div>
+              <div className="w-full flex justify-end">
+                <Button
+                  variant="outline-gray"
+                  size="sm"
+                  className="!text-[#4F575E]"
+                  onClick={() => setShowStatusDescription(false)}
+                >
+                  بستن
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-500 text-sm">
+                لطفا علت رد محصول را توضیح دهید
+              </p>
+              <TextArea
+                onChange={(e: any) => setStatusDescription(e)}
+                value={statusDescription}
+              />
+              <div className="w-full flex justify-end">
+                <Button
+                  variant="light"
+                  size="lg"
+                  className="!text-[#4F575E]"
+                  onClick={() => setShowStatusDescription(false)}
+                >
+                  انصراف
+                </Button>
+                <Button
+                  // loading={deleteProductLoading}
+                  onClick={handelReject}
+                  variant="error"
+                  size="lg"
+                >
+                  رد محصول
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </Modal>
     </CollectionControls>
