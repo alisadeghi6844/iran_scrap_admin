@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { HandleFilterParams } from "../../../types/FilterParams";
 import CollectionControls from "../../organism/CollectionControls";
 import Table from "../../../components/table";
@@ -27,6 +28,7 @@ import {
 import { GetBlogAction } from "../../../redux/actions/blog/BlogActions";
 import TextOverflow from "../../../utils/TextOverflow";
 import { BiTrashAlt } from "react-icons/bi";
+import { NormalizeBaseUrl } from "../../../utils/NormalizeBaseUrl";
 
 interface BlogTypes {
   onRowClick?: any;
@@ -34,6 +36,7 @@ interface BlogTypes {
 
 const BlogTable: React.FC<BlogTypes> = (props) => {
   const { onRowClick } = props;
+  const navigate = useNavigate();
 
   const dispatch: any = useDispatch();
 
@@ -98,8 +101,8 @@ const BlogTable: React.FC<BlogTypes> = (props) => {
       data={blogData}
       onMetaChange={handleFilter}
       onButtonClick={(button) => {
-        if (!!onRowClick) {
-          button === "create" && onRowClick("create");
+        if (button === "create") {
+          navigate("/blog-management/new");
         }
       }}
     >
@@ -110,8 +113,7 @@ const BlogTable: React.FC<BlogTypes> = (props) => {
             <TableHeadCell>عنوان مقاله </TableHeadCell>
             <TableHeadCell>دسته بندی</TableHeadCell>
             <TableHeadCell>وضعیت</TableHeadCell>
-            <TableHeadCell>توضیح کوتاه</TableHeadCell>
-            <TableHeadCell>متن مقاله</TableHeadCell>
+            <TableHeadCell>چکیده مقاله</TableHeadCell>
             <TableHeadCell />
           </TableRow>
         </TableHead>
@@ -133,7 +135,7 @@ const BlogTable: React.FC<BlogTypes> = (props) => {
                       className="w-[94px] h-[84px] rounded-lg"
                       src={
                         row?.thumbnail
-                          ? row?.thumbnail
+                          ? NormalizeBaseUrl + row?.thumbnail
                           : "/images/core/default-image.png"
                       }
                     />
@@ -142,9 +144,6 @@ const BlogTable: React.FC<BlogTypes> = (props) => {
                   <TableCell>{row?.category?.title ?? "_"}</TableCell>
                   <TableCell>{row?.isActive ? "فعال" : "غیر فعال"}</TableCell>
                   <TableCell>{row?.summery ?? "_"}</TableCell>
-                  <TableCell>
-                    <TextOverflow>{row?.description ?? "_"}</TextOverflow>
-                  </TableCell>
                   <TableCell
                     onClick={(e: any) => {
                       e.stopPropagation();
@@ -157,7 +156,7 @@ const BlogTable: React.FC<BlogTypes> = (props) => {
                       variant="outline-success"
                       size="sm"
                       onClick={() => {
-                        onRowClick && onRowClick("update", row);
+                        navigate(`/blog-management/${row.slug}`);
                       }}
                     >
                       ویرایش

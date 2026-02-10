@@ -24,6 +24,13 @@ const routes = [
     role: ["admin", "client", "reservation"],
   },
   {
+    path: "/blog-management/:id",
+    breadCrumb: "ویرایش/ساخت مقاله",
+    component: lazy(() => import("../page/blogManagement/BlogEdit")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
+  {
     path: "/blog-management",
     breadCrumb: "مدیریت مقالات",
     component: lazy(() => import("../page/blogManagement")),

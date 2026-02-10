@@ -92,9 +92,9 @@ const VerticalMenuItem: React.FC<VerticalMenuItemProps> = (props) => {
           )}
         </Typography>
         {children && (
-          <div className={`${isVisible ? "block" : "hidden"} mt-3 ml-6 space-y-1`}>
+          <ul className={`${isVisible ? "block" : "hidden"} mt-3 ml-6 space-y-1`}>
             {children}
-          </div>
+          </ul>
         )}
       </li>
     </>
