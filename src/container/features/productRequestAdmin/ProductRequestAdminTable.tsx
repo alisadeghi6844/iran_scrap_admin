@@ -14,6 +14,7 @@ import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import SingleSelect from "../../../components/select/SingleSelect";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
+import Input from "../../../components/input";
 import {
   selectGetProductRequestAdminData,
   selectGetProductRequestAdminLoading,
@@ -39,11 +40,12 @@ import {
   selectGetUsersProvidersLoading,
 } from "../../../redux/slice/users/UsersSlice";
 import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
-import { 
+import {
   orderStatusOptions,
   getOrderStatusText,
   getOrderStatusColor
 } from "../../../types/OrderStatus";
+import useDebounce from "../../../hooks/UseDebounce";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
@@ -62,11 +64,22 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
   const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(
     null
   );
+  const [codeFilter, setCodeFilter] = useState("");
+  const [debouncedCodeFilter, setDebouncedCodeFilter] = useState("");
+
+  useDebounce(
+    () => {
+      setDebouncedCodeFilter(codeFilter);
+    },
+    [codeFilter],
+    800
+  );
 
   const filterDefaultInitialValues = {
     Category: categoryFilter,
     Provider: providerFilter,
     Status: statusFilter,
+    Code: debouncedCodeFilter,
   };
 
   const loading = useSelector(selectGetProductRequestAdminLoading);
@@ -80,12 +93,6 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
   const providersLoading = useSelector(selectGetUsersProvidersLoading);
 
   useEffect(() => {
-    dispatch(
-      GetRequestProductAdminAction({
-        page: 0,
-        size: 20,
-      })
-    );
     dispatch(GetCategoryAction({}));
     dispatch(GetUsersProvidersAction({ credentials: {} }));
   }, []);
@@ -96,18 +103,23 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
       Category: categoryFilter,
       Provider: providerFilter,
       Status: statusFilter,
+      Code: debouncedCodeFilter,
     };
 
     const filterString = handleFilterParameters(filterData);
 
-    dispatch(
+    const promise = dispatch(
       GetRequestProductAdminAction({
         filter: filterString || undefined,
         page: 0,
         size: 20,
       })
     );
-  }, [categoryFilter, providerFilter, statusFilter, dispatch]);
+
+    return () => {
+      promise.abort();
+    };
+  }, [categoryFilter, providerFilter, statusFilter, debouncedCodeFilter, dispatch]);
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     dispatch(
@@ -120,15 +132,17 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
   };
 
   const handleFilterParameters = (data: unknown) => {
-    const { Category, Provider, Status } = data as {
+    const { Category, Provider, Status, Code } = data as {
       Category?: SelectOptionTypes;
       Provider?: SelectOptionTypes;
       Status?: SelectOptionTypes;
+      Code?: string;
     };
     let queryParam = "";
     if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
     if (Provider?.value) queryParam += "providerId=" + Provider?.value + ",";
     if (Status?.value) queryParam += "status=" + Status?.value + ",";
+    if (Code) queryParam += "code=" + Code + ",";
 
     return queryParam.substring(0, queryParam.length - 1);
   };
@@ -182,10 +196,6 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
     }
   }, [closeRequestData]);
 
-  const handleCloseRequest = (requestId: string) => {
-    dispatch(CloseRequestAction({ requestId }));
-  };
-
   return (
     <CollectionControls
       title="مدیریت درخواست ها"
@@ -203,6 +213,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
       <Table className="w-full" isLoading={false} shadow={false}>
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
+            <TableHeadCell>کد</TableHeadCell>
             <TableHeadCell>توضیحات</TableHeadCell>
             <TableHeadCell className="min-w-[230px]">دسته بندی</TableHeadCell>
             <TableHeadCell> مقدار</TableHeadCell>
@@ -219,6 +230,15 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
         </TableHead>
         <TableBody>
           <TableRow>
+            <TableFilterCell>
+              <Input
+                value={codeFilter}
+                onChange={(e: any) => setCodeFilter(e.target.value)}
+                placeholder="جستجو..."
+                noBorder
+                className="min-w-[80px]"
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
               <SingleSelect
@@ -263,6 +283,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
             productAdminData?.data?.length > 0 ? (
               productAdminData?.data?.map((row: unknown) => (
                 <TableRow key={row?.id}>
+                  <TableCell>{row?.code ?? "_"}</TableCell>
                   <TableCell>{row?.description ?? "_"}</TableCell>
                   <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>
@@ -290,28 +311,39 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
 
                   <TableCell>
                     <div className="flex gap-2">
-                      {(row?.status === "REGISTERED" ||
-                        row?.status === "WAITING_FOR_OFFERS") && (
-                        <Button
-                          size="sm"
-                          type="button"
-                          variant="secondary"
-                          onClick={() => {
-                            onRowClick && onRowClick("detail", row);
-                          }}
-                        >
-                          ویرایش درخواست
-                        </Button>
-                      )}
-
                       <Button
                         size="sm"
                         type="button"
                         variant="error"
-                        onClick={() => handleCloseRequest(row?.id)}
                         loading={closeRequestLoading}
+                        className="!bg-red-500 !text-white hover:!bg-red-600"
+                        onClick={() => {
+                          dispatch(
+                            CloseRequestAction({ requestId: row?.id || row?._id })
+                          );
+                        }}
                       >
-                        تغییر وضعیت درخواست
+                        بستن زمان مناقصه
+                      </Button>
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                          onRowClick && onRowClick("detail", row);
+                        }}
+                      >
+                        ویرایش درخواست
+                      </Button>
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="primary"
+                        onClick={() => {
+                          onRowClick && onRowClick("showMore", row);
+                        }}
+                      >
+                        مشاهده بیشتر
                       </Button>
                     </div>
                   </TableCell>
@@ -319,14 +351,14 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colSpan={10} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colspan="9" className="flex justify-center !py-4">
+              <TableCell colSpan={10} className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

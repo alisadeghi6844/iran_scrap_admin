@@ -59,7 +59,6 @@ const ProductRequests = () => {
           setSelectedRow(null);
           setRefreshTable((prev) => prev + 1);
         },
-        thunkAPI: null,
       })
     );
   };
@@ -74,7 +73,6 @@ const ProductRequests = () => {
           setSelectedRow(null);
           setRefreshTable((prev) => prev + 1);
         },
-        thunkAPI: null,
       })
     );
   };

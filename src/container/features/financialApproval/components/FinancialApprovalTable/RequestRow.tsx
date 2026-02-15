@@ -15,6 +15,7 @@ interface RequestRowProps {
 const RequestRow: React.FC<RequestRowProps> = ({ row, onViewRequest, onApprove, onReject }) => {
   return (
     <TableRow>
+      <TableCell>{row?.code ?? "_"}</TableCell>
       <TableCell>
         {row?.user?.firstName ? row?.user?.firstName + " " + row?.user?.lastName : "_"}
       </TableCell>

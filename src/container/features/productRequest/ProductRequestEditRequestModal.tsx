@@ -139,7 +139,6 @@ const ProductRequestEditRequestModal: React.FC<
           onClose();
           onSuccess && onSuccess();
         },
-        thunkAPI: null,
       })
     );
   };

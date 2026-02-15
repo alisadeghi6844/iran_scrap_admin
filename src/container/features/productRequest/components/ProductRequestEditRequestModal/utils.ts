@@ -1,16 +1,17 @@
 import { province } from "../../../provinceSelect/Province";
 import { city } from "../../../provinceSelect/city";
-
-export type SelectOption = { label: string; value: string } | null;
+import { orderStatusOptions } from "../../../../../types/OrderStatus";
+import { SelectOptionTypes } from "../../../../../types/features/FeatureSelectTypes";
 
 export interface ProductRequestEditInitialValues {
   description: string;
   amount: string;
   categoryId: string;
-  province: SelectOption;
-  city: SelectOption;
+  province: SelectOptionTypes | null;
+  city: SelectOptionTypes | null;
   address: string;
   postalCode: string;
+  status: SelectOptionTypes | null;
 }
 
 export function buildInitialValues(requestData: any): ProductRequestEditInitialValues {
@@ -23,11 +24,13 @@ export function buildInitialValues(requestData: any): ProductRequestEditInitialV
       city: null,
       address: "",
       postalCode: "",
+      status: null,
     };
   }
 
-  let provinceOption: SelectOption = null;
-  let cityOption: SelectOption = null;
+  let provinceOption: SelectOptionTypes | null = null;
+  let cityOption: SelectOptionTypes | null = null;
+  let statusOption: SelectOptionTypes | null = null;
 
   if (requestData.province) {
     const foundProvince = province.find((p) => p.name === requestData.province);
@@ -48,6 +51,15 @@ export function buildInitialValues(requestData: any): ProductRequestEditInitialV
     }
   }
 
+  if (requestData.status) {
+    const foundStatus = orderStatusOptions.find(
+      (opt) => opt.value === requestData.status
+    );
+    if (foundStatus) {
+      statusOption = foundStatus;
+    }
+  }
+
   return {
     description: requestData.description || "",
     amount: requestData.amount?.toString() || "",
@@ -60,6 +72,7 @@ export function buildInitialValues(requestData: any): ProductRequestEditInitialV
     city: cityOption,
     address: requestData.address || "",
     postalCode: requestData.postalCode || "",
+    status: statusOption,
   };
 }
 
@@ -79,7 +92,7 @@ export function findProvinceIdByName(provinceName?: string): number | null {
   return foundProvince ? foundProvince.id : null;
 }
 
-export function buildUpdatePayload(values: any) {
+export function buildUpdatePayload(values: ProductRequestEditInitialValues) {
   const selectedProvince = province.find(
     (p) => p.id.toString() === values.province?.value
   );
@@ -93,6 +106,7 @@ export function buildUpdatePayload(values: any) {
     province: selectedProvince?.name || "",
     address: values.address,
     postalCode: values.postalCode,
+    status: values.status?.value,
   };
 }
 

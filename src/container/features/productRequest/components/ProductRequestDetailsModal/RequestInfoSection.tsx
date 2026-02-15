@@ -29,7 +29,7 @@ const RequestInfoSection: React.FC<RequestInfoSectionProps> = ({
           <div>
             <Typography className="text-sm text-gray-600">مقدار</Typography>
             <Typography className="font-bold">
-              {displayData.amount} {getAmountTypeText(displayData.amountType)}
+              {displayData.amount} (کیلوگرم)
             </Typography>
           </div>
           <div>

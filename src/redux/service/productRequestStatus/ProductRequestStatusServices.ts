@@ -14,8 +14,12 @@ import {
 } from "../../api/productRequestStatus/ProductRequestStatusApi";
 
 export const getProductRequestStatusService = async (items: any) => {
+  let queryText = "";
+  if (!!items) {
+    queryText = AxiosQueryCustom(items);
+  }
   return await HttpServises.get(
-    `${BASE_URL}${GET_PRODUCT_REQUEST_STATUS_POINT}`
+    `${BASE_URL}${GET_PRODUCT_REQUEST_STATUS_POINT}?${queryText}`
   );
 };
 
@@ -36,14 +40,12 @@ export const updateProductRequestStatusService = async (
 };
 
 export const getProductRequestAdminService = async (query: any) => {
-  let queryText;
+  let queryText = "";
   if (!!query) {
     queryText = AxiosQueryCustom(query);
   }
   return await HttpServises.get(
-    `${BASE_URL}${GET_PRODUCT_REQUEST_ADMIN_POINT}?${
-      queryText ? queryText : null
-    }`
+    `${BASE_URL}${GET_PRODUCT_REQUEST_ADMIN_POINT}?${queryText}`
   );
 };
 

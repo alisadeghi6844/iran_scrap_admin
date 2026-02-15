@@ -97,7 +97,7 @@ const ProductRequestStatusForm: React.FC<FormProps> = (props) => {
               </TableRow>
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colSpan={9} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>

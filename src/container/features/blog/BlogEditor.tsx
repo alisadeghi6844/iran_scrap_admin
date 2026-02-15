@@ -101,6 +101,7 @@ const BlogEditor: React.FC<BlogEditorProps> = ({
     Name: Yup.string().required("پر کردن نام مقاله الزامی است"),
     Summery: Yup.string().required("پر کردن توضیح مختصر مقاله الزامی است"),
     Category: SelectValidation(Yup),
+    IsActive: SelectValidation(Yup),
     Description: Yup.string().required("پر کردن متن مقاله الزامی است"),
   });
 
