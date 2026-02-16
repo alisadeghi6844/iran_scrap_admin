@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { HandleFilterParams } from "../../../types/FilterParams";
 import CollectionControls from "../../organism/CollectionControls";
@@ -9,7 +9,6 @@ import TableRow from "../../../components/table/TableRow";
 import TableBody from "../../../components/table/TableBody";
 import TableFilterCell from "../../../components/table/TableFilterCell";
 import TableCell from "../../../components/table/TableCell";
-import Button from "../../../components/button";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import SingleSelect from "../../../components/select/SingleSelect";
@@ -23,11 +22,8 @@ import {
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import {
   convertToJalali,
-  convertToJalali_2,
 } from "../../../utils/MomentConvertor";
-import { CloseRequestAction } from "../../../redux/actions/product-request-offer-admin/ProductRequestOfferAdminActions";
 import {
-  selectCloseRequestLoading,
   selectCloseRequestData,
 } from "../../../redux/slice/product-request-offer-admin/ProductRequestOfferAdminSlice";
 import {
@@ -43,12 +39,15 @@ import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActio
 import {
   orderStatusOptions,
   getOrderStatusText,
-  getOrderStatusColor
+  getOrderStatusColor,
 } from "../../../types/OrderStatus";
 import useDebounce from "../../../hooks/UseDebounce";
+import ProductRequestOfferAdminModal from "../productRequestOfferAdmin/ProductRequestOfferAdminModal";
+import ProductRequestAdminShowMore from "./ProductRequestAdminShowMore";
+import ActionsDropdown from "./ActionsDropdown";
 
 interface ProductRequestAdminTypes {
-  onRowClick?: any;
+  onRowClick?: (name: string, row?: any) => void;
 }
 
 const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
@@ -66,6 +65,11 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
   );
   const [codeFilter, setCodeFilter] = useState("");
   const [debouncedCodeFilter, setDebouncedCodeFilter] = useState("");
+
+  // Modal states
+  const [isSuggestionsModalOpen, setIsSuggestionsModalOpen] = useState(false);
+  const [isSowMoreModalOpen, setIsSowMoreModalOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<any>(null);
 
   useDebounce(
     () => {
@@ -85,7 +89,6 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
   const loading = useSelector(selectGetProductRequestAdminLoading);
   const productAdminData = useSelector(selectGetProductRequestAdminData);
   const updateData = useSelector(selectUpdateProductRequestAdminData);
-  const closeRequestLoading = useSelector(selectCloseRequestLoading);
   const closeRequestData = useSelector(selectCloseRequestData);
   const categoryData = useSelector(selectGetCategoryData);
   const categoryLoading = useSelector(selectGetCategoryLoading);
@@ -95,7 +98,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
   useEffect(() => {
     dispatch(GetCategoryAction({}));
     dispatch(GetUsersProvidersAction({ credentials: {} }));
-  }, []);
+  }, [dispatch]);
 
   // Trigger filtering when filter values change
   useEffect(() => {
@@ -147,10 +150,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
     return queryParam.substring(0, queryParam.length - 1);
   };
 
-
-
-  // Get categories from category API
-  const categoryOptions = React.useMemo(() => {
+  const categoryOptions = useMemo(() => {
     if (!categoryData?.data) return [];
     return categoryData.data.map((category: any) => ({
       value: category._id || category.id,
@@ -158,8 +158,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
     }));
   }, [categoryData]);
 
-  // Get providers from users API with Provider or Both usertype
-  const providerOptions = React.useMemo(() => {
+  const providerOptions = useMemo(() => {
     if (!providersData?.data?.data) return [];
     return providersData.data.data
       .filter(
@@ -175,7 +174,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
   }, [providersData]);
 
   useEffect(() => {
-    if (updateData?.status == 200) {
+    if (updateData?.status === 200 || closeRequestData?.status === 200) {
       dispatch(
         GetRequestProductAdminAction({
           page: 0,
@@ -183,18 +182,7 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
         })
       );
     }
-  }, [updateData]);
-
-  useEffect(() => {
-    if (closeRequestData?.status == 200) {
-      dispatch(
-        GetRequestProductAdminAction({
-          page: 0,
-          size: 20,
-        })
-      );
-    }
-  }, [closeRequestData]);
+  }, [updateData, closeRequestData, dispatch]);
 
   return (
     <CollectionControls
@@ -214,15 +202,12 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
             <TableHeadCell>کد</TableHeadCell>
-            <TableHeadCell>توضیحات</TableHeadCell>
             <TableHeadCell className="min-w-[230px]">دسته بندی</TableHeadCell>
             <TableHeadCell> مقدار</TableHeadCell>
             <TableHeadCell className="min-w-[230px]">
-              {" "}
               تامین کننده
             </TableHeadCell>
             <TableHeadCell>تاریخ ثبت درخواست</TableHeadCell>
-            <TableHeadCell>تاریخ تحویل</TableHeadCell>
             <TableHeadCell>آدرس</TableHeadCell>
             <TableHeadCell className="min-w-[230px]">وضعیت</TableHeadCell>
             <TableHeadCell />
@@ -239,7 +224,6 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                 className="min-w-[80px]"
               />
             </TableFilterCell>
-            <TableFilterCell></TableFilterCell>
             <TableFilterCell>
               <SingleSelect
                 isLoading={categoryLoading}
@@ -265,7 +249,6 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
             </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
-            <TableFilterCell></TableFilterCell>
             <TableFilterCell>
               <SingleSelect
                 isLoading={false}
@@ -281,10 +264,9 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
           </TableRow>
           {!loading ? (
             productAdminData?.data?.length > 0 ? (
-              productAdminData?.data?.map((row: unknown) => (
+              productAdminData?.data?.map((row: any) => (
                 <TableRow key={row?.id}>
                   <TableCell>{row?.code ?? "_"}</TableCell>
-                  <TableCell>{row?.description ?? "_"}</TableCell>
                   <TableCell>{row?.category?.name ?? "_"}</TableCell>
                   <TableCell>
                     {row?.amount ? `${row?.amount} (کیلوگرم)` : "_"}
@@ -297,11 +279,6 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                   <TableCell>
                     {row?.createdAt ? convertToJalali(row?.createdAt) : "_"}
                   </TableCell>
-                  <TableCell>
-                    {row?.expectedDate
-                      ? convertToJalali_2(row?.expectedDate)
-                      : "_"}
-                  </TableCell>
                   <TableCell>{row?.province + " , " + row?.city}</TableCell>
                   <TableCell>
                     <span className={getOrderStatusColor(row?.status)}>
@@ -310,61 +287,48 @@ const ProductRequestAdmin: React.FC<ProductRequestAdminTypes> = (props) => {
                   </TableCell>
 
                   <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        type="button"
-                        variant="error"
-                        loading={closeRequestLoading}
-                        className="!bg-red-500 !text-white hover:!bg-red-600"
-                        onClick={() => {
-                          dispatch(
-                            CloseRequestAction({ requestId: row?.id || row?._id })
-                          );
-                        }}
-                      >
-                        بستن زمان مناقصه
-                      </Button>
-                      <Button
-                        size="sm"
-                        type="button"
-                        variant="secondary"
-                        onClick={() => {
-                          onRowClick && onRowClick("detail", row);
-                        }}
-                      >
-                        ویرایش درخواست
-                      </Button>
-                      <Button
-                        size="sm"
-                        type="button"
-                        variant="primary"
-                        onClick={() => {
-                          onRowClick && onRowClick("showMore", row);
-                        }}
-                      >
-                        مشاهده بیشتر
-                      </Button>
-                    </div>
+                    <ActionsDropdown
+                      row={row}
+                      onRowClick={onRowClick}
+                      onSuggestionsClick={(r) => {
+                        setSelectedRow(r);
+                        setIsSuggestionsModalOpen(true);
+                      }}
+                    />
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={10} className="flex justify-center !py-4">
+                <TableCell colSpan={8} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colSpan={10} className="flex justify-center !py-4">
+              <TableCell colSpan={8} className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
+
+      {isSuggestionsModalOpen && selectedRow && (
+        <ProductRequestOfferAdminModal
+          isOpen={isSuggestionsModalOpen}
+          onClose={() => setIsSuggestionsModalOpen(false)}
+          requestId={selectedRow?.id || selectedRow?._id}
+        />
+      )}
+      {isSowMoreModalOpen && selectedRow && (
+        <ProductRequestAdminShowMore
+          isOpen={isSowMoreModalOpen}
+          onClose={() => setIsSowMoreModalOpen(false)}
+          data={selectedRow}
+        />
+      )}
     </CollectionControls>
   );
 };

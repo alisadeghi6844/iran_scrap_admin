@@ -4,13 +4,35 @@ import { BsBoxSeam } from "react-icons/bs";
 import { MdOutlineCategory, MdOutlineProductionQuantityLimits, MdRule, MdPoll, MdLocalShipping, MdProductionQuantityLimits, MdStorefront } from "react-icons/md";
 import { RiBloggerLine, RiPagesLine } from "react-icons/ri";
 import { BiCategoryAlt } from "react-icons/bi";
-import { FaRegUser, FaRegQuestionCircle } from "react-icons/fa";
+import { FaRegUser, FaRegQuestionCircle, FaHistory } from "react-icons/fa";
 import { SiPagespeedinsights } from "react-icons/si";
 import { FiUsers } from "react-icons/fi";
 import { HiOutlineOfficeBuilding } from "react-icons/hi";
+import { IoStatsChart } from "react-icons/io5";
+import { RxDashboard } from "react-icons/rx";
 
 // NOTE: Pure data extraction from `DesktopSidebar.tsx` to keep UI/behavior identical.
 export const desktopSidebarMenuData: any[] = [
+  {
+    id: 0,
+    isNew: false,
+    menuTitle: "",
+    order: "0",
+    role: ["admin"],
+    notif: "",
+    menus: [
+      {
+        path: "/",
+        title: "داشبورد",
+        icon: <RxDashboard className="text-2xl" />,
+        id: 100,
+        isNew: false,
+        subRoutes: [],
+        notif: "",
+        role: ["admin"],
+      },
+    ],
+  },
   {
     id: 1,
     isNew: false,
@@ -20,7 +42,7 @@ export const desktopSidebarMenuData: any[] = [
     notif: "",
     menus: [
       {
-        path: "/",
+        path: "/all-requests",
         title: "درخواست های مناقصه",
         icon: <LuGitPullRequest className="text-2xl" />,
         id: 110,
@@ -117,6 +139,26 @@ export const desktopSidebarMenuData: any[] = [
             subRoutes: [],
             notif: "",
             role: ["admin", "client", "reservation"],
+          },
+          {
+            path: "/provider-management",
+            title: "مدیریت تامین کنندگان",
+            icon: <HiOutlineOfficeBuilding className="text-2xl" />,
+            id: 24384529663,
+            isNew: false,
+            subRoutes: [],
+            notif: "",
+            role: ["admin", "client", "reservation"],
+          },
+          {
+            path: "/auth-history",
+            title: "تاریخچه ورود و خروج",
+            icon: <FaHistory className="text-2xl" />,
+            id: 24384529664, // Unique ID
+            isNew: false,
+            subRoutes: [],
+            notif: "",
+            role: ["admin"],
           },
         ],
         notif: "",

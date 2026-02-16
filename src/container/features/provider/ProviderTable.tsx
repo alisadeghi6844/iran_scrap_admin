@@ -11,20 +11,18 @@ import TableFilterCell from "../../../components/table/TableFilterCell";
 import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
-import { IoGitPullRequestSharp } from "react-icons/io5";
-import BuyerDetailModal from "./BuyerDetailModal";
-
-import {
-  selectGetUsersData,
-  selectGetUsersLoading,
-} from "../../../redux/slice/users/UsersSlice";
-import { GetUsersAction } from "../../../redux/actions/users/UsersActions";
+import ProviderDetailModal from "./ProviderDetailModal";
+import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
 import SearchInputField from "../../../components/molcols/formik-fields/SearchInputField";
 import Button from "../../../components/button";
 import { FaSort, FaSortUp, FaSortDown, FaEye } from "react-icons/fa";
 import { debounce } from "lodash";
+import {
+  selectGetUsersProvidersData,
+  selectGetUsersProvidersLoading,
+} from "../../../redux/slice/users/UsersSlice";
 
-interface BuyerTypes {
+interface ProviderTypes {
   onRowClick?: any;
 }
 
@@ -33,13 +31,12 @@ interface SortState {
   direction: "ASC" | "DESC" | null;
 }
 
-const BuyerTable: React.FC<BuyerTypes> = (props) => {
+const ProviderTable: React.FC<ProviderTypes> = (props) => {
   const { onRowClick } = props;
 
   const dispatch: any = useDispatch();
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [isDetailModalOpen, setDetailModalOpen] = useState(false);
-  const [selectedBuyer, setSelectedBuyer] = useState<any>(null);
+  const [selectedProvider, setSelectedProvider] = useState<any>(null);
   const [sortState, setSortState] = useState<SortState>({
     field: "",
     direction: null,
@@ -48,23 +45,22 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
 
   const filterDefaultInitialValues = {
     firstName: "",
-    lastName: null,
-    phoneNumber: null,
-    usertype: ["Buyer", "Both"],
+    lastName: "",
+    mobile: "",
+    username: "",
+    userSort: "",
   };
 
-  const loading = useSelector(selectGetUsersLoading);
-  const usersData = useSelector(selectGetUsersData);
+  const loading = useSelector(selectGetUsersProvidersLoading);
+  const usersData = useSelector(selectGetUsersProvidersData);
 
-  // ایجاد تابع fetchData برای ترکیب منطق فیلتر و مرتب‌سازی
   const fetchData = useCallback(
     (filter = {}, sort = sortState) => {
       dispatch(
-        GetUsersAction({
+        GetUsersProvidersAction({
           credentials: {
             ...filter,
             page: filter?.page ?? 0,
-            usertype: ["Buyer", "Both"],
             size: 20,
             ...(sort.field && sort.direction
               ? {
@@ -79,7 +75,6 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
     [dispatch]
   );
 
-  // ایجاد نسخه debounce شده از fetchData
   const debouncedFetchData = useCallback(
     debounce((filter, sort) => fetchData(filter, sort), 500),
     [fetchData]
@@ -91,13 +86,9 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
 
   const handleFilter = ({ filter, page, pageSize }: HandleFilterParams) => {
     const newFilter = {
-      filter,
+      ...filter,
       page: page ?? 0,
       size: pageSize ?? 20,
-      firstName: filter.firstName,
-      lastName: filter.lastName,
-      usertype: ["Buyer", "Both"],
-      mobile: filter.phoneNumber,
     };
 
     setCurrentFilter(newFilter);
@@ -105,13 +96,14 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
   };
 
   const handleFilterParameters = (data: any) => {
-    const { firstName, usertype, lastName, phoneNumber } = data;
+    const { firstName, lastName, mobile, username, userSort } = data;
     const queryParams: { [key: string]: string | null } = {};
 
     if (firstName) queryParams.firstName = firstName;
     if (lastName) queryParams.lastName = lastName;
-    if (usertype) queryParams.usertype = usertype;
-    if (phoneNumber) queryParams.phoneNumber = phoneNumber;
+    if (mobile) queryParams.mobile = mobile;
+    if (username) queryParams.username = username;
+    if (userSort) queryParams.userSort = userSort;
 
     return queryParams;
   };
@@ -142,21 +134,21 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
   };
 
   const handleOpenDetailModal = (user: any) => {
-    setSelectedBuyer(user);
+    setSelectedProvider(user);
     setDetailModalOpen(true);
   };
 
   const handleCloseDetailModal = () => {
     setDetailModalOpen(false);
-    setSelectedBuyer(null);
+    setSelectedProvider(null);
   };
 
   return (
     <>
-      <BuyerDetailModal
+      <ProviderDetailModal
         isOpen={isDetailModalOpen}
         onClose={handleCloseDetailModal}
-        data={selectedBuyer}
+        data={selectedProvider}
       />
       <CollectionControls
         hasBox={false}
@@ -192,12 +184,24 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
                 تلفن همراه {getSortIcon("mobile")}
               </TableHeadCell>
               <TableHeadCell
+                onClick={() => handleSort("username")}
+                className="cursor-pointer"
+              >
+                نام کاربری {getSortIcon("username")}
+              </TableHeadCell>
+              <TableHeadCell
                 onClick={() => handleSort("userSort")}
                 className="cursor-pointer"
               >
                 نوع کاربر {getSortIcon("userSort")}
               </TableHeadCell>
-              <TableHeadCell className="min-w-[200px]">عملیات</TableHeadCell>
+              <TableHeadCell
+                onClick={() => handleSort("createdAt")}
+                className="cursor-pointer"
+              >
+                تاریخ ایجاد {getSortIcon("createdAt")}
+              </TableHeadCell>
+              <TableHeadCell className="min-w-[150px]">عملیات</TableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -209,58 +213,34 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
                 <SearchInputField name="lastName" />
               </TableFilterCell>
               <TableFilterCell>
-                <SearchInputField name="phoneNumber" />
+                <SearchInputField name="mobile" />
               </TableFilterCell>
-              <TableFilterCell></TableFilterCell>
-              <TableFilterCell></TableFilterCell>
+              <TableFilterCell>
+                <SearchInputField name="username" />
+              </TableFilterCell>
+              <TableFilterCell>
+                <SearchInputField name="userSort" />
+              </TableFilterCell>
+              <TableFilterCell></TableFilterCell> {/* For Created At */}
+              <TableFilterCell></TableFilterCell> {/* For Actions */}
             </TableRow>
             {!loading ? (
               usersData?.data?.data?.length > 0 ? (
                 usersData?.data?.data?.map((row: any) => (
                   <TableRow key={row?.id}>
-                    <TableCell
-                      style={{
-                        backgroundColor: selectedUserIds.includes(row?.id)
-                          ? "#f0fdf4"
-                          : "transparent",
-                        transition: "background-color 0.2s",
-                      }}
-                    >
-                      {row?.firstName ?? "_"}
-                    </TableCell>
-                    <TableCell
-                      style={{
-                        backgroundColor: selectedUserIds.includes(row?.id)
-                          ? "#f0fdf4"
-                          : "transparent",
-                        transition: "background-color 0.2s",
-                      }}
-                    >
-                      {row?.lastName ?? "_"}
-                    </TableCell>
-                    <TableCell
-                      style={{
-                        backgroundColor: selectedUserIds.includes(row?.id)
-                          ? "#f0fdf4"
-                          : "transparent",
-                        transition: "background-color 0.2s",
-                      }}
-                    >
-                      {row?.mobile ?? "_"}
-                    </TableCell>
-                    <TableCell
-                      style={{
-                        backgroundColor: selectedUserIds.includes(row?.id)
-                          ? "#f0fdf4"
-                          : "transparent",
-                        transition: "background-color 0.2s",
-                      }}
-                    >
+                    <TableCell>{row?.firstName ?? "_"}</TableCell>
+                    <TableCell>{row?.lastName ?? "_"}</TableCell>
+                    <TableCell>{row?.mobile ?? "_"}</TableCell>
+                    <TableCell>{row?.username ?? "_"}</TableCell>
+                    <TableCell>
                       {row?.userSort === "Hagh"
                         ? "حقیقی"
                         : row?.userSort === "Hogh"
                         ? "حقوقی"
                         : "نامشخص"}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                     </TableCell>
                     <TableCell
                       onClick={(e: any) => {
@@ -268,43 +248,28 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
                       }}
                       className="justify-center gap-x-2"
                     >
-                      <div className="flex items-center gap-x-2">
-                        <Button
-                          startIcon={
-                            <IoGitPullRequestSharp className="text-xl" />
-                          }
-                          type="button"
-                          variant="outline-success"
-                          size="sm"
-                          onClick={() => {
-                            onRowClick && onRowClick("update", row);
-                          }}
-                        >
-                          مشاهده درخواست ها
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          onClick={() => handleOpenDetailModal(row)}
-                          className="text-gray-500 hover:text-gray-700"
-                    
-                        >
-                          <FaEye className="ml-2"/>
-                          مشاهده همه
-                        </Button>
-                      </div>
+                      <Button
+                        startIcon={<FaEye />}
+                        type="button"
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={() => handleOpenDetailModal(row)}
+                      >
+                        مشاهده جزئیات
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colspan="9" className="flex justify-center !py-4">
+                  <TableCell colSpan={7} className="flex justify-center !py-4">
                     <EmptyImage />
                   </TableCell>
                 </TableRow>
               )
             ) : (
               <TableRow>
-                <TableCell colspan="9" className="flex justify-center !py-4">
+                <TableCell colSpan={7} className="flex justify-center !py-4">
                   <TableSkeleton />
                 </TableCell>
               </TableRow>
@@ -316,4 +281,4 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
   );
 };
 
-export default BuyerTable;
+export default ProviderTable;

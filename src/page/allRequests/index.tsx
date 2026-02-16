@@ -28,6 +28,7 @@ import {
   ProductRequestRejectionModal,
   RequestOrderPaymentModal,
   TenderRequestEditModal,
+  ProductRequestOfferAdminModal,
 } from "./allRequests.lazies";
 import AllRequestsTabs, { AllRequestsTabKey } from "./AllRequestsTabs";
 
@@ -111,9 +112,9 @@ const AllRequests = () => {
 
   const tabs: { key: AllRequestsTabKey; label: string }[] = [
     { key: "new", label: "درخواست های ثبت شده" },
-    { key: "processing", label: "درخواست های دارای پیشنهاد" },
-    { key: "closed", label: " درخواست های در انتظار بارگیری" },
+    { key: "processing", label: "درخواست های دارای برنده" },
     { key: "financial", label: "درخواست های در انتظار تائید مالی" },
+    { key: "closed", label: " درخواست های در انتظار بارگیری" },
     { key: "delivery", label: "درخواست های در انتظار تحویل" },
   ];
 
@@ -347,6 +348,18 @@ const AllRequests = () => {
           setSelectedRow({});
         }}
       />
+      {mode === "suggestions" && (
+        <Suspense>
+          <ProductRequestOfferAdminModal
+            isOpen={mode === "suggestions"}
+            onClose={() => {
+              setMode("content");
+              setSelectedRow({});
+            }}
+            requestId={(selectedRow as any)?.id}
+          />
+        </Suspense>
+      )}
       {mode === "showMore" && (
         <Suspense>
           <ProductRequestDetailsModal

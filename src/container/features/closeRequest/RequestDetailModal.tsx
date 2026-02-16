@@ -212,15 +212,78 @@ const RequestDetailModal: React.FC<RequestDetailModalProps> = ({
           </div>
         )}
 
-        {/* اطلاعات تامین کنندگان */}
-        {request.providerIds && request.providerIds.length > 0 && (
+        {/* اطلاعات تامین کننده */}
+        {request.winner && (
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-3 text-gray-800">
-              تامین کنندگان
+              تامین کننده
             </h3>
-            <div>
-              <span className="font-medium text-gray-600">تعداد تامین کنندگان:</span>
-              <span className="mr-2">{request.providerIds.length}</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <span className="font-medium text-gray-600">نام:</span>
+                <span className="mr-2">
+                  {request.winner.providerId?.firstName && request.winner.providerId?.lastName
+                    ? `${request.winner.providerId.firstName} ${request.winner.providerId.lastName}`
+                    : request.winner.providerId?.mobile || "_"}
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">شماره تماس:</span>
+                <span className="mr-2">{request.winner.providerId?.mobile || "_"}</span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">نام شرکت:</span>
+                <span className="mr-2">{request.winner.providerId?.companyName || "_"}</span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">شهر واستان مبدا:</span>
+                <span className="mr-2">{request.winner.province +" , " +  request.winner.city || "_"}</span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">قیمت واحد:</span>
+                <span className="mr-2">
+                  {request.winner.price ? `${request.winner.price.toLocaleString()} تومان` : "_"}
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">هزینه حمل:</span>
+                <span className="mr-2">
+                  {request.winner.shippingPrice ? `${request.winner.shippingPrice.toLocaleString()} تومان` : "_"}
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">قیمت کل:</span>
+                <span className="mr-2">
+                  {request.winner.totalprice ? `${request.winner.totalprice.toLocaleString()} تومان` : "_"}
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">نوع پرداخت:</span>
+                <span className="mr-2">
+                  {request.winner.paymentType === 'CASH' ? 'نقدی' : 
+                   request.winner.paymentType === 'INSTALLMENT' ? 'اقساطی' : 
+                   request.winner.paymentType || "_"}
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">تاریخ تایید:</span>
+                <span className="mr-2">
+                  {request.winner.confirmDate ? convertToJalali(request.winner.confirmDate) : "_"}
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">وضعیت:</span>
+                <span className="mr-2">
+                  {request.winner.status === 'BUYER_CONFIRMED' ? 'تایید شده توسط خریدار' : 
+                   request.winner.status || "_"}
+                </span>
+              </div>
+              {request.winner.description && (
+                <div className="md:col-span-2">
+                  <span className="font-medium text-gray-600">توضیحات:</span>
+                  <span className="mr-2">{request.winner.description}</span>
+                </div>
+              )}
             </div>
           </div>
         )}

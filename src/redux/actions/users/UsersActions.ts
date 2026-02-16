@@ -1,14 +1,18 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
+  GET_AUTH_HISTORY,
   GET_USERS,
   GET_USERS_PROVIDERS,
+  GET_USERS_STATISTIC,
   GET_USER_BY_ID,
   UPDATE_USER_PROFILE,
   USERS,
 } from "../../types/users/UsersTypes";
 import {
+  GetAuthHistoryService,
   GetUsersProvidersService,
   GetUsersService,
+  GetUsersStatisticService,
   GetUserByIdService,
   UpdateUserProfileService,
 } from "../../service/users/UsersServices";
@@ -62,6 +66,34 @@ export const UpdateUserProfileAction = createAsyncThunk(
   async ({ userId, formData }: { userId: string; formData: FormData }, thunkAPI) => {
     try {
       const response = await UpdateUserProfileService(userId, formData);
+      return response;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const GetAuthHistoryAction = createAsyncThunk(
+  `${USERS}/${GET_AUTH_HISTORY}`,
+  async ({ credentials }: any, thunkAPI) => {
+    try {
+      const response = await GetAuthHistoryService(credentials);
+      return response;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "خطای ناشناخته" }
+      );
+    }
+  }
+);
+
+export const GetUsersStatisticAction = createAsyncThunk(
+  `${USERS}/${GET_USERS_STATISTIC}`,
+  async ({ credentials }: any, thunkAPI) => {
+    try {
+      const response = await GetUsersStatisticService(credentials);
       return response;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(

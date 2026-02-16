@@ -193,20 +193,24 @@ const ProductRequestApprovalModal: React.FC<ProductRequestApprovalModalProps> = 
               <span className="font-semibold">دسته‌بندی:</span> {request?.category?.name || "_"}
             </div>
             <div>
-              <span className="font-semibold">مقدار:</span> {request?.amount || "_"} {getAmountTypeText(request?.amountType || "")}
+              <span className="font-semibold">مقدار:</span> {request?.amount || "_"} کیلوگرم
             </div>
             <div>
               <span className="font-semibold">قیمت نهایی:</span> {request?.winner?.totalprice ? request.winner.totalprice.toLocaleString() + " تومان" : "_"}
             </div>
             <div>
+              <span className="font-semibold">هزینه ارسال :</span> {request?.winner?.shippingPrice ? request.winner.shippingPrice.toLocaleString() + " تومان" : "_"}
+            </div>
+            <div>
               <span className="font-semibold">نوع پرداخت:</span> {getPaymentTypeText(request?.paymentType || "")}
+            </div>
+                <div>
+              <span className="font-semibold">استان:</span> {request?.province || "_"}
             </div>
             <div>
               <span className="font-semibold">شهر:</span> {request?.city || "_"}
             </div>
-            <div>
-              <span className="font-semibold">استان:</span> {request?.province || "_"}
-            </div>
+        
             <div>
               <span className="font-semibold">کاربر:</span> {request?.user?.firstName && request?.user?.lastName ? `${request.user.firstName} ${request.user.lastName}` : request?.user?.mobile || "_"}
             </div>
