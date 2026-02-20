@@ -98,4 +98,11 @@ export const ProductRequestDetailsModal = lazy(
     )
 );
 
+export const ProductRequestOfferAdminModal = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "ProductRequestOfferAdminModal" */ "../../container/features/productRequestOfferAdmin/ProductRequestOfferAdminModal"
+    )
+);
+
 

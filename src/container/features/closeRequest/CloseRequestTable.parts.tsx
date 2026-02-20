@@ -6,6 +6,7 @@ import TableFilterCell from "../../../components/table/TableFilterCell";
 import TableCell from "../../../components/table/TableCell";
 import SingleSelect from "../../../components/select/SingleSelect";
 import Button from "../../../components/button";
+import Input from "../../../components/input";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
 import { convertToJalali } from "../../../utils/MomentConvertor";
 import {
@@ -18,6 +19,7 @@ export const CloseRequestTableHead: React.FC = () => {
   return (
     <TableHead className="w-full" isLoading={false} shadow={false}>
       <TableRow>
+        <TableHeadCell>کد</TableHeadCell>
         <TableHeadCell>نام درخواست کننده</TableHeadCell>
         <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
         <TableHeadCell className="min-w-[230px]">دسته بندی</TableHeadCell>
@@ -51,6 +53,9 @@ interface CloseRequestTableFilterRowProps {
 
   statusFilter: SelectOptionTypes | null;
   onStatusChange: (value: any) => void;
+
+  codeFilter: string;
+  onCodeChange: (value: string) => void;
 }
 
 export const CloseRequestTableFilterRow: React.FC<
@@ -70,10 +75,21 @@ export const CloseRequestTableFilterRow: React.FC<
     onPaymentTypeChange,
     statusFilter,
     onStatusChange,
+    codeFilter,
+    onCodeChange,
   } = props;
 
   return (
     <TableRow>
+      <TableFilterCell>
+        <Input
+          value={codeFilter}
+          onChange={(e: any) => onCodeChange(e.target.value)}
+          placeholder="جستجو..."
+          noBorder
+          className="min-w-[80px]"
+        />
+      </TableFilterCell>
       <TableFilterCell></TableFilterCell>
       <TableFilterCell></TableFilterCell>
       <TableFilterCell>
@@ -141,6 +157,7 @@ export const CloseRequestTableDataRow: React.FC<CloseRequestTableDataRowProps> =
 
     return (
       <TableRow>
+        <TableCell>{row?.code ?? "_"}</TableCell>
         <TableCell>
           {row?.user?.firstName
             ? row?.user?.firstName + " " + row?.user?.lastName

@@ -41,6 +41,7 @@ import {
 } from "../../../types/OrderStatus";
 import FiltersRow from "./components/FinancialApprovalTable/FiltersRow";
 import RequestRow from "./components/FinancialApprovalTable/RequestRow";
+import useDebounce from "../../../hooks/UseDebounce";
 
 interface FinancialApprovalTableProps {
   onRowClick?: any;
@@ -66,12 +67,23 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
   const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(
     null
   );
+  const [codeFilter, setCodeFilter] = useState("");
+  const [debouncedCodeFilter, setDebouncedCodeFilter] = useState("");
+
+  useDebounce(
+    () => {
+      setDebouncedCodeFilter(codeFilter);
+    },
+    [codeFilter],
+    800
+  );
 
   const filterDefaultInitialValues = {
     Category: categoryFilter,
     Provider: providerFilter,
     PaymentType: paymentTypeFilter,
     Status: statusFilter,
+    Code: debouncedCodeFilter,
   };
 
   const loading = useSelector(selectGetProductRequestAdminLoading);
@@ -90,13 +102,6 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
   const defaultStatuses = ["BUYER_WAITFORFINANCE", "BUYER_WAITFORFINANCE"];
 
   useEffect(() => {
-    dispatch(
-      GetRequestProductAdminAction({
-        page: 0,
-        size: 20,
-        status: defaultStatuses,
-      })
-    );
     dispatch(GetCategoryAction({}));
     dispatch(GetUsersProvidersAction({ credentials: {} }));
   }, [dispatch]);
@@ -108,11 +113,12 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
       Provider: providerFilter,
       PaymentType: paymentTypeFilter,
       Status: statusFilter,
+      Code: debouncedCodeFilter,
     };
 
     const filterString = handleFilterParameters(filterData);
 
-    dispatch(
+    const promise = dispatch(
       GetRequestProductAdminAction({
         filter: filterString || undefined,
         page: 0,
@@ -120,20 +126,26 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
         status: defaultStatuses,
       })
     );
+
+    return () => {
+      promise.abort();
+    };
   }, [
     categoryFilter,
     providerFilter,
     paymentTypeFilter,
     statusFilter,
+    debouncedCodeFilter,
     dispatch,
   ]);
 
   const handleFilterParameters = (data: unknown) => {
-    const { Category, Provider, PaymentType, Status } = data as {
+    const { Category, Provider, PaymentType, Status, Code } = data as {
       Category?: SelectOptionTypes;
       Provider?: SelectOptionTypes;
       PaymentType?: SelectOptionTypes;
       Status?: SelectOptionTypes;
+      Code?: string;
     };
     let queryParam = "";
     if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
@@ -141,6 +153,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
     if (PaymentType?.value)
       queryParam += "paymentType=" + PaymentType?.value + ",";
     if (Status?.value) queryParam += "status=" + Status?.value + ",";
+    if (Code) queryParam += "code=" + Code + ",";
 
     return queryParam.substring(0, queryParam.length - 1);
   };
@@ -243,6 +256,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
       <Table className="w-full" isLoading={false} shadow={false}>
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
+            <TableHeadCell>کد</TableHeadCell>
             <TableHeadCell>نام درخواست کننده</TableHeadCell>
             <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
             <TableHeadCell className="min-w-[230px]">دسته بندی</TableHeadCell>
@@ -275,6 +289,8 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
             orderStatusOptions={orderStatusOptions}
             statusFilter={statusFilter}
             onStatusChange={(value: any) => setStatusFilter(value)}
+            codeFilter={codeFilter}
+            onCodeChange={(value: any) => setCodeFilter(value)}
           />
           {!loading ? (
             productAdminData?.data?.length > 0 ? (
@@ -296,14 +312,14 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={11} className="flex justify-center !py-4">
+                <TableCell colSpan={12} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colSpan={11} className="flex justify-center !py-4">
+              <TableCell colSpan={12} className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

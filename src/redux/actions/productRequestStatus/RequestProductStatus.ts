@@ -123,7 +123,7 @@ export const GetRequestProductAdminByIdAction = createAsyncThunk(
 export const UpdateRequestProductAdminAction = createAsyncThunk(
   `${PRODUCT_REQUEST_STATUS}/${UPDATE_PRODUCT_REQUEST_ADMIN}`,
   async (
-    { credentials, item, onSuccess, thunkAPI }: { credentials: any; item: any; onSuccess: any; thunkAPI: any; },
+    { credentials, item, onSuccess }: { credentials: any; item: any; onSuccess: any },
     { rejectWithValue }
   ) => {
     try {
@@ -146,7 +146,7 @@ export const UpdateRequestProductAdminAction = createAsyncThunk(
 export const UpdateRequestProductAdminProviderAction = createAsyncThunk(
   `${PRODUCT_REQUEST_STATUS}/${UPDATE_PRODUCT_REQUEST_PROVIDER_ADMIN}`,
   async (
-    { credentials, id, handleSubmit, thunkAPI }: { credentials: any; id: any; handleSubmit: any; thunkAPI: any; },
+    { credentials, id, handleSubmit }: { credentials: any; id: any; handleSubmit: any },
     { rejectWithValue }
   ) => {
     try {

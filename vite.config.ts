@@ -8,7 +8,7 @@ export default defineConfig({
     host: '0.0.0.0', // این خط باعث می‌شود که سرور به همه IPها دسترسی داشته باشد
     port: 5173, // پورت سرور
     allowedHosts: [
-      'admin.digifaarm.ir' // اضافه کردن هاست مجاز
+      'admin.iranscrap.ir' // اضافه کردن هاست مجاز
     ],
   },
   plugins: [

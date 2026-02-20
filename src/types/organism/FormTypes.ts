@@ -13,4 +13,5 @@ export interface FormTypes extends React.HTMLProps<HTMLElement>{
     validationSchema?:any,
     filterButtonText?:string,
     submitButtonSize?:string,
+    onCancel?: () => void,
 }

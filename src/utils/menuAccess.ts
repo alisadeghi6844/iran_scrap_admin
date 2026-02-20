@@ -18,16 +18,34 @@ export const hasMenuAccess = (userAccessMenus: string[], targetPath: string): bo
   }
   
   // Create different path formats to check
-  const pathWithoutSlash = targetPath.replace(/^\//, '');
-  const pathWithSlash = targetPath.startsWith('/') ? targetPath : `/${targetPath}`;
+  const normalizedTarget = targetPath.startsWith('/') ? targetPath : `/${targetPath}`;
+  const pathWithoutSlash = normalizedTarget.replace(/^\//, '');
+  const pathWithSlash = normalizedTarget;
+  
+  // Base path (e.g., '/blog-management' for '/blog-management/:id')
+  const segments = pathWithoutSlash.split('/');
+  const basePathWithSlash = `/${segments[0]}`;
+  const basePathWithoutSlash = segments[0];
   
   // Convert route paths to menu access format (keeping the same format as provided)
   const menuAccessFormat = pathWithoutSlash.replace(/-/g, '-');
   
-  return userAccessMenus.includes(targetPath) || 
+  // Allow access if any of the following matches:
+  // - exact target path or formats
+  // - base path prefix (to support dynamic subpaths like /blog-management/:id)
+  // - any access menu that is a prefix of the target path
+  const prefixAccess = userAccessMenus.some(access => {
+    const normalizedAccess = access.startsWith('/') ? access : `/${access}`;
+    return normalizedTarget.startsWith(normalizedAccess);
+  });
+
+  return userAccessMenus.includes(normalizedTarget) || 
          userAccessMenus.includes(pathWithoutSlash) || 
          userAccessMenus.includes(pathWithSlash) ||
-         userAccessMenus.includes(menuAccessFormat);
+         userAccessMenus.includes(menuAccessFormat) ||
+         userAccessMenus.includes(basePathWithSlash) ||
+         userAccessMenus.includes(basePathWithoutSlash) ||
+         prefixAccess;
 };
 
 /**

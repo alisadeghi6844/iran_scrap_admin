@@ -35,6 +35,7 @@ const Input: React.FC<InputProps> = props => {
     className,
     position = 'bottom',
     noBorder = false,
+    multiline, // Destructure multiline to prevent it from being passed to input
     ...rest
   } = props;
 

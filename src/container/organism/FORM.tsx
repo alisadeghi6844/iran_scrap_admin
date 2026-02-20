@@ -22,6 +22,7 @@ const FORM: React.FC<FormTypes> = (props) => {
     validationSchema,
     filterButtonText,
     submitButtonSize,
+    onCancel,
     ...rest
   } = props;
 
@@ -75,6 +76,16 @@ const FORM: React.FC<FormTypes> = (props) => {
                   ))
                 : null}
               <div className="flex col-span-12 justify-end items-center mt-2 gap-x-4 w-full">
+                {onCancel ? (
+                  <div className="w-26">
+                    <Button
+                      variant="outline-error"
+                      type="button"
+                      children="انصراف"
+                      onClick={onCancel}
+                    />
+                  </div>
+                ) : null}
                 {resetForm ? (
                   <div className="w-26">
                     <Button

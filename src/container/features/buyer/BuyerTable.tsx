@@ -12,6 +12,7 @@ import TableCell from "../../../components/table/TableCell";
 import EmptyImage from "../../../components/image/EmptyImage";
 import TableSkeleton from "../../organism/skeleton/TableSkeleton";
 import { IoGitPullRequestSharp } from "react-icons/io5";
+import BuyerDetailModal from "./BuyerDetailModal";
 
 import {
   selectGetUsersData,
@@ -20,7 +21,7 @@ import {
 import { GetUsersAction } from "../../../redux/actions/users/UsersActions";
 import SearchInputField from "../../../components/molcols/formik-fields/SearchInputField";
 import Button from "../../../components/button";
-import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import { FaSort, FaSortUp, FaSortDown, FaEye } from "react-icons/fa";
 import { debounce } from "lodash";
 
 interface BuyerTypes {
@@ -37,6 +38,8 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
 
   const dispatch: any = useDispatch();
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [isDetailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedBuyer, setSelectedBuyer] = useState<any>(null);
   const [sortState, setSortState] = useState<SortState>({
     field: "",
     direction: null,
@@ -47,7 +50,7 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
     firstName: "",
     lastName: null,
     phoneNumber: null,
-    usertype: "Buyer",
+    usertype: ["Buyer", "Both"],
   };
 
   const loading = useSelector(selectGetUsersLoading);
@@ -61,7 +64,7 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
           credentials: {
             ...filter,
             page: filter?.page ?? 0,
-            usertype: "Buyer",
+            usertype: ["Buyer", "Both"],
             size: 20,
             ...(sort.field && sort.direction
               ? {
@@ -93,7 +96,7 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
       size: pageSize ?? 20,
       firstName: filter.firstName,
       lastName: filter.lastName,
-      usertype: "Buyer",
+      usertype: ["Buyer", "Both"],
       mobile: filter.phoneNumber,
     };
 
@@ -137,8 +140,24 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
       return <FaSortDown className="inline ml-1" />;
     return <FaSort className="inline ml-1" />;
   };
+
+  const handleOpenDetailModal = (user: any) => {
+    setSelectedBuyer(user);
+    setDetailModalOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setDetailModalOpen(false);
+    setSelectedBuyer(null);
+  };
+
   return (
     <>
+      <BuyerDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+        data={selectedBuyer}
+      />
       <CollectionControls
         hasBox={false}
         filterInitialValues={filterDefaultInitialValues}
@@ -249,19 +268,30 @@ const BuyerTable: React.FC<BuyerTypes> = (props) => {
                       }}
                       className="justify-center gap-x-2"
                     >
-                      <Button
-                        startIcon={
-                          <IoGitPullRequestSharp className="text-xl" />
-                        }
-                        type="button"
-                        variant="outline-success"
-                        size="sm"
-                        onClick={() => {
-                          onRowClick && onRowClick("update", row);
-                        }}
-                      >
-                        مشاهده درخواست ها
-                      </Button>
+                      <div className="flex items-center gap-x-2">
+                        <Button
+                          startIcon={
+                            <IoGitPullRequestSharp className="text-xl" />
+                          }
+                          type="button"
+                          variant="outline-success"
+                          size="sm"
+                          onClick={() => {
+                            onRowClick && onRowClick("update", row);
+                          }}
+                        >
+                          مشاهده درخواست ها
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          onClick={() => handleOpenDetailModal(row)}
+                          className="text-gray-500 hover:text-gray-700"
+                    
+                        >
+                          <FaEye className="ml-2"/>
+                          مشاهده همه
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

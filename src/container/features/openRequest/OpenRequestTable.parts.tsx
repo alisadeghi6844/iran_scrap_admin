@@ -6,6 +6,7 @@ import TableFilterCell from "../../../components/table/TableFilterCell";
 import TableCell from "../../../components/table/TableCell";
 import SingleSelect from "../../../components/select/SingleSelect";
 import Button from "../../../components/button";
+import Input from "../../../components/input";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
 import { getOrderStatusColor, getOrderStatusText } from "../../../types/OrderStatus";
 
@@ -13,6 +14,7 @@ export const OpenRequestTableHead: React.FC = () => {
   return (
     <TableHead className="w-full" isLoading={false} shadow={false}>
       <TableRow>
+        <TableHeadCell>کد</TableHeadCell>
         <TableHeadCell>نام درخواست کننده</TableHeadCell>
         <TableHeadCell className="min-w-[230px]">دسته بندی</TableHeadCell>
         <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
@@ -42,6 +44,9 @@ interface OpenRequestTableFilterRowProps {
   paymentTypeOptions: Array<{ value: string; label: string }>;
   paymentTypeFilter: SelectOptionTypes | null;
   onPaymentTypeChange: (value: any) => void;
+
+  codeFilter: string;
+  onCodeChange: (value: string) => void;
 }
 
 export const OpenRequestTableFilterRow: React.FC<
@@ -59,10 +64,21 @@ export const OpenRequestTableFilterRow: React.FC<
     paymentTypeOptions,
     paymentTypeFilter,
     onPaymentTypeChange,
+    codeFilter,
+    onCodeChange,
   } = props;
 
   return (
     <TableRow>
+      <TableFilterCell>
+        <Input
+          value={codeFilter}
+          onChange={(e: any) => onCodeChange(e.target.value)}
+          placeholder="جستجو..."
+          noBorder
+          className="min-w-[80px]"
+        />
+      </TableFilterCell>
       <TableFilterCell></TableFilterCell>
       <TableFilterCell>
         <SingleSelect
@@ -120,6 +136,7 @@ export const OpenRequestTableDataRow: React.FC<OpenRequestTableDataRowProps> = (
 
   return (
     <TableRow>
+      <TableCell>{row?.code ?? "_"}</TableCell>
       <TableCell>
         {row?.user?.firstName
           ? row?.user?.firstName + " " + row?.user?.lastName

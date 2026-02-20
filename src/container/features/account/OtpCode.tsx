@@ -13,7 +13,7 @@ const OtpCode = (props: any) => {
     status,
   } = props;
   const [otp, setOtp] = useState("");
-  const [timeLeft, actions] = useCountdown(20000, 1000); // 5 دقیقه برای status send
+  const [timeLeft, actions] = useCountdown(120000, 1000); // 2 دقیقه برای status send
 
   useEffect(() => {
       actions.reset();
@@ -93,7 +93,7 @@ const OtpCode = (props: any) => {
         {timeLeft !== "00:00" && (
           <div className="text-center">
             <p className="text-xs text-gray-500">
-              کد را دریافت نکردید؟ لطفاً {timeLeft} صبر کنید
+              کد را دریافت نکردید؟ لطفاً {timeLeft} دقیقه صبر کنید
             </p>
           </div>
         )}

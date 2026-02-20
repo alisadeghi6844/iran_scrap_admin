@@ -2,6 +2,7 @@ import React from "react";
 import TableRow from "../../../../../components/table/TableRow";
 import TableFilterCell from "../../../../../components/table/TableFilterCell";
 import SingleSelect from "../../../../../components/select/SingleSelect";
+import Input from "../../../../../components/input";
 
 interface FiltersRowProps {
   categoryLoading: boolean;
@@ -21,6 +22,9 @@ interface FiltersRowProps {
   orderStatusOptions: any[];
   statusFilter: any;
   onStatusChange: (value: any) => void;
+
+  codeFilter: string;
+  onCodeChange: (value: string) => void;
 }
 
 const FiltersRow: React.FC<FiltersRowProps> = ({
@@ -38,9 +42,20 @@ const FiltersRow: React.FC<FiltersRowProps> = ({
   orderStatusOptions,
   statusFilter,
   onStatusChange,
+  codeFilter,
+  onCodeChange,
 }) => {
   return (
     <TableRow>
+      <TableFilterCell>
+        <Input
+          value={codeFilter}
+          onChange={(e: any) => onCodeChange(e.target.value)}
+          placeholder="جستجو..."
+          noBorder
+          className="min-w-[80px]"
+        />
+      </TableFilterCell>
       <TableFilterCell></TableFilterCell>
       <TableFilterCell></TableFilterCell>
       <TableFilterCell>

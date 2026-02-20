@@ -11,12 +11,17 @@ export const AxiosQueryCustom = (query:any) => {
 
  
 
-  if (query?.filter?.length) {
-    const parsedFilter = JSON.parse(query.filter);
-    for (const key in parsedFilter) {
-      if (parsedFilter[key]) {
-        text += `${key}=${parsedFilter[key]}&`;
+  if (query?.filter) {
+    try {
+      const parsedFilter = JSON.parse(query.filter);
+      for (const key in parsedFilter) {
+        if (parsedFilter[key]) {
+          text += `${key}=${parsedFilter[key]}&`;
+        }
       }
+    } catch (error) {
+      console.warn("JSON Parse Failed for query filter:", error.message);
+      // If parsing fails, we can choose to ignore the filter or handle it differently
     }
   }
   return text.substring(0, text.length - 1);

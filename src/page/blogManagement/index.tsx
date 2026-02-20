@@ -8,12 +8,6 @@ const BlogTable = lazy(
       /* webpackChunkName: "Blog" */ "../../container/features/blog/BlogTable"
     )
 );
-const BlogForm = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "Blog" */ "../../container/features/blog/BlogForm"
-    )
-);
 
 const BlogManagement = () => {
   const [mode, setMode] = useState<string>("content");
@@ -43,17 +37,7 @@ const BlogManagement = () => {
             />
           </Suspense>
         }
-        form={
-          <Suspense>
-            <BlogForm
-              value={selectedRow ?? null}
-              mode={mode}
-              onSubmitForm={() => {
-                setMode("content");
-              }}
-            />
-          </Suspense>
-        }
+        form={null} // Form is now handled in separate pages
         confirmation={
           <Suspense>
             <BlogDeleteConfirmation

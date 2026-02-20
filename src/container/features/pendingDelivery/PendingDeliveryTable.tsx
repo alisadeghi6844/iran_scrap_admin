@@ -22,6 +22,7 @@ import { convertToJalali } from "../../../utils/MomentConvertor";
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
 import RequestDetailModal from "../closeRequest/RequestDetailModal";
 import SingleSelect from "../../../components/select/SingleSelect";
+import Input from "../../../components/input";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
 import {
   selectGetCategoryData,
@@ -33,6 +34,7 @@ import {
   selectGetUsersProvidersLoading,
 } from "../../../redux/slice/users/UsersSlice";
 import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
+import useDebounce from "../../../hooks/UseDebounce";
 
 interface PendingDeliveryTableProps {
   onRowClick?: any;
@@ -52,11 +54,22 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
     useState<SelectOptionTypes | null>(null);
   const [paymentTypeFilter, setPaymentTypeFilter] =
     useState<SelectOptionTypes | null>(null);
+  const [codeFilter, setCodeFilter] = useState("");
+  const [debouncedCodeFilter, setDebouncedCodeFilter] = useState("");
+
+  useDebounce(
+    () => {
+      setDebouncedCodeFilter(codeFilter);
+    },
+    [codeFilter],
+    800
+  );
 
   const filterDefaultInitialValues = {
     Category: categoryFilter,
     Provider: providerFilter,
     PaymentType: paymentTypeFilter,
+    Code: debouncedCodeFilter,
   };
 
   const loading = useSelector(selectGetProductRequestAdminLoading);
@@ -74,16 +87,9 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
   const defaultStatuses = ["WAITING_UNLOADING", "WAITING_UNLOADING"];
 
   useEffect(() => {
-    dispatch(
-      GetRequestProductAdminAction({
-        page: 0,
-        size: 20,
-        status: defaultStatuses,
-      })
-    );
     dispatch(GetCategoryAction({}));
     dispatch(GetUsersProvidersAction({ credentials: {} }));
-  }, [dispatch]);
+  }, []);
 
   // Trigger filtering when filter values change
   useEffect(() => {
@@ -91,11 +97,12 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
       Category: categoryFilter,
       Provider: providerFilter,
       PaymentType: paymentTypeFilter,
+      Code: debouncedCodeFilter,
     };
 
     const filterString = handleFilterParameters(filterData);
 
-    dispatch(
+    const promise = dispatch(
       GetRequestProductAdminAction({
         filter: filterString || undefined,
         page: 0,
@@ -103,19 +110,31 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
         status: defaultStatuses,
       })
     );
-  }, [categoryFilter, providerFilter, paymentTypeFilter, dispatch]);
+
+    return () => {
+      promise.abort();
+    };
+  }, [
+    categoryFilter,
+    providerFilter,
+    paymentTypeFilter,
+    debouncedCodeFilter,
+    dispatch,
+  ]);
 
   const handleFilterParameters = (data: unknown) => {
-    const { Category, Provider, PaymentType } = data as {
+    const { Category, Provider, PaymentType, Code } = data as {
       Category?: SelectOptionTypes;
       Provider?: SelectOptionTypes;
       PaymentType?: SelectOptionTypes;
+      Code?: string;
     };
     let queryParam = "";
     if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
     if (Provider?.value) queryParam += "providerId=" + Provider?.value + ",";
     if (PaymentType?.value)
       queryParam += "paymentType=" + PaymentType?.value + ",";
+    if (Code) queryParam += "code=" + Code + ",";
 
     return queryParam.substring(0, queryParam.length - 1);
   };
@@ -192,6 +211,7 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
       <Table className="w-full" isLoading={false} shadow={false}>
         <TableHead className="w-full" isLoading={false} shadow={false}>
           <TableRow>
+            <TableHeadCell>کد</TableHeadCell>
             <TableHeadCell>نام درخواست کننده</TableHeadCell>
             <TableHeadCell>تلفن همراه درخواست کننده</TableHeadCell>
             <TableHeadCell className="min-w-[230px]">دسته بندی</TableHeadCell>
@@ -210,6 +230,15 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
         </TableHead>
         <TableBody>
           <TableRow>
+            <TableFilterCell>
+              <Input
+                value={codeFilter}
+                onChange={(e: any) => setCodeFilter(e.target.value)}
+                placeholder="جستجو..."
+                noBorder
+                className="min-w-[80px]"
+              />
+            </TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell></TableFilterCell>
             <TableFilterCell>
@@ -256,6 +285,7 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
             productAdminData?.data?.length > 0 ? (
               productAdminData?.data?.map((row: any) => (
                 <TableRow key={row?.id}>
+                  <TableCell>{row?.code ?? "_"}</TableCell>
                   <TableCell>
                     {row?.user?.firstName
                       ? row?.user?.firstName + " " + row?.user?.lastName

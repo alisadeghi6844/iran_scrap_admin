@@ -126,9 +126,27 @@ const ProductRequestDetailsModal: React.FC<ProductRequestDetailsModalProps> = ({
     return null;
   }
 
-  const displayData =
-    (requestDetails as ProductRequestDetailsDisplayData) ||
-    (request as unknown as ProductRequestDetailsDisplayData);
+  const rawData = (requestDetails || request) as any;
+
+  const displayData: ProductRequestDetailsDisplayData = {
+    ...rawData,
+    category: {
+      ...(rawData?.category || {}),
+      name: rawData?.category?.name || rawData?.categoryName,
+      catRoute: rawData?.catRoute || rawData?.category?.catRoute,
+    },
+    user: rawData?.user || {
+      firstName: rawData?.firstName,
+      lastName: rawData?.lastName,
+      mobile: rawData?.mobile,
+      usertype: rawData?.userType,
+    },
+    city: typeof rawData?.city === "object" ? rawData?.city?.name : rawData?.city,
+    province:
+      typeof rawData?.province === "object"
+        ? rawData?.province?.name
+        : rawData?.province,
+  };
 
   const formatDate = (timestamp?: number) => {
     if (!timestamp) return "_";

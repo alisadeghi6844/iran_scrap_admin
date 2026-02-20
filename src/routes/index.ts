@@ -2,7 +2,7 @@ import { lazy } from "react";
 
 const routes = [
   {
-    path: "/",
+    path: "/all-requests",
     breadCrumb: "درخواست های مناقصه",
     component: lazy(() => import("../page/allRequests")),
     layout: "admin",
@@ -20,6 +20,13 @@ const routes = [
     path: "/category-management",
     breadCrumb: "مدیریت دسته بندی ها",
     component: lazy(() => import("../page/categoryManagement")),
+    layout: "admin",
+    role: ["admin", "client", "reservation"],
+  },
+  {
+    path: "/blog-management/:id",
+    breadCrumb: "ویرایش/ساخت مقاله",
+    component: lazy(() => import("../page/blogManagement/BlogEdit")),
     layout: "admin",
     role: ["admin", "client", "reservation"],
   },
@@ -54,6 +61,26 @@ const routes = [
     breadCrumb: "مدیریت خریداران",
     component: lazy(() => import("../page/buyerManagement")),
     layout: "admin",
+  },
+  {
+    path: "/provider-management",
+    breadCrumb: "مدیریت تامین کنندگان",
+    component: lazy(() => import("../page/providerManagement")),
+    layout: "admin",
+  },
+  {
+    path: "/auth-history",
+    breadCrumb: "تاریخچه ورود و خروج",
+    component: lazy(() => import("../page/authHistory")),
+    layout: "admin",
+    role: ["admin"],
+  },
+  {
+    path: "/",
+    breadCrumb: "آمار کاربران",
+    component: lazy(() => import("../page/userStatistics")),
+    layout: "admin",
+    role: ["admin"],
   },
   {
     path: "/product-management",

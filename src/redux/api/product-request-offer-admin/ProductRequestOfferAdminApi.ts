@@ -3,7 +3,7 @@ export const CLOSE_REQUEST_POINT =
 export const EXPIRE_OFFER_POINT =
   "product-request-offer-admin/test/expire-offer";
 export const GET_PRODUCT_REQUEST_OFFER_ADMIN_POINT =
-  "product-request-admin";
+  "product-request-offer-admin";
 export const GET_PRODUCT_REQUEST_OFFER_ADMIN_BY_ID_POINT =
   "product-request-offer-admin";
 export const GET_PRODUCT_REQUEST_ADMIN_BY_ID_POINT =

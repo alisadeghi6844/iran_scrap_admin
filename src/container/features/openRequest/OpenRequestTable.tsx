@@ -33,6 +33,7 @@ import {
   OpenRequestTableFilterRow,
   OpenRequestTableHead,
 } from "./OpenRequestTable.parts";
+import useDebounce from "../../../hooks/UseDebounce";
 
 interface ProductRequestAdminTypes {
   onRowClick?: any;
@@ -55,12 +56,23 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const [statusFilter, setStatusFilter] = useState<SelectOptionTypes | null>(
     null
   );
+  const [codeFilter, setCodeFilter] = useState("");
+  const [debouncedCodeFilter, setDebouncedCodeFilter] = useState("");
+
+  useDebounce(
+    () => {
+      setDebouncedCodeFilter(codeFilter);
+    },
+    [codeFilter],
+    800
+  );
 
   const filterDefaultInitialValues = {
     Category: categoryFilter,
     Provider: providerFilter,
     PaymentType: paymentTypeFilter,
     Status: statusFilter,
+    Code: debouncedCodeFilter,
   };
 
   const loading = useSelector(selectGetProductRequestAdminLoading);
@@ -78,26 +90,9 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const updateData_2 = useSelector(selectUpdateProductRequestProviderAdminData);
 
   useEffect(() => {
-    if (selectedStatus) {
-      dispatch(
-        GetRequestProductAdminAction({
-          page: 0,
-          size: 20,
-          status: [selectedStatus],
-        })
-      );
-    } else {
-      dispatch(
-        GetRequestProductAdminAction({
-          page: 0,
-          size: 20,
-          status: ["LOADING_ORDER", "WAITING_UNLOADING"],
-        })
-      );
-    }
     dispatch(GetCategoryAction({}));
     dispatch(GetUsersProvidersAction({ credentials: {} }));
-  }, [selectedStatus, dispatch]);
+  }, []);
 
   // Trigger filtering when filter values change
   useEffect(() => {
@@ -106,6 +101,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       Provider: providerFilter,
       PaymentType: paymentTypeFilter,
       Status: statusFilter,
+      Code: debouncedCodeFilter,
     };
 
     const filterString = handleFilterParameters(filterData);
@@ -113,7 +109,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
       ? [selectedStatus]
       : ["LOADING_ORDER", "WAITING_UNLOADING"];
 
-    dispatch(
+    const promise = dispatch(
       GetRequestProductAdminAction({
         filter: filterString || undefined,
         page: 0,
@@ -121,21 +117,27 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         status: statusArray,
       })
     );
+
+    return () => {
+      promise.abort();
+    };
   }, [
     categoryFilter,
     providerFilter,
     paymentTypeFilter,
     statusFilter,
+    debouncedCodeFilter,
     dispatch,
     selectedStatus,
   ]);
 
   const handleFilterParameters = (data: unknown) => {
-    const { Category, Provider, PaymentType, Status } = data as {
+    const { Category, Provider, PaymentType, Status, Code } = data as {
       Category?: SelectOptionTypes;
       Provider?: SelectOptionTypes;
       PaymentType?: SelectOptionTypes;
       Status?: SelectOptionTypes;
+      Code?: string;
     };
     let queryParam = "";
     if (Category?.value) queryParam += "categoryId=" + Category?.value + ",";
@@ -143,6 +145,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
     if (PaymentType?.value)
       queryParam += "paymentType=" + PaymentType?.value + ",";
     if (Status?.value) queryParam += "status=" + Status?.value + ",";
+    if (Code) queryParam += "code=" + Code + ",";
 
     return queryParam.substring(0, queryParam.length - 1);
   };
@@ -269,6 +272,8 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             paymentTypeOptions={paymentTypeOptions}
             paymentTypeFilter={paymentTypeFilter}
             onPaymentTypeChange={(value: any) => setPaymentTypeFilter(value)}
+            codeFilter={codeFilter}
+            onCodeChange={(value: any) => setCodeFilter(value)}
           />
           {!loading ? (
             productAdminData?.data?.length > 0 ? (
@@ -282,14 +287,14 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={10} className="flex justify-center !py-4">
+                <TableCell colSpan={11} className="flex justify-center !py-4">
                   <EmptyImage />
                 </TableCell>
               </TableRow>
             )
           ) : (
             <TableRow>
-              <TableCell colSpan={10} className="flex justify-center !py-4">
+              <TableCell colSpan={11} className="flex justify-center !py-4">
                 <TableSkeleton />
               </TableCell>
             </TableRow>

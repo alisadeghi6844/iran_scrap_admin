@@ -1,8 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { USERS } from "../../types/users/UsersTypes";
 import {
+  GetAuthHistoryAction,
   GetUsersAction,
   GetUsersProvidersAction,
+  GetUsersStatisticAction,
   GetUserByIdAction,
   UpdateUserProfileAction,
 } from "../../actions/users/UsersActions";
@@ -23,6 +25,14 @@ const initialState = {
   updateUserProfileError: null,
   updateUserProfileLoading: false,
   updateUserProfileData: null,
+
+  getAuthHistoryError: null,
+  getAuthHistoryLoading: false,
+  getAuthHistoryData: [],
+
+  getUsersStatisticError: null,
+  getUsersStatisticLoading: false,
+  getUsersStatisticData: { userStats: { dailyGrowth: [], userTypeCategorization: [], userStatusCategorization: [], nationalCardCategorization: [], recognizanceCategorization: [], profileCompletion: [] }, totalUsers: 0, totalProducts: 0, totalProductRequests: 0, totalOrders: 0 },
 };
 
 const usersSlice = createSlice({
@@ -97,6 +107,40 @@ const usersSlice = createSlice({
         state.updateUserProfileLoading = false;
         state.updateUserProfileError = action.payload;
         state.updateUserProfileData = null;
+      })
+
+      // Get Auth History
+      .addCase(GetAuthHistoryAction.pending, (state) => {
+        state.getAuthHistoryLoading = true;
+        state.getAuthHistoryData = [];
+        state.getAuthHistoryError = null;
+      })
+      .addCase(GetAuthHistoryAction.fulfilled, (state, action) => {
+        state.getAuthHistoryLoading = false;
+        state.getAuthHistoryData = action.payload;
+        state.getAuthHistoryError = null;
+      })
+      .addCase(GetAuthHistoryAction.rejected, (state, action) => {
+        state.getAuthHistoryLoading = false;
+        state.getAuthHistoryError = action.payload;
+        state.getAuthHistoryData = [];
+      })
+
+      // Get Users Statistic
+      .addCase(GetUsersStatisticAction.pending, (state) => {
+        state.getUsersStatisticLoading = true;
+        state.getUsersStatisticData = { userStats: { dailyGrowth: [], userTypeCategorization: [], userStatusCategorization: [], nationalCardCategorization: [], recognizanceCategorization: [], profileCompletion: [] }, totalUsers: 0, totalProducts: 0, totalProductRequests: 0, totalOrders: 0 };
+        state.getUsersStatisticError = null;
+      })
+      .addCase(GetUsersStatisticAction.fulfilled, (state, action) => {
+        state.getUsersStatisticLoading = false;
+        state.getUsersStatisticData = action.payload;
+        state.getUsersStatisticError = null;
+      })
+      .addCase(GetUsersStatisticAction.rejected, (state, action) => {
+        state.getUsersStatisticLoading = false;
+        state.getUsersStatisticError = action.payload;
+        state.getUsersStatisticData = { userStats: { dailyGrowth: [], userTypeCategorization: [], userStatusCategorization: [], nationalCardCategorization: [], recognizanceCategorization: [], profileCompletion: [] }, totalUsers: 0, totalProducts: 0, totalProductRequests: 0, totalOrders: 0 };
       });
   },
 });
@@ -126,5 +170,19 @@ export const selectUpdateUserProfileLoading = (state: any) =>
   state.users.updateUserProfileLoading;
 export const selectUpdateUserProfileData = (state: any) =>
   state.users.updateUserProfileData;
+
+export const selectGetAuthHistoryError = (state: any) =>
+  state.users.getAuthHistoryError;
+export const selectGetAuthHistoryLoading = (state: any) =>
+  state.users.getAuthHistoryLoading;
+export const selectGetAuthHistoryData = (state: any) =>
+  state.users.getAuthHistoryData;
+
+export const selectGetUsersStatisticError = (state: any) =>
+  state.users.getUsersStatisticError;
+export const selectGetUsersStatisticLoading = (state: any) =>
+  state.users.getUsersStatisticLoading;
+export const selectGetUsersStatisticData = (state: any) =>
+  state.users.getUsersStatisticData;
 
 export default usersSlice.reducer;

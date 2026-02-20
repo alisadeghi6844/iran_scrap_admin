@@ -14,7 +14,7 @@ import {
 import FORM from "../../organism/FORM";
 import InputField from "../../../components/molcols/formik-fields/InputField";
 import FileFieldUploader from "../../../components/molcols/formik-fields/FIleFieldUploader";
-import TextAreaField from "../../../components/molcols/formik-fields/TextAreaField";
+import TiptapField from "../../../components/molcols/formik-fields/TiptapField";
 import BlogCategorySelect from "../category/BlogCategorySelect";
 import IsActiveSelect from "../isActive/IsActiveSelect";
 import { SelectValidation } from "../../../utils/SelectValidation";
@@ -64,7 +64,7 @@ const BlogForm: React.FC<FormProps> = (props) => {
       });
 
       if (value?.thumbnail) {
-        fetchImageAsBlob(value.thumbnail).then((file) => {
+        fetchImageAsBlob(NormalizeBaseUrl + value.thumbnail).then((file) => {
           setEditImageFile([
             {
               file: file,
@@ -174,7 +174,7 @@ const BlogForm: React.FC<FormProps> = (props) => {
             {
               component: (
                 <div className="col-span-12">
-                  <TextAreaField
+                  <TiptapField
                     name="Description"
                     label={`متن مقاله`}
                     required

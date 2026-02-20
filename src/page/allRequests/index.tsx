@@ -28,6 +28,7 @@ import {
   ProductRequestRejectionModal,
   RequestOrderPaymentModal,
   TenderRequestEditModal,
+  ProductRequestOfferAdminModal,
 } from "./allRequests.lazies";
 import AllRequestsTabs, { AllRequestsTabKey } from "./AllRequestsTabs";
 
@@ -111,9 +112,9 @@ const AllRequests = () => {
 
   const tabs: { key: AllRequestsTabKey; label: string }[] = [
     { key: "new", label: "درخواست های ثبت شده" },
-    { key: "processing", label: "درخواست های دارای پیشنهاد" },
-    { key: "closed", label: " درخواست های در انتظار بارگیری" },
+    { key: "processing", label: "درخواست های دارای برنده" },
     { key: "financial", label: "درخواست های در انتظار تائید مالی" },
+    { key: "closed", label: " درخواست های در انتظار بارگیری" },
     { key: "delivery", label: "درخواست های در انتظار تحویل" },
   ];
 
@@ -282,46 +283,95 @@ const AllRequests = () => {
         confirmModalSize="2xl"
         formModalSize="2xl"
         detailModalSize="2xl"
-        mode={mode}
+        mode={mode === "showMore" ? "content" : mode}
         content={renderTabContent()}
         form={renderForm()}
         detail={
           activeTab === "new" ? (
-            <Suspense>
-              <TenderRequestEditModal
-                isOpen={mode === "detail"}
-                onClose={() => {
-                  dispatch(clearAllProductRequestAdminData());
-                  setMode("content");
-                  setSelectedRow({});
-                }}
-                request={selectedRow}
-                onSuccess={() => {
-                  dispatch(clearAllProductRequestAdminData());
-                  setMode("content");
-                  setSelectedRow({});
-                }}
-              />
-            </Suspense>
-          ) : (
-            <Suspense>
-              <OpenRequestDetail
-                handleSubmit={() => setMode("content")}
-                id={selectedRow ?? null}
-                mode={mode}
-                onSubmitForm={() => {
-                  setMode("content");
-                }}
-              />
-            </Suspense>
-          )
+            mode === "detail" ? (
+              <Suspense>
+                <TenderRequestEditModal
+                  isOpen={mode === "detail"}
+                  onClose={() => {
+                    setMode("content");
+                    setSelectedRow({});
+                  }}
+                  request={selectedRow}
+                  onSuccess={() => {
+                    setMode("content");
+                    setSelectedRow({});
+                  }}
+                />
+              </Suspense>
+            ) : null
+          ) : activeTab === "delivery" ? (
+            mode === "reject" ? (
+              <Suspense>
+                <ProductRequestRejectionModal
+                  isOpen={mode === "reject"}
+                  onClose={() => {
+                    setMode("content");
+                    setSelectedRow({});
+                  }}
+                  onSubmit={(reason) =>
+                    handleRejectRequest(
+                      (selectedRow as any)?.requestOrderId,
+                      reason
+                    )
+                  }
+                  isLoading={verifyPaymentLoading}
+                />
+              </Suspense>
+            ) : mode === "approve" ? (
+              <Suspense>
+                <ProductRequestApprovalModal
+                  isOpen={mode === "approve"}
+                  onClose={() => {
+                    setMode("content");
+                    setSelectedRow({});
+                  }}
+                  onSubmit={() =>
+                    handleApproveRequest((selectedRow as any)?.requestOrderId)
+                  }
+                  isLoading={verifyPaymentLoading}
+                  paymentProofImage={
+                    (selectedRow as any)?.invoice?.paymentProofImage
+                  }
+                />
+              </Suspense>
+            ) : null
+          ) : null
         }
+        confirmation={null}
         onModalClose={() => {
-          dispatch(clearAllProductRequestAdminData());
           setMode("content");
           setSelectedRow({});
         }}
       />
+      {mode === "suggestions" && (
+        <Suspense>
+          <ProductRequestOfferAdminModal
+            isOpen={mode === "suggestions"}
+            onClose={() => {
+              setMode("content");
+              setSelectedRow({});
+            }}
+            requestId={(selectedRow as any)?.id}
+          />
+        </Suspense>
+      )}
+      {mode === "showMore" && (
+        <Suspense>
+          <ProductRequestDetailsModal
+            isOpen={mode === "showMore"}
+            onClose={() => {
+              setMode("content");
+              setSelectedRow({});
+            }}
+            request={selectedRow as any}
+          />
+        </Suspense>
+      )}
 
       {/* Render RequestOrderPaymentModal for processing tab */}
       {activeTab === "processing" && mode === "payment" && (

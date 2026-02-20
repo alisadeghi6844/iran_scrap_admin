@@ -7,6 +7,9 @@ import ProductCategorySelect from "../../../product/ProductCategorySelect";
 import ProvinceSelect from "../../../provinceSelect/ProvinceSelect";
 import CitySelect from "../../../provinceSelect/CitySelect";
 import FormikValuesSync from "./FormikValuesSync";
+import SingleSelect from "../../../../../components/select/SingleSelect";
+import { orderStatusOptions } from "../../../../../types/OrderStatus";
+import { SelectOptionTypes } from "../../../../../types/features/FeatureSelectTypes";
 
 type Props = {
   requestData: any;
@@ -151,6 +154,20 @@ const EditableFormView: React.FC<Props> = ({
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           setFieldValue("postalCode", e.target.value)
                         }
+                      />
+                    </div>
+
+                    {/* وضعیت - اضافه شده */}
+                    <div className="md:col-span-2">
+                      <Typography className="text-sm text-gray-600 mb-2">
+                        وضعیت درخواست
+                      </Typography>
+                      <SingleSelect
+                        options={orderStatusOptions}
+                        value={values.status}
+                        onChange={(val: SelectOptionTypes) => setFieldValue("status", val)}
+                        placeholder="وضعیت را انتخاب کنید..."
+                        isLoading={false}
                       />
                     </div>
                   </div>

@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Modal from "../../../components/modal";
+import { Formik, Form } from "formik";
 import Typography from "../../../components/typography/Typography";
 import Button from "../../../components/button";
 import Input from "../../../components/input";
 import ProductCategorySelect from "../product/ProductCategorySelect";
 import ProvinceSelect from "../provinceSelect/ProvinceSelect";
 import CitySelect from "../provinceSelect/CitySelect";
-import { Formik, Form } from "formik";
+import SingleSelect from "../../../components/select/SingleSelect";
 import { province } from "../provinceSelect/Province";
 import { city } from "../provinceSelect/city";
+import { orderStatusOptions } from "../../../types/OrderStatus";
+import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
+import { AppDispatch } from "../../../redux/store";
 import {
   GetRequestProductAdminAction,
   UpdateRequestProductAdminAction,
@@ -20,7 +23,6 @@ import {
   selectUpdateProductRequestAdminLoading,
   selectUpdateProductRequestAdminData,
   clearAllProductRequestAdminData,
-  clearUpdateProductRequestAdminData,
 } from "../../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
 
 interface TenderRequestItem {
@@ -43,6 +45,17 @@ interface TenderRequestItem {
   [key: string]: any;
 }
 
+interface TenderRequestFormValues {
+  description: string;
+  amount: string;
+  categoryId: string;
+  province: SelectOptionTypes | null;
+  city: SelectOptionTypes | null;
+  address: string;
+  postalCode: string;
+  status: SelectOptionTypes | null;
+}
+
 interface TenderRequestEditModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -56,7 +69,7 @@ const TenderRequestEditModal: React.FC<TenderRequestEditModalProps> = ({
   request,
   onSuccess,
 }) => {
-  const dispatch: any = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(
     null
   );
@@ -100,22 +113,24 @@ const TenderRequestEditModal: React.FC<TenderRequestEditModalProps> = ({
   }
 
   // Helper function to get initial values
-  const getInitialValues = () => {
+  const getInitialValues = (): TenderRequestFormValues => {
     if (!requestData) {
       return {
         description: request.description || "",
         amount: request.amount?.toString() || "",
         categoryId: request.category?._id || request.category?.id || "",
-        province: null as any,
-        city: null as any,
+        province: null,
+        city: null,
         address: request.address || "",
         postalCode: request.postalCode || "",
+        status: null,
       };
     }
 
     // Convert province name to select option
-    let provinceOption = null;
-    let cityOption = null;
+    let provinceOption: SelectOptionTypes | null = null;
+    let cityOption: SelectOptionTypes | null = null;
+    let statusOption: SelectOptionTypes | null = null;
 
     if (requestData.province || request.province) {
       const provinceName = requestData.province || request.province;
@@ -142,6 +157,16 @@ const TenderRequestEditModal: React.FC<TenderRequestEditModalProps> = ({
       }
     }
 
+    if (requestData.status || request.status) {
+      const currentStatus = requestData.status || request.status;
+      const foundStatus = orderStatusOptions.find(
+        (opt) => opt.value === currentStatus
+      );
+      if (foundStatus) {
+        statusOption = foundStatus;
+      }
+    }
+
     return {
       description: requestData.description || request.description || "",
       amount: (requestData.amount || request.amount)?.toString() || "",
@@ -156,6 +181,7 @@ const TenderRequestEditModal: React.FC<TenderRequestEditModalProps> = ({
       city: cityOption,
       address: requestData.address || request.address || "",
       postalCode: requestData.postalCode || request.postalCode || "",
+      status: statusOption,
     };
   };
 
@@ -172,7 +198,7 @@ const TenderRequestEditModal: React.FC<TenderRequestEditModalProps> = ({
     }
   }, [requestData, request, isOpen]);
 
-  const handleSubmit = (values: unknown) => {
+  const handleSubmit = (values: TenderRequestFormValues) => {
     if (!request?.id) return;
 
     // Convert select values back to names for API
@@ -191,6 +217,7 @@ const TenderRequestEditModal: React.FC<TenderRequestEditModalProps> = ({
       province: selectedProvince?.name || "",
       address: values.address,
       postalCode: values.postalCode,
+      status: values.status?.value,
     };
 
     dispatch(
@@ -340,6 +367,22 @@ const TenderRequestEditModal: React.FC<TenderRequestEditModalProps> = ({
                             onChange={(
                               e: React.ChangeEvent<HTMLInputElement>
                             ) => setFieldValue("postalCode", e.target.value)}
+                          />
+                        </div>
+
+                        {/* وضعیت - اضافه شده */}
+                        <div className="md:col-span-2">
+                          <Typography className="text-sm text-gray-600 mb-2">
+                            وضعیت درخواست
+                          </Typography>
+                          <SingleSelect
+                            options={orderStatusOptions}
+                            value={values.status}
+                            onChange={(val: SelectOptionTypes) =>
+                              setFieldValue("status", val)
+                            }
+                            placeholder="وضعیت را انتخاب کنید..."
+                            isLoading={false}
                           />
                         </div>
                       </div>
