@@ -7,6 +7,13 @@ export const ProductRequestAdminTable = lazy(
     )
 );
 
+export const DeliveredRequestTable = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "DeliveredRequest" */ "../../container/features/deliveredRequest/DeliveredRequestTable"
+    )
+);
+
 export const CloseRequestTable = lazy(
   () =>
     import(

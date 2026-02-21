@@ -42,11 +42,6 @@ const MenuSelect: React.FC<MenuSelectProps> = ({
         value: "/pending-orders-financial",
         label: "سفارشات در انتظار تایید مالی (مسیر)",
       },
-      { value: "product-requests", label: "تاریخچه درخواست های مناقصه" },
-      {
-        value: "/product-requests",
-        label: "تاریخچه درخواست های مناقصه (مسیر)",
-      },
       { value: "shop-management", label: "فروشگاه" },
       { value: "/shop-management", label: "فروشگاه (مسیر)" },
 

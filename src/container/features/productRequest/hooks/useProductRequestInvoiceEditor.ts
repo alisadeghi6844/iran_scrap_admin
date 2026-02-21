@@ -76,7 +76,25 @@ export function useProductRequestInvoiceEditor(params: UseProductRequestInvoiceE
     if (requestData && isOpen) {
       // Initialize editable fields from invoice data
       if (requestData.invoiceId) {
-        setEditableCheques(requestData.invoiceId.cheques || []);
+        const formattedCheques = (requestData.invoiceId.cheques || []).map(
+          (cheque: any) => {
+            let displayDate = "";
+            if (cheque.date && typeof cheque.date === "string") {
+              if (cheque.date.includes("T") && cheque.date.includes("Z")) {
+                displayDate = convertGregorianToPersian(cheque.date);
+              } else {
+                displayDate = cheque.date;
+              }
+            }
+            return {
+              bank: cheque.bank || "",
+              no: cheque.no || "",
+              sayyad: cheque.sayyad || "",
+              date: displayDate,
+            };
+          }
+        );
+        setEditableCheques(formattedCheques);
         setEditableDriver(requestData.invoiceId.driver || null);
 
         if (requestData.invoiceId.loadingDate) {

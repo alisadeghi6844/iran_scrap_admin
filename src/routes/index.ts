@@ -146,13 +146,6 @@ const routes = [
     role: ["admin", "client", "reservation"],
   },
   {
-    path: "/product-requests",
-    breadCrumb: "تاریخچه درخواست های مناقصه",
-    component: lazy(() => import("../page/productRequests")),
-    layout: "admin",
-    role: ["admin", "client", "reservation"],
-  },
-  {
     path: "/survey-management/edit/:id",
     breadCrumb: "ویرایش نظرسنجی",
     component: lazy(() => import("../page/surveyManagement/SurveyEdit")),

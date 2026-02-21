@@ -20,7 +20,7 @@ import {
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import { convertToJalali } from "../../../utils/MomentConvertor";
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
-import RequestDetailModal from "../closeRequest/RequestDetailModal";
+
 import { selectVerifyPaymentData } from "../../../redux/slice/product-request-offer-admin/ProductRequestOfferAdminSlice";
 import SingleSelect from "../../../components/select/SingleSelect";
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
@@ -54,8 +54,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
   const { onRowClick, refreshTrigger } = props;
 
   const dispatch: any = useDispatch();
-  const [selectedRequest, setSelectedRequest] = useState<unknown>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
 
   // Filter states
   const [categoryFilter, setCategoryFilter] =
@@ -298,10 +297,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
                 <RequestRow
                   key={row?.id}
                   row={row}
-                  onViewRequest={() => {
-                    setSelectedRequest(row);
-                    setIsDetailModalOpen(true);
-                  }}
+                  onViewRequest={onRowClick}
                   onApprove={() => {
                     onRowClick && onRowClick("approve", row);
                   }}
@@ -327,15 +323,7 @@ const FinancialApprovalTable: React.FC<FinancialApprovalTableProps> = (
         </TableBody>
       </Table>
 
-      {/* مودال جزئیات درخواست */}
-      <RequestDetailModal
-        isOpen={isDetailModalOpen}
-        onClose={() => {
-          setIsDetailModalOpen(false);
-          setSelectedRequest(null);
-        }}
-        request={selectedRequest}
-      />
+
     </CollectionControls>
   );
 };

@@ -19,9 +19,7 @@ import {
 } from "../../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import { convertToJalali } from "../../../utils/MomentConvertor";
-import { UpdateRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
-import ConfirmationModal from "../../../components/modal/ConfirmationModal";
 
 import SingleSelect from "../../../components/select/SingleSelect";
 import Input from "../../../components/input";
@@ -38,14 +36,12 @@ import {
 import { GetUsersProvidersAction } from "../../../redux/actions/users/UsersActions";
 import useDebounce from "../../../hooks/UseDebounce";
 
-interface PendingDeliveryTableProps {
+interface DeliveredRequestTableProps {
   onRowClick?: any;
 }
 
-const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
+const DeliveredRequestTable: React.FC<DeliveredRequestTableProps> = (props) => {
   const { onRowClick } = props;
-  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
-  const [selectedRequestForClose, setSelectedRequestForClose] = useState<any>(null);
 
   const dispatch: any = useDispatch();
 
@@ -86,8 +82,7 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
   const providersData = useSelector(selectGetUsersProvidersData);
   const providersLoading = useSelector(selectGetUsersProvidersLoading);
 
-  // وضعیت‌های مربوط به در انتظار تحویل
-  const defaultStatuses = ["WAITING_UNLOADING", "WAITING_UNLOADING"];
+  const defaultStatuses = ["CLOSED"];
 
   useEffect(() => {
     dispatch(GetCategoryAction({}));
@@ -197,24 +192,9 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
     }
   }, [updateData, updateData_2, dispatch]);
 
-  const handleDeliverConfirm = () => {
-    if (selectedRequestForClose) {
-      dispatch(
-        UpdateRequestProductAdminAction({
-          credentials: selectedRequestForClose.id,
-          item: { status: "CLOSED" },
-          onSuccess: () => {
-            setIsConfirmationModalOpen(false);
-            setSelectedRequestForClose(null);
-          },
-        })
-      );
-    }
-  };
-
   return (
     <CollectionControls
-      title="درخواست های در انتظار تحویل"
+      title="درخواست های تحویل داده شده"
       hasBox={false}
       filterInitialValues={filterDefaultInitialValues}
       onFilter={handleFilterParameters}
@@ -345,15 +325,6 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
                     >
                       مشاهده درخواست
                     </Button>
-                    <Button
-                      onClick={() => {
-                        setSelectedRequestForClose(row);
-                        setIsConfirmationModalOpen(true);
-                      }}
-                      variant="success"
-                    >
-                      تحویل به خریدار
-                    </Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -373,21 +344,8 @@ const PendingDeliveryTable: React.FC<PendingDeliveryTableProps> = (props) => {
           )}
         </TableBody>
       </Table>
-
-      <ConfirmationModal
-        isOpen={isConfirmationModalOpen}
-        onClose={() => setIsConfirmationModalOpen(false)}
-        onConfirm={handleDeliverConfirm}
-        title="تایید تحویل کالا"
-        message="آیا از تحویل کالا به خریدار اطمینان دارید؟"
-        confirmText="تایید"
-        cancelText="انصراف"
-        loading={loading}
-      />
-
-
     </CollectionControls>
   );
 };
 
-export default PendingDeliveryTable;
+export default DeliveredRequestTable;

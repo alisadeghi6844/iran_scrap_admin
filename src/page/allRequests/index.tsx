@@ -29,6 +29,7 @@ import {
   RequestOrderPaymentModal,
   TenderRequestEditModal,
   ProductRequestOfferAdminModal,
+  DeliveredRequestTable,
 } from "./allRequests.lazies";
 import AllRequestsTabs, { AllRequestsTabKey } from "./AllRequestsTabs";
 
@@ -116,6 +117,7 @@ const AllRequests = () => {
     { key: "financial", label: "درخواست های در انتظار تائید مالی" },
     { key: "closed", label: " درخواست های در انتظار بارگیری" },
     { key: "delivery", label: "درخواست های در انتظار تحویل" },
+    { key: "delivered", label: "درخواست های تحویل داده شده" },
   ];
 
   const handleTabClick = (tabKey: AllRequestsTabKey) => {
@@ -189,6 +191,19 @@ const AllRequests = () => {
         return (
           <Suspense>
             <PendingDeliveryTable
+              onRowClick={(name: string, row: unknown) => {
+                setMode(name);
+                if (row) {
+                  setSelectedRow(row);
+                }
+              }}
+            />
+          </Suspense>
+        );
+      case "delivered":
+        return (
+          <Suspense>
+            <DeliveredRequestTable
               onRowClick={(name: string, row: unknown) => {
                 setMode(name);
                 if (row) {

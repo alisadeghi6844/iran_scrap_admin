@@ -7,7 +7,7 @@ import { getOrderStatusColor, getOrderStatusText } from "../../../../../types/Or
 
 interface RequestRowProps {
   row: any;
-  onViewRequest: () => void;
+  onViewRequest: (name: string, row: any) => void;
   onApprove?: () => void;
   onReject?: () => void;
 }
@@ -46,7 +46,7 @@ const RequestRow: React.FC<RequestRowProps> = ({ row, onViewRequest, onApprove, 
       </TableCell>
       <TableCell>
         <div className="flex gap-2">
-          <Button size="sm" type="button" variant="primary" onClick={onViewRequest}>
+          <Button size="sm" type="button" variant="primary" onClick={() => onViewRequest && onViewRequest("showMore", row)}>
             مشاهده درخواست
           </Button>
           {row?.status === "BUYER_WAITFORFINANCE" && (

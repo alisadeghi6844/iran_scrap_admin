@@ -16,7 +16,7 @@ import {
 } from "../../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
-import RequestDetailModal from "./RequestDetailModal";
+
 import {
   selectGetCategoryData,
   selectGetCategoryLoading,
@@ -73,8 +73,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   };
 
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [selectedRequest, setSelectedRequest] = useState<any>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
 
   const loading = useSelector(selectGetProductRequestAdminLoading);
   const productAdminData = useSelector(selectGetProductRequestAdminData);
@@ -207,10 +206,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
     }
   }, [updateData, updateData_2, dispatch, selectedStatus]);
 
-  const handleOpenDetail = (row: any) => {
-    setSelectedRequest(row);
-    setIsDetailModalOpen(true);
-  };
+
 
   return (
     <CollectionControls
@@ -252,7 +248,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
                 <CloseRequestTableDataRow
                   key={row?.id}
                   row={row}
-                  onOpenDetail={handleOpenDetail}
+                  onRowClick={onRowClick}
                 />
               ))
             ) : (
@@ -272,15 +268,7 @@ const CloseRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         </TableBody>
       </Table>
 
-      {/* مودال جزئیات درخواست */}
-      <RequestDetailModal
-        isOpen={isDetailModalOpen}
-        onClose={() => {
-          setIsDetailModalOpen(false);
-          setSelectedRequest(null);
-        }}
-        request={selectedRequest}
-      />
+
     </CollectionControls>
   );
 };

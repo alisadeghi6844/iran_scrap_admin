@@ -125,14 +125,13 @@ export const OpenRequestTableFilterRow: React.FC<
 
 interface OpenRequestTableDataRowProps {
   row: any;
-  onOpenDetail: (row: any) => void;
-  onEditDriver: (row: any) => void;
+  onRowClick: (name: string, row: any) => void;
 }
 
 export const OpenRequestTableDataRow: React.FC<OpenRequestTableDataRowProps> = (
   props
 ) => {
-  const { row, onOpenDetail, onEditDriver } = props;
+  const { row, onRowClick } = props;
 
   return (
     <TableRow>
@@ -172,7 +171,7 @@ export const OpenRequestTableDataRow: React.FC<OpenRequestTableDataRowProps> = (
             size="sm"
             type="button"
             variant="primary"
-            onClick={() => onOpenDetail(row)}
+            onClick={() => onRowClick("showMore", row)}
           >
             مشاهده درخواست
           </Button>
@@ -180,7 +179,7 @@ export const OpenRequestTableDataRow: React.FC<OpenRequestTableDataRowProps> = (
             size="sm"
             type="button"
             variant="secondary"
-            onClick={() => onEditDriver(row)}
+            onClick={() => onRowClick("showDriver", row)}
           >
             ویرایش اطلاعات راننده
           </Button>

@@ -148,12 +148,12 @@ export const CloseRequestTableFilterRow: React.FC<
 
 interface CloseRequestTableDataRowProps {
   row: any;
-  onOpenDetail: (row: any) => void;
+  onRowClick: (name: string, row: any) => void;
 }
 
 export const CloseRequestTableDataRow: React.FC<CloseRequestTableDataRowProps> =
   (props) => {
-    const { row, onOpenDetail } = props;
+    const { row, onRowClick } = props;
 
     return (
       <TableRow>
@@ -192,7 +192,7 @@ export const CloseRequestTableDataRow: React.FC<CloseRequestTableDataRowProps> =
           </span>
         </TableCell>
         <TableCell className="flex justify-center gap-2">
-          <Button onClick={() => onOpenDetail(row)} variant="outline-primary">
+          <Button onClick={() => onRowClick("showMore", row)} variant="outline-primary">
             مشاهده درخواست
           </Button>
         </TableCell>

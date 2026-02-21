@@ -63,16 +63,6 @@ export const desktopSidebarMenuData: any[] = [
         role: ["admin", "client", "reservation"],
       },
       {
-        path: "/product-requests",
-        title: "تاریخچه درخواست های مناقصه",
-        icon: <LuGitPullRequest className="text-2xl" />,
-        id: 241,
-        isNew: false,
-        subRoutes: [],
-        notif: "",
-        role: ["admin", "client", "reservation"],
-      },
-      {
         path: "/shop-management",
         title: "فروشگاه",
         icon: <MdStorefront className="text-2xl" />,

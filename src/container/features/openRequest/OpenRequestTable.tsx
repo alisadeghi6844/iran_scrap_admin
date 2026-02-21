@@ -15,8 +15,9 @@ import {
 } from "../../../redux/slice/productRequestStatus/ProductStatusRequestSlice";
 import { GetRequestProductAdminAction } from "../../../redux/actions/productRequestStatus/RequestProductStatus";
 
+
 import { selectUpdateRequestProductOfferSendToBuyerData } from "../../../redux/slice/productRequestOffer/ProductStatusRequestSlice";
-import RequestDetailModal from "../closeRequest/RequestDetailModal";
+
 import { SelectOptionTypes } from "../../../types/features/FeatureSelectTypes";
 import {
   selectGetCategoryData,
@@ -42,8 +43,7 @@ interface ProductRequestAdminTypes {
 const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
   const { onRowClick } = props;
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [selectedRequest, setSelectedRequest] = useState<any>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
   const dispatch: any = useDispatch();
 
   // Filter states
@@ -230,16 +230,9 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
     }
   }, [updateData, updateData_2, updateProviderData, dispatch, selectedStatus]);
 
-  const handleOpenDetail = (row: any) => {
-    setSelectedRequest(row);
-    setIsDetailModalOpen(true);
-  };
 
-  const handleEditDriver = (row: any) => {
-    if (onRowClick) {
-      onRowClick("showDriver", row);
-    }
-  };
+
+
 
   return (
     <CollectionControls
@@ -276,13 +269,12 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
             onCodeChange={(value: any) => setCodeFilter(value)}
           />
           {!loading ? (
-            productAdminData?.data?.length > 0 ? (
-              productAdminData?.data?.map((row: unknown) => (
+            productAdminData?.data?.docs?.length > 0 ? (
+              productAdminData?.data?.docs?.map((row: unknown) => (
                 <OpenRequestTableDataRow
                   key={row?.id}
                   row={row}
-                  onOpenDetail={handleOpenDetail}
-                  onEditDriver={handleEditDriver}
+                  onRowClick={onRowClick}
                 />
               ))
             ) : (
@@ -302,15 +294,7 @@ const OpenRequest: React.FC<ProductRequestAdminTypes> = (props) => {
         </TableBody>
       </Table>
 
-      {/* مودال جزئیات درخواست */}
-      <RequestDetailModal
-        isOpen={isDetailModalOpen}
-        onClose={() => {
-          setIsDetailModalOpen(false);
-          setSelectedRequest(null);
-        }}
-        request={selectedRequest}
-      />
+
     </CollectionControls>
   );
 };
